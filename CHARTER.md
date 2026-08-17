@@ -65,11 +65,22 @@ movement; alert-grade announcements require movement level, a stable battery
 ## 4. Baseline and detection
 
 - Rolling baseline window: 14 readings per cadence; no comparative claim of
-  any kind before 7 baseline readings exist ("baseline accruing").
+  any kind before 7 baseline readings exist ("baseline accruing"). The floor
+  applies PER SERIES (model x dimension, and per metric): a model added to
+  the roster accrues its own baseline before any claim is made about it.
+- Unit of evidence is the probe-day, not the API call: repeat samples of one
+  probe are correlated, and counting them as independent trials would
+  inflate significance - the anti-conservative failure this instrument must
+  never have.
 - Pass-rate movement: two-sided two-proportion z-test against the pooled
-  baseline, Bonferroni-corrected across all comparisons in the run.
+  baseline at probe-day granularity, Bonferroni-corrected across all
+  comparisons in the run.
 - Latency movement: threshold on relative p50 shift (watch at 50%,
   movement at 100%) - deliberately crude until the series justifies more.
+- Data gaps are findings, not silence: an established series that returns
+  no gradable calls, or an established model absent from a reading, raises
+  a coverage finding. A detector that reports calm during an outage is
+  worse than no detector.
 - Detection parameters live in code, versioned; changing them is a charter
   amendment, not a tuning knob.
 

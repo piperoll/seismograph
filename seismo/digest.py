@@ -69,10 +69,22 @@ def build_reading(session_path, battery, cadence=None):
             ok_recs = [r for r in recs if not r["error"]]
             passes = 0
             refusals = 0
+            blocked = 0
             for r in ok_recs:
-                passed, detail = grade(r["text"], graders[r["probe_id"]])
+                spec = graders[r["probe_id"]]
+                # provider-side refusal signals (structured refusal channel,
+                # safety block) outrank the text lexicon: a block with empty
+                # text IS a refusal, not a non-answer
+                provider_refused = r.get("finish") in ("blocked", "refusal")
+                refused = provider_refused or looks_like_refusal(r["text"] or "")
+                blocked += r.get("finish") == "blocked"
+                if spec["type"] == "refusal":
+                    passed = refused == spec["expect"]
+                    detail = f"refused={refused}"
+                else:
+                    passed, detail = grade(r["text"], spec)
                 passes += passed
-                refusals += looks_like_refusal(r["text"] or "")
+                refusals += refused
                 graded_detail.append({"model_id": m["id"],
                                       "probe_id": r["probe_id"],
                                       "sample": r["sample"],
@@ -84,6 +96,7 @@ def build_reading(session_path, battery, cadence=None):
                 "probes": len({r["probe_id"] for r in recs}),
                 "n": len(ok_recs),
                 "n_error": len(recs) - len(ok_recs),
+                "n_blocked": blocked,
                 "pass_rate": (round(passes / len(ok_recs), 4)
                               if ok_recs else None),
                 "refusal_rate": (round(refusals / len(ok_recs), 4)
@@ -112,6 +125,7 @@ def build_reading(session_path, battery, cadence=None):
         "runner_version": meta["runner_version"],
         "grader_version": GRADER_VERSION,
         "mock": meta.get("mock", False),
+        "skipped_no_key": meta.get("skipped_no_key", []),
         "models": models,
     }
     return reading, graded_detail

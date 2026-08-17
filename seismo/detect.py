@@ -49,34 +49,75 @@ def load_readings(readings_dir, cadence):
     return out
 
 
+def _series_stats(baseline_readings, model_id, dim):
+    """Pooled baseline for one model+dimension series at PROBE granularity.
+
+    Repeat samples of the same probe at temperature 0 are correlated, not
+    independent trials - treating calls as Bernoulli trials understates the
+    standard error by ~sqrt(samples) and manufactures spurious movement. The
+    unit of evidence is the probe-day: pass_rate x probe count per reading.
+    Returns (pass_units, total_units, readings_with_series).
+    """
+    passes, units, depth = 0, 0, 0
+    for r in baseline_readings:
+        bm = r["models"].get(model_id)
+        bd = bm["dimensions"].get(dim) if bm else None
+        if bd and bd["pass_rate"] is not None and bd.get("probes"):
+            passes += round(bd["pass_rate"] * bd["probes"])
+            units += bd["probes"]
+            depth += 1
+    return passes, units, depth
+
+
 def compare(current, baseline_readings):
-    """Compare one reading against a pooled baseline. Returns finding dicts."""
+    """Compare one reading against a pooled baseline. Returns finding dicts.
+
+    The charter's 7-reading floor applies PER SERIES (model x dimension), not
+    to the readings directory: a model added to the roster yesterday accrues
+    its own baseline before any claim is made about it.
+    """
     comparisons = []
+    coverage = []
     for model_id, model in current["models"].items():
         for dim, stats in model["dimensions"].items():
+            base_pass, base_units, depth = _series_stats(
+                baseline_readings, model_id, dim)
             if stats["pass_rate"] is None:
+                if depth >= MIN_BASELINE:
+                    coverage.append({
+                        "model": model_id, "dimension": dim,
+                        "metric": "coverage", "level": "watch",
+                        "detail": "established series returned no gradable "
+                                  "calls in the current reading"})
                 continue
-            base_pass, base_n, base_lat = 0, 0, []
-            for r in baseline_readings:
-                bm = r["models"].get(model_id)
-                if not bm:
-                    continue
-                bd = bm["dimensions"].get(dim)
-                if bd and bd["pass_rate"] is not None:
-                    base_pass += round(bd["pass_rate"] * bd["n"])
-                    base_n += bd["n"]
-                if bm["latency_ms"]["p50"] is not None:
-                    base_lat.append(bm["latency_ms"]["p50"])
-            if base_n == 0:
+            if depth < MIN_BASELINE:
                 continue
-            cur_pass = round(stats["pass_rate"] * stats["n"])
-            p = two_proportion_p(cur_pass, stats["n"], base_pass, base_n)
+            n_units = stats.get("probes") or 0
+            if not n_units:
+                continue
+            cur_pass = round(stats["pass_rate"] * n_units)
+            p = two_proportion_p(cur_pass, n_units, base_pass, base_units)
             comparisons.append({
                 "model": model_id, "dimension": dim, "metric": "pass_rate",
                 "current": stats["pass_rate"],
-                "baseline": round(base_pass / base_n, 4),
-                "n": stats["n"], "baseline_n": base_n, "p": p,
+                "baseline": round(base_pass / base_units, 4),
+                "n_units": n_units, "baseline_units": base_units,
+                "baseline_depth": depth, "p": p,
             })
+
+    # an established model absent from the current reading entirely is the
+    # loudest data gap of all - a detector that reports calm during a total
+    # outage is worse than no detector
+    baseline_model_ids = set()
+    for r in baseline_readings[-MIN_BASELINE:]:
+        baseline_model_ids.update(r["models"].keys())
+    for model_id in sorted(baseline_model_ids - current["models"].keys()):
+        depth = sum(1 for r in baseline_readings if model_id in r["models"])
+        if depth >= MIN_BASELINE:
+            coverage.append({
+                "model": model_id, "dimension": "-", "metric": "coverage",
+                "level": "watch",
+                "detail": "established model missing from current reading"})
 
     m = len(comparisons) or 1
     findings = []
@@ -98,7 +139,7 @@ def compare(current, baseline_readings):
                 for r in baseline_readings
                 if model_id in r["models"]
                 and r["models"][model_id]["latency_ms"]["p50"] is not None]
-        if cur is None or len(base) < MIN_BASELINE // 2:
+        if cur is None or len(base) < MIN_BASELINE:
             continue
         base_med = sorted(base)[len(base) // 2]
         if base_med == 0:
@@ -111,7 +152,7 @@ def compare(current, baseline_readings):
                 "shift": round(shift, 2),
                 "level": ("movement" if shift >= LATENCY_MOVEMENT else "watch"),
             })
-    return findings
+    return findings + coverage
 
 
 def report(readings, cadence):
@@ -151,6 +192,10 @@ def main(argv=None):
               f"(baseline {rep['baseline_readings']} readings)")
         return 0
     for f in rep["findings"]:
+        if f["metric"] == "coverage":
+            print(f"[{f['level'].upper()}] {f['model']} {f['dimension']} "
+                  f"coverage: {f['detail']}")
+            continue
         extra = (f"p={f['p']:.2g} (m={f['bonferroni_m']})" if "p" in f
                  else f"shift={f['shift']}")
         print(f"[{f['level'].upper()}] {f['model']} {f['dimension']} "
