@@ -133,12 +133,18 @@ def _budget(model_cfg, params):
 
 def _merge_overrides(payload, model_cfg):
     """Apply per-model request_overrides; a null value deletes the field
-    (e.g. gpt-5 rejects explicit temperature). Top-level keys only."""
+    (e.g. gpt-5 rejects explicit temperature). Top-level keys only.
+
+    request_overrides_null lists keys to send as LITERAL JSON null - distinct
+    from deletion (Sarvam disables thinking only via reasoning_effort: null;
+    omitting the key leaves thinking on)."""
     for k, v in model_cfg.get("request_overrides", {}).items():
         if v is None:
             payload.pop(k, None)
         else:
             payload[k] = v
+    for k in model_cfg.get("request_overrides_null", []):
+        payload[k] = None
     return payload
 
 

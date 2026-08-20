@@ -102,10 +102,14 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
     session_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.jsonl")
     meta_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.meta.json")
 
+    # probe-major order: adjacent tasks hit DIFFERENT providers, so each
+    # provider sees the battery spread across the whole run instead of 4
+    # workers hammering its 90 calls contiguously (model-major order cost
+    # mistral-large 45/90 to rate limits on day one).
     tasks = []
-    for model in models:
-        for probe in battery["probes"]:
-            for sample in range(probe["samples"]):
+    for probe in battery["probes"]:
+        for sample in range(probe["samples"]):
+            for model in models:
                 tasks.append((model, probe, sample))
 
     def one(task):
