@@ -95,7 +95,7 @@ def _redact(message, models):
 
 
 def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
-                skipped=None):
+                skipped=None, roster_version=None):
     started = datetime.datetime.now(datetime.timezone.utc)
     stamp = started.strftime("%Y-%m-%dT%H%M%SZ")
     os.makedirs(out_dir, exist_ok=True)
@@ -151,12 +151,18 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
     meta = {
         "runner_version": RUNNER_VERSION,
         "code_commit": code_commit(),
+        # the roster is where effort/temperature policy lives; a reading is
+        # only attributable to the provider if its settings are pinned here
+        "roster_version": roster_version,
         "cadence": cadence,
         "battery": {"name": battery["battery"], "version": battery["version"],
                     "sha256": battery["_sha256"]},
         "models": [{"id": m["id"], "provider": m["provider"],
                     "model": m["model"], "identity": m["identity"],
-                    "tier": m["tier"]} for m in models],
+                    "tier": m["tier"],
+                    "request_overrides": m.get("request_overrides"),
+                    "thinking_budget": m.get("thinking_budget")}
+                   for m in models],
         "started": started.isoformat(),
         "finished": finished.isoformat(),
         "calls": len(records),
@@ -213,6 +219,7 @@ def main(argv=None):
     mock = MockProvider() if args.mock else None
     session_path, meta = run_session(battery, models, args.out, args.cadence,
                                      mock=mock, workers=args.workers,
+                                     roster_version=roster.get("roster_version"),
                                      skipped=skipped)
     if skipped:
         print(f"skipped (no key): {', '.join(skipped)}", file=sys.stderr)
