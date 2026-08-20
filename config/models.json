@@ -1,0 +1,164 @@
+{
+  "roster_version": "0.3",
+  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
+  "models": [
+    {
+      "id": "claude-sonnet-5",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "ANTHROPIC_API_KEY"
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "identity": "pinned",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "ANTHROPIC_API_KEY"
+    },
+    {
+      "id": "claude-opus-5",
+      "provider": "anthropic",
+      "model": "claude-opus-5",
+      "identity": "alias",
+      "tier": "premium",
+      "cadence": "weekly",
+      "env_key": "ANTHROPIC_API_KEY"
+    },
+    {
+      "id": "gpt-5",
+      "provider": "openai",
+      "model": "gpt-5",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 1024,
+      "request_overrides": {"temperature": null, "reasoning_effort": "minimal"}
+    },
+    {
+      "id": "gpt-5-mini",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 1024,
+      "request_overrides": {"temperature": null, "reasoning_effort": "minimal"}
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "provider": "openai",
+      "model": "gpt-5.6-terra",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 1024,
+      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 1024,
+      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "provider": "openai",
+      "model": "gpt-5.6-sol",
+      "identity": "alias",
+      "tier": "premium",
+      "cadence": "weekly",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 1024,
+      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "provider": "google",
+      "model": "gemini-2.5-pro",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "GEMINI_API_KEY",
+      "thinking_budget": 128,
+      "token_headroom": 256
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "GEMINI_API_KEY",
+      "thinking_budget": 0
+    },
+    {
+      "id": "kimi-k2@groq",
+      "provider": "openai_compat",
+      "base_url": "https://api.groq.com/openai/v1",
+      "model": "moonshotai/kimi-k2-instruct",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "GROQ_API_KEY"
+    },
+    {
+      "id": "deepseek-chat@deepseek",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepseek.com/v1",
+      "model": "deepseek-chat",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPSEEK_API_KEY"
+    },
+    {
+      "id": "mistral-large@mistral",
+      "provider": "openai_compat",
+      "base_url": "https://api.mistral.ai/v1",
+      "model": "mistral-large-latest",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "MISTRAL_API_KEY"
+    },
+    {
+      "id": "mistral-small@mistral",
+      "provider": "openai_compat",
+      "base_url": "https://api.mistral.ai/v1",
+      "model": "mistral-small-latest",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "MISTRAL_API_KEY"
+    },
+    {
+      "id": "sarvam-105b@sarvam",
+      "provider": "openai_compat",
+      "base_url": "https://api.sarvam.ai/v1",
+      "model": "sarvam-105b",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "SARVAM_API_KEY"
+    }
+  ]
+}
