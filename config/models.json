@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.4",
+  "roster_version": "0.5",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -12,7 +12,8 @@
       "env_key": "ANTHROPIC_API_KEY",
       "request_overrides": {
         "temperature": null
-      }
+      },
+      "token_headroom": 2048
     },
     {
       "id": "claude-haiku-4-5",
@@ -111,9 +112,9 @@
       }
     },
     {
-      "id": "gemini-3.1-pro",
+      "id": "gemini-3.1-pro-preview",
       "provider": "google",
-      "model": "gemini-3.1-pro",
+      "model": "gemini-3.1-pro-preview",
       "identity": "alias",
       "tier": "workhorse",
       "cadence": "daily",
@@ -135,7 +136,7 @@
       "id": "kimi-k2@groq",
       "provider": "openai_compat",
       "base_url": "https://api.groq.com/openai/v1",
-      "model": "moonshotai/kimi-k2-instruct",
+      "model": "moonshotai/kimi-k2-instruct-0905",
       "identity": "alias",
       "tier": "cheap",
       "cadence": "daily",
@@ -180,7 +181,7 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "SARVAM_API_KEY",
-      "token_headroom": 2048
+      "token_headroom": 4096
     }
   ]
 }

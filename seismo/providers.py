@@ -90,7 +90,7 @@ def _post_json(url, headers, payload, timeout=DEFAULT_TIMEOUT):
                 # plus jitter to decorrelate the workers; other transients keep
                 # the quick ladder.
                 if e.code == 429:
-                    time.sleep(5 * (2 ** attempt) + random.uniform(0, 2))
+                    time.sleep(10 * (2 ** attempt) + random.uniform(0, 3))
                 else:
                     time.sleep(2 ** attempt)
                 last_err = f"HTTP {e.code}: {detail}"
