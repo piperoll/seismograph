@@ -28,6 +28,7 @@ is 128) so battery budgets keep meaning "visible answer tokens".
 
 import json
 import os
+import random
 import time
 import urllib.error
 import urllib.request
@@ -57,6 +58,10 @@ def _post_json(url, headers, payload, timeout=DEFAULT_TIMEOUT):
         for k, v in headers.items():
             req.add_header(k, v)
         req.add_header("Content-Type", "application/json")
+        # urllib's default "Python-urllib/x" UA trips CDN WAFs (Groq/Cloudflare
+        # error 1010). Generic and honest, but deliberately non-identifying:
+        # probe traffic is unmarked so providers cannot special-case it.
+        req.add_header("User-Agent", "seismo/0.1")
         start = time.monotonic()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -79,7 +84,15 @@ def _post_json(url, headers, payload, timeout=DEFAULT_TIMEOUT):
             except Exception:
                 pass
             if e.code in RETRY_STATUSES and attempt < MAX_RETRIES:
-                time.sleep(2 ** attempt)
+                # 429s need patience, not speed: under a threaded battery a
+                # 1-2-4s ladder just re-slams the limiter (Mistral lost 45/90
+                # calls to exactly this on day one). Rate limits wait 5-10-20s
+                # plus jitter to decorrelate the workers; other transients keep
+                # the quick ladder.
+                if e.code == 429:
+                    time.sleep(5 * (2 ** attempt) + random.uniform(0, 2))
+                else:
+                    time.sleep(2 ** attempt)
                 last_err = f"HTTP {e.code}: {detail}"
                 continue
             return e.code, {"error": detail}, latency
