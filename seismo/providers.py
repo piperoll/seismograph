@@ -241,7 +241,14 @@ def call_google(model_cfg, messages, system, params):
     gen_cfg = {"maxOutputTokens": _budget(model_cfg, params)}
     if params.get("temperature") is not None:
         gen_cfg["temperature"] = params["temperature"]
-    if model_cfg.get("thinking_budget") is not None:
+    # gemini-3.x replaced thinkingBudget with thinkingLevel (default HIGH -
+    # an unconfigured 3.x model silently burns maximum reasoning; run 4's
+    # pro-preview spent 29.5k thinking tokens at p50 48s that way). The two
+    # params 400 together, so a roster entry sets exactly one.
+    if model_cfg.get("thinking_level") is not None:
+        gen_cfg["thinkingConfig"] = {
+            "thinkingLevel": model_cfg["thinking_level"]}
+    elif model_cfg.get("thinking_budget") is not None:
         gen_cfg["thinkingConfig"] = {
             "thinkingBudget": model_cfg["thinking_budget"]}
     payload = {"contents": contents, "generationConfig": gen_cfg}

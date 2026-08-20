@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.5",
+  "roster_version": "0.6",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -119,8 +119,8 @@
       "tier": "workhorse",
       "cadence": "daily",
       "env_key": "GEMINI_API_KEY",
-      "thinking_budget": 128,
-      "token_headroom": 256
+      "token_headroom": 256,
+      "thinking_level": "low"
     },
     {
       "id": "gemini-3.5-flash",
@@ -131,16 +131,6 @@
       "cadence": "daily",
       "env_key": "GEMINI_API_KEY",
       "thinking_budget": 0
-    },
-    {
-      "id": "kimi-k2@groq",
-      "provider": "openai_compat",
-      "base_url": "https://api.groq.com/openai/v1",
-      "model": "moonshotai/kimi-k2-instruct-0905",
-      "identity": "alias",
-      "tier": "cheap",
-      "cadence": "daily",
-      "env_key": "GROQ_API_KEY"
     },
     {
       "id": "deepseek-chat@deepseek",
@@ -181,7 +171,7 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "SARVAM_API_KEY",
-      "token_headroom": 4096
+      "token_headroom": 1700
     }
   ]
 }
