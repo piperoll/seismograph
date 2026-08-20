@@ -50,6 +50,19 @@ movement; alert-grade announcements require movement level, a stable battery
 - Model outputs are stochastic even at temperature 0; every probe is sampled
   N times and all statistics are distributional. String-diffing is not
   measurement.
+- **Settings are part of the instrument.** Every model runs at settings
+  pinned in the versioned roster; the baseline policy is each provider's
+  minimum-thinking channel (lowest reasoning effort, zero or minimal
+  thinking budget). Effort has no cross-provider unit, and no cross-model
+  comparison is ever published, so per-provider mechanisms under one policy
+  is the correct uniformity. **Readings describe the pinned configuration
+  only** - they are not a claim about model behavior at other settings.
+  Changing any setting bumps the roster version and starts a new series
+  segment; segments are never compared silently.
+- **Scope: model APIs only.** The unit of measurement is model @ provider
+  via a stable completion API. Agent products (hosted autonomous agents
+  with tasks, tools, and side effects) have no stable probe surface and are
+  out of scope for this instrument; their failures belong in the registry.
 - **Grading is mechanical** (deterministic code, versioned). If an LLM judge
   is ever introduced it must be an exact-pinned open-weights model, frozen
   for the life of the series, and its introduction is a charter amendment.
@@ -77,6 +90,13 @@ movement; alert-grade announcements require movement level, a stable battery
   comparisons in the run.
 - Latency movement: threshold on relative p50 shift (watch at 50%,
   movement at 100%) - deliberately crude until the series justifies more.
+  **Latency is advisory context, never a drift claim on its own**: the
+  series includes the runner venue's network path, and daily percentiles
+  above p50 carry small-sample noise (p95 at daily n is indicative; p99 is
+  only computed over rolling multi-day windows). Timeouts and truncations
+  are excluded from latency statistics and surface in finish-state mix
+  instead, so degradation cannot masquerade as speed. A runner-venue change
+  is a config event, marked on the series like any roster change.
 - Data gaps are findings, not silence: an established series that returns
   no gradable calls, or an established model absent from a reading, raises
   a coverage finding. A detector that reports calm during an outage is
@@ -102,11 +122,34 @@ they are later cited against; an unwitnessed reading is an anecdote.
   Provider-donated access is disclosed per provider.
 - Free API tiers that train on inputs are never used for the private battery.
 
-## 7. Open at ratification (TBD)
+## 7. Visibility before first publication
+
+Measurement and publication are decoupled (Aug 20 2026): the repository is
+private until the first published digest; measurement begins immediately.
+Every run is witnessed in the public transparency log from ignition - each
+session meta pins the battery hash, roster version, and code commit, so the
+full private history is retroactively verifiable against public entries the
+day the repository opens. The repository MUST be public before the first
+reading is published. Stating that the instrument exists and how many
+witnessed readings it has taken is permitted while private; stating any
+reading, movement, or finding is not.
+
+## 8. Open at ratification (TBD)
 
 - Retired-probe publication lag.
 - Weekly digest format and publication surface.
 - Alert channel and editor sign-off procedure.
-- Per-provider terms-of-service review for sustained automated evaluation.
+- Per-provider terms-of-service review for sustained automated evaluation
+  (includes the credit-tier train-on-inputs check per provider; a tier that
+  trains on API inputs is never used for the private battery, per rule in
+  section 6 - promotional credits do not bypass this).
 - Sample sizes per probe per cadence (cost-accuracy trade), and the model
   roster's initial exposure weighting.
+- **Settings-sweep calibration**: an occasional (roughly quarterly) run of
+  the battery across temperature / effort levels for models that accept
+  them, published as a dated calibration note, never as a series. Daily
+  cadence stays single-channel at the pinned settings.
+- **Dual-channel experiment**: optionally, one model carrying a second
+  standing series at provider-default settings, to measure the gap between
+  the pinned channel and the default experience. Declared as an experiment
+  if adopted.

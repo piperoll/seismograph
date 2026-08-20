@@ -1,0 +1,127 @@
+# Daily canary: run the battery, digest to a public-safe reading, witness in
+# Rekor, commit the reading. Raw sessions (outputs can echo probes) go to the
+# private seismograph-raw repo when RAW_PUSH_TOKEN exists; until then they are
+# kept as 90-day workflow artifacts - a stopgap, not the archive.
+#
+# The charter decouples measurement from publication: this runs while the repo
+# is private; nothing here publishes a reading anywhere public except the
+# Rekor hash anchor, which is the point.
+name: canary
+on:
+  schedule:
+    - cron: "30 5 * * *"    # daily battery, 05:30 UTC
+    - cron: "45 5 * * 0"    # weekly battery, Sundays
+  workflow_dispatch:
+    inputs:
+      cadence:
+        description: "battery cadence"
+        type: choice
+        options: [daily, weekly]
+        default: daily
+
+permissions:
+  contents: write
+  id-token: write   # cosign keyless -> Fulcio cert -> Rekor entry
+
+concurrency:
+  group: canary
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore the private battery
+        env:
+          BATTERY_B64: ${{ secrets.SEISMO_BATTERY_B64 }}
+        run: |
+          test -n "$BATTERY_B64" || { echo "SEISMO_BATTERY_B64 missing"; exit 1; }
+          mkdir -p battery
+          printf '%s' "$BATTERY_B64" | base64 -d > battery/canary-v0.json
+
+      - name: Decide cadence
+        id: cadence
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "cadence=${{ inputs.cadence }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "45 5 * * 0" ]; then
+            echo "cadence=weekly" >> "$GITHUB_OUTPUT"
+          else
+            echo "cadence=daily" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the battery
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          SEISMO_CODE_COMMIT: ${{ github.sha }}
+        run: |
+          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" --out raw
+
+      - name: Digest to a reading
+        run: |
+          SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
+          python3 -m seismo.digest "$SESSION" --battery battery/canary-v0.json --out readings
+
+      - name: Witness in Rekor (cosign keyless)
+        run: |
+          curl -sSfL -o cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+          chmod +x cosign
+          META=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".meta.json | tail -1)
+          READING=$(ls -1t readings/*/reading-*.json | head -1)
+          mkdir -p witness
+          STAMP=$(date -u +%Y-%m-%dT%H%M%SZ)
+          for f in "$META" "$READING"; do
+            base=$(basename "$f")
+            COSIGN_YES=true ./cosign sign-blob "$f" \
+              --bundle "witness/${STAMP}-${base}.bundle.json"
+          done
+
+      - name: Commit reading + witness
+        run: |
+          git config user.name "seismograph-canary"
+          git config user.email "actions@users.noreply.github.com"
+          git add readings witness
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
+          git push
+
+      - name: Archive raw session to seismograph-raw
+        env:
+          RAW_PUSH_TOKEN: ${{ secrets.RAW_PUSH_TOKEN }}
+        run: |
+          if [ -z "$RAW_PUSH_TOKEN" ]; then
+            echo "RAW_PUSH_TOKEN not set - raw session stays as workflow artifact only"
+            exit 0
+          fi
+          git clone --depth 1 \
+            "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
+          DEST="rawrepo/$(date -u +%Y)"
+          mkdir -p "$DEST"
+          cp raw/session-* "$DEST/"
+          cd rawrepo
+          git config user.name "seismograph-canary"
+          git config user.email "actions@users.noreply.github.com"
+          git add .
+          git diff --cached --quiet && exit 0
+          git commit -m "raw: $(date -u +%F) ${{ steps.cadence.outputs.cadence }}"
+          git push
+
+      - name: Raw session fallback artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-session-${{ github.run_id }}
+          path: raw/
+          retention-days: 90
