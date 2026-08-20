@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.3",
+  "roster_version": "0.4",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -9,7 +9,10 @@
       "identity": "alias",
       "tier": "workhorse",
       "cadence": "daily",
-      "env_key": "ANTHROPIC_API_KEY"
+      "env_key": "ANTHROPIC_API_KEY",
+      "request_overrides": {
+        "temperature": null
+      }
     },
     {
       "id": "claude-haiku-4-5",
@@ -27,7 +30,10 @@
       "identity": "alias",
       "tier": "premium",
       "cadence": "weekly",
-      "env_key": "ANTHROPIC_API_KEY"
+      "env_key": "ANTHROPIC_API_KEY",
+      "request_overrides": {
+        "temperature": null
+      }
     },
     {
       "id": "gpt-5",
@@ -38,8 +44,11 @@
       "cadence": "daily",
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
-      "token_headroom": 1024,
-      "request_overrides": {"temperature": null, "reasoning_effort": "minimal"}
+      "token_headroom": 2048,
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "minimal"
+      }
     },
     {
       "id": "gpt-5-mini",
@@ -50,8 +59,11 @@
       "cadence": "daily",
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
-      "token_headroom": 1024,
-      "request_overrides": {"temperature": null, "reasoning_effort": "minimal"}
+      "token_headroom": 2048,
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "minimal"
+      }
     },
     {
       "id": "gpt-5.6-terra",
@@ -63,7 +75,10 @@
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
       "token_headroom": 1024,
-      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "none"
+      }
     },
     {
       "id": "gpt-5.6-luna",
@@ -75,7 +90,10 @@
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
       "token_headroom": 1024,
-      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "none"
+      }
     },
     {
       "id": "gpt-5.6-sol",
@@ -87,12 +105,15 @@
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
       "token_headroom": 1024,
-      "request_overrides": {"temperature": null, "reasoning_effort": "none"}
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "none"
+      }
     },
     {
-      "id": "gemini-2.5-pro",
+      "id": "gemini-3.1-pro",
       "provider": "google",
-      "model": "gemini-2.5-pro",
+      "model": "gemini-3.1-pro",
       "identity": "alias",
       "tier": "workhorse",
       "cadence": "daily",
@@ -101,9 +122,9 @@
       "token_headroom": 256
     },
     {
-      "id": "gemini-2.5-flash",
+      "id": "gemini-3.5-flash",
       "provider": "google",
-      "model": "gemini-2.5-flash",
+      "model": "gemini-3.5-flash",
       "identity": "alias",
       "tier": "cheap",
       "cadence": "daily",
@@ -158,7 +179,8 @@
       "identity": "alias",
       "tier": "cheap",
       "cadence": "daily",
-      "env_key": "SARVAM_API_KEY"
+      "env_key": "SARVAM_API_KEY",
+      "token_headroom": 2048
     }
   ]
 }
