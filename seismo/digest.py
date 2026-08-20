@@ -123,6 +123,7 @@ def build_reading(session_path, battery, cadence=None):
         "cadence": cadence or meta["cadence"],
         "battery": meta["battery"],
         "runner_version": meta["runner_version"],
+        "code_commit": meta.get("code_commit"),
         "grader_version": GRADER_VERSION,
         "mock": meta.get("mock", False),
         "skipped_no_key": meta.get("skipped_no_key", []),

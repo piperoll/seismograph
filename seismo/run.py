@@ -13,11 +13,29 @@ import concurrent.futures
 import datetime
 import json
 import os
+import subprocess
 import sys
 
 from . import RUNNER_VERSION
 from .battery import load_battery
 from .providers import MockProvider, ProviderError, call_model
+
+
+def code_commit():
+    """Commit hash of the running code, pinned into every session meta.
+
+    The witnessed manifest must bind readings to the exact grader/runner
+    code even while the repo is private: the public Rekor entry then proves
+    "this code existed at this date" when the repo opens later. Falls back
+    to SEISMO_CODE_COMMIT (set by CI on detached/shallow checkouts), else
+    None - a visible gap in the meta rather than a fabricated value."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True,
+            stderr=subprocess.DEVNULL).strip() or None
+    except Exception:
+        return os.environ.get("SEISMO_CODE_COMMIT")
 
 
 REQUIRED_MODEL_KEYS = ("id", "provider", "model", "identity", "tier",
@@ -132,6 +150,7 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
     errors = sum(1 for r in records if r["error"])
     meta = {
         "runner_version": RUNNER_VERSION,
+        "code_commit": code_commit(),
         "cadence": cadence,
         "battery": {"name": battery["battery"], "version": battery["version"],
                     "sha256": battery["_sha256"]},
