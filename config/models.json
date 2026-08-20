@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.6",
+  "roster_version": "0.7",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -171,7 +171,10 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "SARVAM_API_KEY",
-      "token_headroom": 1700
+      "token_headroom": 1700,
+      "request_overrides_null": [
+        "reasoning_effort"
+      ]
     }
   ]
 }
