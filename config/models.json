@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.2",
+  "roster_version": "0.3",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -129,6 +129,26 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPSEEK_API_KEY"
+    },
+    {
+      "id": "mistral-large@mistral",
+      "provider": "openai_compat",
+      "base_url": "https://api.mistral.ai/v1",
+      "model": "mistral-large-latest",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "MISTRAL_API_KEY"
+    },
+    {
+      "id": "mistral-small@mistral",
+      "provider": "openai_compat",
+      "base_url": "https://api.mistral.ai/v1",
+      "model": "mistral-small-latest",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "MISTRAL_API_KEY"
     }
   ]
 }
