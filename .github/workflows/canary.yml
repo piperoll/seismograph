@@ -9,8 +9,8 @@
 name: canary
 on:
   schedule:
-    - cron: "30 5 * * *"    # daily battery, 05:30 UTC
-    - cron: "45 5 * * 0"    # weekly battery, Sundays
+    - cron: "30 8 * * *"    # daily battery, 08:30 UTC (00:30 PT: Google quota days reset at midnight Pacific; running just after gives the cron first claim on the fresh quota, so a manual daytime run can never starve it)
+    - cron: "45 8 * * 0"    # weekly battery, Sundays 08:45 UTC
   workflow_dispatch:
     inputs:
       cadence:
@@ -50,7 +50,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "cadence=${{ inputs.cadence }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "45 5 * * 0" ]; then
+          elif [ "${{ github.event.schedule }}" = "45 8 * * 0" ]; then
             echo "cadence=weekly" >> "$GITHUB_OUTPUT"
           else
             echo "cadence=daily" >> "$GITHUB_OUTPUT"
