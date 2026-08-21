@@ -83,6 +83,14 @@ def _post_json(url, headers, payload, timeout=DEFAULT_TIMEOUT):
                 detail = e.read().decode("utf-8", "replace")[:500]
             except Exception:
                 pass
+            # A 429 whose body cites quota/billing is a DAILY-quota
+            # exhaustion, not a rate limit: it cannot clear mid-run, and
+            # walking 85 such calls through the retry ladder cost the Aug 21
+            # cron ~30 minutes of pure sleep. Fail fast; the reading records
+            # the gap and the next quota day fixes it.
+            if e.code == 429 and ("quota" in detail.lower()
+                                  or "billing" in detail.lower()):
+                return e.code, {"error": detail}, latency
             if e.code in RETRY_STATUSES and attempt < MAX_RETRIES:
                 # 429s need patience, not speed: under a threaded battery a
                 # 1-2-4s ladder just re-slams the limiter (Mistral lost 45/90
