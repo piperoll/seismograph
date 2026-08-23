@@ -95,6 +95,14 @@ jobs:
           git add readings witness
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
           git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
+          # two scheduled runs can overlap (Aug 23: daily pushed while weekly
+          # ran; weekly's push was rejected and its reading lost from the
+          # repo). Rebase-and-retry: readings/witness files never collide
+          # across cadences, so the rebase is always clean.
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase origin main
+          done
           git push
 
       - name: Archive raw session to seismograph-raw
