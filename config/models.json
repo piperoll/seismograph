@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.9",
+  "roster_version": "0.10",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which is itself on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 are published.",
   "models": [
     {
@@ -199,6 +199,39 @@
       "tier": "workhorse",
       "cadence": "daily",
       "env_key": "MOONSHOT_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "grok-4.6@xai",
+      "provider": "openai_compat",
+      "base_url": "https://api.x.ai/v1",
+      "model": "grok-4.6",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "XAI_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "qwen3-235b@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "Qwen/Qwen3-235B-A22B",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "deepseek-reasoner@deepseek",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepseek.com/v1",
+      "model": "deepseek-reasoner",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPSEEK_API_KEY",
       "token_headroom": 2048
     }
   ]
