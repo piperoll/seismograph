@@ -1,6 +1,6 @@
 {
-  "roster_version": "0.8",
-  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
+  "roster_version": "0.9",
+  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which is itself on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 are published.",
   "models": [
     {
       "id": "claude-sonnet-5",
@@ -36,6 +36,19 @@
         "temperature": null
       },
       "token_headroom": 2048
+    },
+    {
+      "id": "claude-fable-5",
+      "provider": "anthropic",
+      "model": "claude-fable-5",
+      "identity": "alias",
+      "tier": "premium",
+      "cadence": "weekly",
+      "env_key": "ANTHROPIC_API_KEY",
+      "token_headroom": 2048,
+      "request_overrides": {
+        "temperature": null
+      }
     },
     {
       "id": "gpt-5",
