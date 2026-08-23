@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.7",
+  "roster_version": "0.8",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding.",
   "models": [
     {
@@ -34,7 +34,8 @@
       "env_key": "ANTHROPIC_API_KEY",
       "request_overrides": {
         "temperature": null
-      }
+      },
+      "token_headroom": 2048
     },
     {
       "id": "gpt-5",
@@ -175,6 +176,17 @@
       "request_overrides_null": [
         "reasoning_effort"
       ]
+    },
+    {
+      "id": "kimi-k3@moonshot",
+      "provider": "openai_compat",
+      "base_url": "https://api.moonshot.ai/v1",
+      "model": "kimi-k3",
+      "identity": "alias",
+      "tier": "workhorse",
+      "cadence": "daily",
+      "env_key": "MOONSHOT_API_KEY",
+      "token_headroom": 2048
     }
   ]
 }
