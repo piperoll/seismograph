@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.10",
+  "roster_version": "0.11",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which is itself on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 are published.",
   "models": [
     {
@@ -232,6 +232,39 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPSEEK_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "glm-5.2@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "zai-org/GLM-5.2",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "llama-4-maverick@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 2048
+    },
+    {
+      "id": "minimax-m2.5@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "MiniMaxAI/MiniMax-M2.5",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
       "token_headroom": 2048
     }
   ]
