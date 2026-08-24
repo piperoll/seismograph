@@ -29,6 +29,7 @@ def build_series(readings_dir="readings"):
                 "cadence": cadence, "dates": [], "overall": [],
                 "dims": {}, "latency_p50": [], "latency_p95": [],
                 "call_errors": [], "errors_by_class": [], "roster_version": [],
+                "thinking_mean": [],
             })
             # a model can appear in both cadences (weekly runs the full
             # roster); keep its own cadence's series plus any extra points,
@@ -36,7 +37,8 @@ def build_series(readings_dir="readings"):
             if date in s["dates"]:
                 idx = s["dates"].index(date)
                 for k in ("overall", "latency_p50", "latency_p95",
-                          "call_errors", "errors_by_class", "roster_version"):
+                          "call_errors", "errors_by_class", "roster_version",
+                          "thinking_mean"):
                     s[k].pop(idx)
                 for d in s["dims"].values():
                     d.pop(idx)
@@ -55,6 +57,12 @@ def build_series(readings_dir="readings"):
             s["latency_p95"].append(m["latency_ms"]["p95"])
             s["call_errors"].append(m["call_errors"])
             s["errors_by_class"].append(m.get("errors_by_class") or {})
+            tn = tp = 0
+            for v in m["dimensions"].values():
+                t = v.get("thinking_tokens") or {}
+                if t.get("mean") is not None and t.get("n"):
+                    tn += t["n"]; tp += t["mean"] * t["n"]
+            s["thinking_mean"].append(round(tp / tn, 1) if tn else None)
             s["roster_version"].append(r.get("roster_version"))
             for dim, arr in s["dims"].items():
                 while len(arr) < len(s["dates"]):
