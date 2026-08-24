@@ -77,6 +77,9 @@ jobs:
           SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
           python3 -m seismo.digest "$SESSION" --battery battery/canary-v0.json --out readings
 
+      - name: Rebuild the series artifact
+        run: python3 -m seismo.series
+
       - name: Witness in Rekor (cosign keyless)
         run: |
           curl -sSfL -o cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
@@ -95,7 +98,7 @@ jobs:
         run: |
           git config user.name "seismograph-canary"
           git config user.email "actions@users.noreply.github.com"
-          git add readings witness
+          git add readings witness series.json
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
           git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
           # two scheduled runs can overlap (Aug 23: daily pushed while weekly
