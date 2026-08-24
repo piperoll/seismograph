@@ -111,6 +111,12 @@ def build_reading(session_path, battery, cadence=None):
             tokens = [r["output_tokens"] for r in ok_recs
                       if r["output_tokens"] is not None]
             tok_mean, tok_std = _mean_std(tokens)
+            # thinking tokens are the serving-config tripwire: a silent
+            # remap of reasoning-effort semantics shows here first, before
+            # any pass rate moves
+            th = [r["thinking_tokens"] for r in ok_recs
+                  if r.get("thinking_tokens") is not None]
+            th_mean, th_std = _mean_std(th)
             dim_out[dim] = {
                 "probes": len({r["probe_id"] for r in recs}),
                 "n": len(ok_recs),
@@ -121,6 +127,8 @@ def build_reading(session_path, battery, cadence=None):
                 "refusal_rate": (round(refusals / len(ok_recs), 4)
                                  if ok_recs else None),
                 "output_tokens": {"mean": tok_mean, "std": tok_std},
+                "thinking_tokens": {"mean": th_mean, "std": th_std,
+                                    "n": len(th)},
             }
 
         err_classes = {}

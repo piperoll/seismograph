@@ -102,6 +102,22 @@ publishable, even after probe rotation).
    false-positive posture. A seismograph alert becomes registry evidence only
    when damage materializes and passes normal record verification.
 
+## What a serving-configuration change looks like here
+
+Providers routinely run server-side serving experiments - quantization,
+routing, reasoning-effort semantics - usually without notice, and public
+disputes about them are otherwise settled by anecdote. In this instrument,
+that class surfaces mechanically: the battery runs a pinned minimum-thinking
+channel, so a silent change to effort semantics appears as a level shift in
+per-dimension thinking-token counts (published in every reading), corroborated
+by latency and output-token distributions, before any pass rate moves. The
+detector watches these series like any other: a relative shift against the
+rolling baseline raises a watch or movement finding, and thinking appearing at
+all on a previously zero-thinking channel is flagged as its own anomaly. Scope
+honesty: readings cover the model API channel only; serving changes made in a
+product harness above the API (a coding tool's own plumbing) are out of scope
+for this instrument.
+
 ## Visibility (measure now, publish later)
 
 This repository is **private until the first published digest** and MUST be
