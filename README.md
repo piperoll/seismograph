@@ -119,5 +119,7 @@ Measured burn is recomputed from session token counts as the series accrues.
 
 ## Licensing
 
-Readings and published data: CC BY 4.0. Tooling: MIT. Same terms as the
-registry.
+Published data: CC BY 4.0. Tooling: MIT. The scope of what is published -
+full archive vs a tiered surface (public board + all advisories free;
+full-resolution series licensed; free research access) - is a ratification
+decision; see CHARTER.md section 8.
