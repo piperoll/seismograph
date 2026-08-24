@@ -153,3 +153,16 @@ reading, movement, or finding is not.
   standing series at provider-default settings, to measure the gap between
   the pinned channel and the default experience. Declared as an experiment
   if adopted.
+- **Publication tiering (added Aug 24)**: whether "published readings" means
+  the full-resolution archive or a tiered surface. Proposal under
+  consideration: the conditions board (current levels, a trailing window)
+  and EVERY movement/advisory are public and free forever - the
+  early-warning function is a public duty and is never tiered; the
+  full-resolution historical series, bulk machine feeds, and attested
+  parametric-grade delivery are licensed; academic research access is
+  granted free on request. Every reading remains Rekor-witnessed at
+  measurement time regardless of tier, so unpublished history stays
+  provable. This must be settled BEFORE the first public reading - tiering
+  announced at birth is a business model, tiering imposed later is a
+  rug-pull. (The registry's CC BY absolutism is untouched by this item;
+  the two instruments have different value physics.)
