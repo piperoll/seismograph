@@ -28,7 +28,7 @@ def build_series(readings_dir="readings"):
                 "provider": m.get("provider"), "tier": m.get("tier"),
                 "cadence": cadence, "dates": [], "overall": [],
                 "dims": {}, "latency_p50": [], "latency_p95": [],
-                "call_errors": [], "roster_version": [],
+                "call_errors": [], "errors_by_class": [], "roster_version": [],
             })
             # a model can appear in both cadences (weekly runs the full
             # roster); keep its own cadence's series plus any extra points,
@@ -36,7 +36,7 @@ def build_series(readings_dir="readings"):
             if date in s["dates"]:
                 idx = s["dates"].index(date)
                 for k in ("overall", "latency_p50", "latency_p95",
-                          "call_errors", "roster_version"):
+                          "call_errors", "errors_by_class", "roster_version"):
                     s[k].pop(idx)
                 for d in s["dims"].values():
                     d.pop(idx)
@@ -54,6 +54,7 @@ def build_series(readings_dir="readings"):
             s["latency_p50"].append(m["latency_ms"]["p50"])
             s["latency_p95"].append(m["latency_ms"]["p95"])
             s["call_errors"].append(m["call_errors"])
+            s["errors_by_class"].append(m.get("errors_by_class") or {})
             s["roster_version"].append(r.get("roster_version"))
             for dim, arr in s["dims"].items():
                 while len(arr) < len(s["dates"]):
