@@ -56,6 +56,25 @@ def build_reading(session_path, battery, cadence=None):
         for line in f:
             records.append(json.loads(line))
 
+    def classify_error(e):
+        """Public-safe error category: raw provider strings stay in the
+        private archive (they can echo request details); readings carry
+        only these classes."""
+        t = (e or "").lower()
+        if "quota" in t or "billing" in t or "balance" in t:
+            return "quota-or-billing"
+        if "rate limit" in t or "rate_limited" in t or '"code": 429' in t or "429" in t:
+            return "rate-limit"
+        if "truncated with no visible output" in t:
+            return "truncation"
+        if "timed out" in t or "timeout" in t:
+            return "timeout"
+        if "invalid" in t or "not allowed" in t or "does not exist" in t or "unsupported" in t:
+            return "request-rejected"
+        if "socket" in t or "connection" in t or "dns" in t:
+            return "network"
+        return "other"
+
     models = {}
     graded_detail = []
     for m in meta["models"]:
@@ -104,6 +123,12 @@ def build_reading(session_path, battery, cadence=None):
                 "output_tokens": {"mean": tok_mean, "std": tok_std},
             }
 
+        err_classes = {}
+        for r in model_records:
+            if r["error"]:
+                c = classify_error(r["error"])
+                err_classes[c] = err_classes.get(c, 0) + 1
+
         latencies = [r["latency_ms"] for r in model_records if not r["error"]]
         models[m["id"]] = {
             "provider": m["provider"],
@@ -115,6 +140,7 @@ def build_reading(session_path, battery, cadence=None):
                            "p95": percentile(latencies, 95)},
             "calls": len(model_records),
             "call_errors": sum(1 for r in model_records if r["error"]),
+            "errors_by_class": err_classes,
         }
 
     reading = {
