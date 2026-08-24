@@ -23,6 +23,8 @@ MIN_BASELINE = 7
 BASELINE_WINDOW = 14
 ALPHA = 0.01
 LATENCY_WATCH = 0.5   # relative p50 shift vs baseline median
+THINKING_WATCH = 0.5    # relative shift in mean thinking tokens per dimension
+THINKING_MOVEMENT = 1.0  # a silent effort/serving remap shows here first
 LATENCY_MOVEMENT = 1.0
 
 
@@ -152,6 +154,48 @@ def compare(current, baseline_readings):
                 "shift": round(shift, 2),
                 "level": ("movement" if shift >= LATENCY_MOVEMENT else "watch"),
             })
+    # Thinking tokens: the serving-configuration tripwire. The battery pins
+    # a minimum-thinking channel, so a provider silently remapping
+    # reasoning-effort semantics (or changing serving in a way that alters
+    # hidden computation) shifts this series before any pass rate moves.
+    # Same threshold style as latency: regime-prone, so relative shift.
+    for model_id, model in current["models"].items():
+        for dim, v in model["dimensions"].items():
+            th = (v.get("thinking_tokens") or {})
+            cur = th.get("mean")
+            if cur is None or th.get("n", 0) < 5:
+                continue
+            base = []
+            for r in baseline_readings:
+                bm = r["models"].get(model_id)
+                if not bm or dim not in bm["dimensions"]:
+                    continue
+                bt = (bm["dimensions"][dim].get("thinking_tokens") or {})
+                if bt.get("mean") is not None and bt.get("n", 0) >= 5:
+                    base.append(bt["mean"])
+            if len(base) < MIN_BASELINE:
+                continue
+            base_med = sorted(base)[len(base) // 2]
+            if base_med < 1:
+                # a series that was ~zero thinking suddenly thinking at all
+                # is itself the anomaly
+                if cur >= 32:
+                    findings.append({
+                        "model": model_id, "dimension": dim,
+                        "metric": "thinking_tokens_mean",
+                        "current": round(cur, 1), "baseline": round(base_med, 1),
+                        "shift": None, "level": "watch",
+                        "note": "thinking appeared on a previously zero-thinking channel"})
+                continue
+            shift = abs(cur - base_med) / base_med
+            if shift >= THINKING_WATCH:
+                findings.append({
+                    "model": model_id, "dimension": dim,
+                    "metric": "thinking_tokens_mean",
+                    "current": round(cur, 1), "baseline": round(base_med, 1),
+                    "shift": round(shift, 2),
+                    "level": ("movement" if shift >= THINKING_MOVEMENT else "watch"),
+                })
     return findings + coverage
 
 
