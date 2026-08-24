@@ -1,0 +1,19 @@
+{
+  "comment": "List prices USD per million tokens, for cost ESTIMATES only (cost_usd_est in readings). Thinking tokens billed as output (industry standard). Entries carry confidence + asof; models without a verified list price are omitted and their cost renders null - estimates are never guesses. Cache discounts ignored (battery traffic is cache-cold by design). Update = ordinary PR; prices are config, not measurement.",
+  "asof": "2026-08",
+  "models": {
+    "claude-sonnet-5":            {"in": 3.0,  "out": 15.0, "confidence": "family-list"},
+    "claude-haiku-4-5":           {"in": 1.0,  "out": 5.0,  "confidence": "family-list"},
+    "claude-opus-5":              {"in": 15.0, "out": 75.0, "confidence": "family-list"},
+    "gpt-5":                      {"in": 1.25, "out": 10.0, "confidence": "list"},
+    "gpt-5-mini":                 {"in": 0.25, "out": 2.0,  "confidence": "list"},
+    "gpt-5.6-terra":              {"in": 2.0,  "out": 12.0, "confidence": "verified-2026-08"},
+    "gpt-5.6-luna":               {"in": 0.2,  "out": 1.2,  "confidence": "verified-2026-08"},
+    "gpt-5.6-sol":                {"in": 5.0,  "out": 30.0, "confidence": "verified-2026-08"},
+    "kimi-k3@moonshot":           {"in": 3.0,  "out": 15.0, "confidence": "verified-2026-08"},
+    "deepseek-chat@deepseek":     {"in": 0.27, "out": 1.1,  "confidence": "list"},
+    "deepseek-reasoner@deepseek": {"in": 0.55, "out": 2.19, "confidence": "list"},
+    "mistral-large@mistral":      {"in": 2.0,  "out": 6.0,  "confidence": "approx-list"},
+    "mistral-small@mistral":      {"in": 0.2,  "out": 0.6,  "confidence": "approx-list"}
+  }
+}

@@ -16,7 +16,15 @@ import math
 import os
 import sys
 
+import os
+
 from . import GRADER_VERSION
+
+
+def load_pricing(path="config/pricing.json"):
+    if not os.path.exists(path):
+        return {}
+    return json.load(open(path, encoding="utf-8")).get("models", {})
 from .battery import load_battery
 from .grade import grade, looks_like_refusal
 
@@ -38,6 +46,9 @@ def _mean_std(values):
         return round(mean, 1), 0.0
     var = sum((v - mean) ** 2 for v in values) / (len(values) - 1)
     return round(mean, 1), round(math.sqrt(var), 1)
+
+
+PRICING = load_pricing()
 
 
 def build_reading(session_path, battery, cadence=None):
@@ -131,6 +142,14 @@ def build_reading(session_path, battery, cadence=None):
                                     "n": len(th)},
             }
 
+        price = PRICING.get(m["id"]) or PRICING.get(m["id"].split("@")[0])
+        cost = None
+        if price:
+            tin = sum(r["input_tokens"] or 0 for r in model_records if not r["error"])
+            tout = sum((r["output_tokens"] or 0) + (r.get("thinking_tokens") or 0)
+                       for r in model_records if not r["error"])
+            cost = round((tin * price["in"] + tout * price["out"]) / 1e6, 4)
+
         err_classes = {}
         for r in model_records:
             if r["error"]:
@@ -149,6 +168,7 @@ def build_reading(session_path, battery, cadence=None):
             "calls": len(model_records),
             "call_errors": sum(1 for r in model_records if r["error"]),
             "errors_by_class": err_classes,
+            "cost_usd_est": cost,
         }
 
     reading = {
