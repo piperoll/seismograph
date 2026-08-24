@@ -1,5 +1,5 @@
 {
-  "roster_version": "0.13",
+  "roster_version": "0.14",
   "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which is itself on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 are published.",
   "models": [
     {
@@ -199,7 +199,7 @@
       "tier": "workhorse",
       "cadence": "daily",
       "env_key": "MOONSHOT_API_KEY",
-      "token_headroom": 2048,
+      "token_headroom": 4096,
       "request_overrides": {
         "temperature": null
       }
@@ -246,7 +246,7 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPINFRA_API_KEY",
-      "token_headroom": 2048
+      "token_headroom": 4096
     },
     {
       "id": "llama-4-maverick@deepinfra",
@@ -268,7 +268,7 @@
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPINFRA_API_KEY",
-      "token_headroom": 4096
+      "token_headroom": 8192
     }
   ]
 }
