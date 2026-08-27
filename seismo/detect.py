@@ -121,16 +121,32 @@ def compare(current, baseline_readings):
                 "level": "watch",
                 "detail": "established model missing from current reading"})
 
+    # Multiple-comparison control by Benjamini-Hochberg FDR, not Bonferroni.
+    # With ~150 model x dimension comparisons per run, Bonferroni's alpha/m
+    # threshold (~6e-5) is unreachable by a two-proportion test on a handful
+    # of probes - the instrument would be structurally unable to ever raise a
+    # movement. FDR controls the expected share of false discoveries among the
+    # flagged, which is the honest target for a many-parallel-tests monitor
+    # and still conservative. "movement" = survives FDR at ALPHA; "watch" =
+    # nominally significant (p < ALPHA) but not FDR-confirmed.
     m = len(comparisons) or 1
+    ordered = sorted(comparisons, key=lambda c: c["p"])
+    bh_cutoff_rank = 0
+    for k, c in enumerate(ordered, start=1):
+        if c["p"] <= (k / m) * ALPHA:
+            bh_cutoff_rank = k
+    bh_p = ((bh_cutoff_rank / m) * ALPHA) if bh_cutoff_rank else 0.0
     findings = []
     for c in comparisons:
-        if c["p"] < ALPHA / m:
+        if c["p"] <= bh_p:
             c["level"] = "movement"
         elif c["p"] < ALPHA:
             c["level"] = "watch"
         else:
             continue
-        c["bonferroni_m"] = m
+        c["correction"] = "benjamini-hochberg"
+        c["comparisons"] = m
+        c["fdr_alpha"] = ALPHA
         findings.append(c)
 
     # Latency: threshold on relative shift, not a test - serving latency is
@@ -214,12 +230,61 @@ def report(readings, cadence):
             "findings": findings}
 
 
+def write_advisories(readings_dir="readings", out="advisories.json"):
+    """The public advisory feed - the instrument's early-warning output.
+
+    Runs the check for every cadence, and appends any current findings to a
+    dated, append-only log. Findings never disappear: a movement that later
+    reverts stays in the record with its date, per the corrections-not-
+    slipped discipline. This file is the seismograph's actual product; the
+    charter tiers it as public-and-free forever.
+    """
+    prior = {"log": []}
+    if os.path.exists(out):
+        with open(out, encoding="utf-8") as f:
+            prior = json.load(f)
+    log = prior.get("log", [])
+    current: dict = {"cadence": {}}
+    for cadence in ("daily", "weekly"):
+        readings = load_readings(readings_dir, cadence)
+        rep = report(readings, cadence)
+        current["cadence"][cadence] = {
+            "verdict": rep["verdict"],
+            "reading_date": rep.get("reading_date"),
+            "findings": rep.get("findings", []),
+        }
+        for f in rep.get("findings", []):
+            if f.get("level") != "movement":
+                continue
+            key = (rep.get("reading_date"), cadence, f["model"],
+                   f["dimension"], f["metric"])
+            if any(tuple(e["key"]) == key for e in log):
+                continue
+            log.append({"key": list(key), "date": rep.get("reading_date"),
+                        "cadence": cadence, "finding": f})
+    current["log"] = log
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(current, f, separators=(",", ":"), sort_keys=True)
+        f.write("\n")
+    return current
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Advisory drift check vs rolling baseline.")
     ap.add_argument("--readings", default="readings")
     ap.add_argument("--cadence", choices=["daily", "weekly"], default="daily")
     ap.add_argument("--json", action="store_true", help="machine output")
+    ap.add_argument("--write-advisories", action="store_true",
+                    help="update advisories.json (both cadences)")
     args = ap.parse_args(argv)
+
+    if args.write_advisories:
+        cur = write_advisories(args.readings)
+        movements = sum(1 for c in cur["cadence"].values()
+                        for f in c["findings"] if f.get("level") == "movement")
+        print(f"advisories.json updated: {movements} movement(s) current, "
+              f"{len(cur['log'])} in the log")
+        return 0
 
     readings = load_readings(args.readings, args.cadence)
     rep = report(readings, args.cadence)
@@ -240,7 +305,7 @@ def main(argv=None):
             print(f"[{f['level'].upper()}] {f['model']} {f['dimension']} "
                   f"coverage: {f['detail']}")
             continue
-        extra = (f"p={f['p']:.2g} (m={f['bonferroni_m']})" if "p" in f
+        extra = (f"p={f['p']:.2g} (BH, m={f['comparisons']})" if "p" in f
                  else f"shift={f['shift']}")
         print(f"[{f['level'].upper()}] {f['model']} {f['dimension']} "
               f"{f['metric']}: {f['baseline']} -> {f['current']}  {extra}")
