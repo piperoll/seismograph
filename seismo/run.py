@@ -15,6 +15,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 
 from . import RUNNER_VERSION
 from .battery import load_battery
@@ -112,8 +113,17 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
             for model in models:
                 tasks.append((model, probe, sample))
 
+    SLOW_CALL_S = 30  # a single call over this is worth surfacing live
+
+    def _log(msg):
+        # stderr, flushed: the Actions live log streams it as it happens, so a
+        # long run is not a black box and a dragging model is visible in
+        # real time.
+        print(msg, file=sys.stderr, flush=True)
+
     def one(task):
         model, probe, sample = task
+        t0 = time.monotonic()
         try:
             resp = call_model(model, probe["prompt"], probe.get("system"),
                               probe.get("params", {}), mock=mock,
@@ -125,6 +135,9 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
                     "thinking_tokens": None, "latency_ms": 0.0, "status": 0,
                     "finish": None,
                     "error": _redact(f"{type(e).__name__}: {e}", models)}
+        dt = time.monotonic() - t0
+        if dt >= SLOW_CALL_S:
+            _log(f"  slow: {model['id']} {probe['id']} took {dt:.0f}s")
         return {
             "model_id": model["id"],
             "probe_id": probe["id"],
@@ -142,9 +155,38 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
         }
 
     records = []
+    total = len(tasks)
+    started_at = time.monotonic()
+    expected = {}
+    for t in tasks:
+        expected[t[0]["id"]] = expected.get(t[0]["id"], 0) + 1
+    per_model = {}
+    _log(f"running {total} calls across {len(models)} models, "
+         f"{workers} workers")
+    step = max(50, total // 20)  # heartbeat every ~5% (min 50 calls)
+    # as_completed, not map: results stream as they finish, so one slow call
+    # never blocks the heartbeat and progress is real. Record order does not
+    # matter - the digest groups by model and probe.
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-        for record in pool.map(one, tasks):
+        futures = [pool.submit(one, t) for t in tasks]
+        for fut in concurrent.futures.as_completed(futures):
+            record = fut.result()
             records.append(record)
+            per_model[record["model_id"]] = per_model.get(
+                record["model_id"], 0) + 1
+            done = len(records)
+            if done % step == 0 or done == total:
+                elapsed = time.monotonic() - started_at
+                rate = done / elapsed if elapsed else 0
+                eta = (total - done) / rate if rate else 0
+                errs = sum(1 for r in records if r["error"])
+                # models still owing the most calls are the laggards
+                lag = sorted(((mid, expected[mid] - per_model.get(mid, 0))
+                              for mid in expected), key=lambda x: -x[1])[:3]
+                lag = ", ".join(f"{mid}:{n}" for mid, n in lag if n > 0)
+                _log(f"  {done}/{total} ({100 * done // total}%) "
+                     f"errors={errs} elapsed={elapsed:.0f}s "
+                     f"eta={eta:.0f}s  behind: {lag or 'none'}")
 
     with open(session_path, "w", encoding="utf-8") as f:
         for r in records:
