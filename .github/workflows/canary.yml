@@ -70,7 +70,12 @@ jobs:
           DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
           SEISMO_CODE_COMMIT: ${{ github.sha }}
         run: |
-          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" --out raw
+          # 10 workers: the run is I/O-bound on provider latency, and probe-
+          # major interleave keeps per-provider concurrency ~1 across 12
+          # providers, so this cuts wall-clock without hammering anyone. Run
+          # time had crept to ~90 min at 4 workers as thinking-heavy models
+          # joined - a budget risk against the 2,000 free private-repo minutes.
+          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" --out raw --workers 10
 
       - name: Digest to a reading
         run: |
