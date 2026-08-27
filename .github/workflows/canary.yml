@@ -22,6 +22,7 @@ on:
 permissions:
   contents: write
   id-token: write   # cosign keyless -> Fulcio cert -> Rekor entry
+  issues: write     # self-monitoring: file an issue if a run fails
 
 concurrency:
   group: canary
@@ -37,23 +38,37 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Restore the private battery
+      - name: Restore the private batteries
         env:
           BATTERY_B64: ${{ secrets.SEISMO_BATTERY_B64 }}
+          DEEP_BATTERY_B64: ${{ secrets.SEISMO_DEEP_BATTERY_B64 }}
         run: |
           test -n "$BATTERY_B64" || { echo "SEISMO_BATTERY_B64 missing"; exit 1; }
           mkdir -p battery
           printf '%s' "$BATTERY_B64" | base64 -d > battery/canary-v0.json
+          # deep battery is only needed for weekly; absent is fine on daily
+          if [ -n "$DEEP_BATTERY_B64" ]; then
+            printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v0.json
+          fi
 
       - name: Decide cadence
         id: cadence
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "cadence=${{ inputs.cadence }}" >> "$GITHUB_OUTPUT"
+            CAD="${{ inputs.cadence }}"
           elif [ "${{ github.event.schedule }}" = "45 8 * * 0" ]; then
-            echo "cadence=weekly" >> "$GITHUB_OUTPUT"
+            CAD="weekly"
           else
-            echo "cadence=daily" >> "$GITHUB_OUTPUT"
+            CAD="daily"
+          fi
+          echo "cadence=$CAD" >> "$GITHUB_OUTPUT"
+          # daily runs the fast 30-probe canary against daily models; weekly
+          # runs the deep 94-probe battery against ALL models (per-dimension
+          # statistical power + verifiable-answer capability probes).
+          if [ "$CAD" = "weekly" ] && [ -f battery/deep-v0.json ]; then
+            echo "battery=battery/deep-v0.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "battery=battery/canary-v0.json" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run the battery
@@ -75,25 +90,37 @@ jobs:
           # providers, so this cuts wall-clock without hammering anyone. Run
           # time had crept to ~90 min at 4 workers as thinking-heavy models
           # joined - a budget risk against the 2,000 free private-repo minutes.
-          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" --out raw --workers 10
+          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" \
+            --battery "${{ steps.cadence.outputs.battery }}" --out raw --workers 10
 
       - name: Digest to a reading
         run: |
           SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
-          python3 -m seismo.digest "$SESSION" --battery battery/canary-v0.json --out readings
+          python3 -m seismo.digest "$SESSION" --battery "${{ steps.cadence.outputs.battery }}" --out readings
 
       - name: Rebuild the series artifact
         run: python3 -m seismo.series
+
+      - name: Update the advisory feed
+        run: python3 -m seismo.detect --write-advisories
 
       - name: Witness in Rekor (cosign keyless)
         run: |
           curl -sSfL -o cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
           chmod +x cosign
+          # sign-blob signs only the file's HASH (content never leaves the
+          # runner), so witnessing the private raw session is safe and is the
+          # correct integrity anchor: the raw session is the immutable
+          # measurement; the reading is a reproducible derivation of it, and
+          # advisories are derived from readings. Anchor the raw + code, treat
+          # the rest as snapshots.
+          SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
           META=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".meta.json | tail -1)
           READING=$(ls -1t readings/*/reading-*.json | head -1)
           mkdir -p witness
           STAMP=$(date -u +%Y-%m-%dT%H%M%SZ)
-          for f in "$META" "$READING"; do
+          for f in "$SESSION" "$META" "$READING" advisories.json; do
+            [ -f "$f" ] || continue
             base=$(basename "$f")
             COSIGN_YES=true ./cosign sign-blob "$f" \
               --bundle "witness/${STAMP}-${base}.bundle.json"
@@ -103,7 +130,7 @@ jobs:
         run: |
           git config user.name "seismograph-canary"
           git config user.email "actions@users.noreply.github.com"
-          git add readings witness series.json
+          git add readings witness series.json advisories.json
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
           git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
           # two scheduled runs can overlap (Aug 23: daily pushed while weekly
@@ -144,3 +171,19 @@ jobs:
           name: raw-session-${{ github.run_id }}
           path: raw/
           retention-days: 90
+
+      # Self-monitoring: a silent failure is the worst failure for an
+      # instrument whose value is an unbroken baseline. A run that dies files
+      # an issue so a missed reading is loud, not invisible. (A run that never
+      # FIRES cannot self-report - that gap needs an external heartbeat watcher;
+      # tracked separately.)
+      - name: Report a failed run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "canary run failed: $(date -u +%F) ${{ steps.cadence.outputs.cadence }}" \
+            --label "run-failure" \
+            --body "The ${{ steps.cadence.outputs.cadence }} canary run failed - a reading may be missing for $(date -u +%F). A day not measured is a baseline gone forever; investigate promptly.\n\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          || echo "issue creation failed (label may not exist yet); run still failed"

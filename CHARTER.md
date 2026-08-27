@@ -69,6 +69,15 @@ movement; alert-grade announcements require movement level, a stable battery
 - Raw sessions (full outputs) are retained privately for regrading and
   post-incident forensics; grader improvements regrade history and are
   marked by grader_version in readings.
+- **The raw session is the witnessed anchor; readings are reproducible
+  derivations.** Each run witnesses the raw session's hash and the running
+  code commit in the public log at measurement time. A reading is the digest
+  of that witnessed raw under a stated grader_version - it can be regenerated,
+  and a grader improvement legitimately rewrites it, so the reading file
+  itself is a snapshot, not the integrity root. The provenance claim is: "this
+  measurement was witnessed on this date, and this reading is its faithful,
+  reproducible derivation." Series and advisories, being derived from
+  readings, inherit that chain.
 - **Identity**: aliases and pinned snapshots are tracked as distinct series.
   Open-weight models are measured as model @ serving provider; that segment
   measures serving fidelity, not weights.
@@ -86,8 +95,16 @@ movement; alert-grade announcements require movement level, a stable battery
   inflate significance - the anti-conservative failure this instrument must
   never have.
 - Pass-rate movement: two-sided two-proportion z-test against the pooled
-  baseline at probe-day granularity, Bonferroni-corrected across all
-  comparisons in the run.
+  baseline at probe-day granularity. Multiple comparisons across the run are
+  controlled by Benjamini-Hochberg FDR at alpha, NOT Bonferroni: with ~150
+  model x dimension comparisons per run, Bonferroni's alpha/m threshold is
+  unreachable by a test on a handful of probes, which would leave the
+  instrument structurally unable to ever raise a movement. FDR controls the
+  expected false-discovery share among flagged findings - the honest target
+  for a many-parallel-tests monitor, and still conservative. "movement" =
+  survives FDR; "watch" = nominally significant (p < alpha) but not
+  FDR-confirmed. (Detection power also scales with battery depth: a larger
+  probe set per dimension is the other half of making movements detectable.)
 - Latency movement: threshold on relative p50 shift (watch at 50%,
   movement at 100%) - deliberately crude until the series justifies more.
   **Latency is advisory context, never a drift claim on its own**: the
@@ -103,6 +120,25 @@ movement; alert-grade announcements require movement level, a stable battery
   worse than no detector.
 - Detection parameters live in code, versioned; changing them is a charter
   amendment, not a tuning knob.
+- **Advisories are the instrument's published output.** Movement findings are
+  appended to a dated, append-only advisory feed; a movement that later
+  reverts stays in the record with its date (corrections-not-slipped applied
+  to readings). The feed is public and free (see section 6 tiering).
+- **Roster stillness.** A roster change (added model, changed setting) starts
+  a new series segment and resets that series' baseline. Between ratifications
+  the roster is held stable except to fix an outright-broken model, so
+  baselines can accrue; churn defeats the whole comparison.
+
+## 3a. Scope of the channel measured
+
+The unit is model @ provider via a stable completion API, at the pinned
+settings. Serving changes a provider makes *at the API* are in scope and are
+exactly what the instrument is built to catch. Serving or behavior changes
+made in a product harness *above* the API - a coding tool's own request
+plumbing, effort-to-parameter mappings applied client-side, prompt scaffolding
+- are out of scope: the instrument would correctly show a flat API series
+while a harness-layer change altered the product experience. This boundary is
+stated so a null reading is never mistaken for "nothing changed anywhere."
 
 ## 5. Witnessing
 
