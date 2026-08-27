@@ -48,7 +48,7 @@ jobs:
           printf '%s' "$BATTERY_B64" | base64 -d > battery/canary-v0.json
           # deep battery is only needed for weekly; absent is fine on daily
           if [ -n "$DEEP_BATTERY_B64" ]; then
-            printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v0.json
+            printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v1.json
           fi
 
       - name: Decide cadence
@@ -65,8 +65,8 @@ jobs:
           # daily runs the fast 30-probe canary against daily models; weekly
           # runs the deep 94-probe battery against ALL models (per-dimension
           # statistical power + verifiable-answer capability probes).
-          if [ "$CAD" = "weekly" ] && [ -f battery/deep-v0.json ]; then
-            echo "battery=battery/deep-v0.json" >> "$GITHUB_OUTPUT"
+          if [ "$CAD" = "weekly" ] && [ -f battery/deep-v1.json ]; then
+            echo "battery=battery/deep-v1.json" >> "$GITHUB_OUTPUT"
           else
             echo "battery=battery/canary-v0.json" >> "$GITHUB_OUTPUT"
           fi
