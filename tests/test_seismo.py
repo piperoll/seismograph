@@ -284,6 +284,38 @@ class TestDetect(unittest.TestCase):
         levels = {f["metric"]: f["level"] for f in rep["findings"]}
         self.assertEqual(levels.get("pass_rate"), "movement")
 
+    def test_fdr_flags_real_drop_not_noise(self):
+        # one series drops for real; a second series jitters within noise.
+        # FDR must flag the first as movement and leave the second quiet.
+        def two(cap_a, cap_b):
+            return {
+                "A": model_block(cap_a, 100, 20),
+                "B": model_block(cap_b, 100, 20),
+            }
+        readings = [synthetic_reading(f"2026-08-{i:02d}", 0.9,
+                                      models=two(0.95, 0.90))
+                    for i in range(1, 9)]
+        readings.append(synthetic_reading("2026-08-09", 0.9,
+                                          models=two(0.55, 0.92)))
+        rep = detect.report(readings, "daily")
+        moves = {(f["model"]) for f in rep["findings"]
+                 if f.get("metric") == "pass_rate" and f["level"] == "movement"}
+        self.assertIn("A", moves)
+        self.assertNotIn("B", moves)
+        self.assertEqual(rep["findings"][0].get("correction"),
+                         "benjamini-hochberg")
+
+    def test_battery_version_isolates_series(self):
+        # a battery change starts a new series; readings on the old battery
+        # must not seed the baseline for the new one.
+        old = [synthetic_reading(f"2026-08-{i:02d}", 0.95)
+               for i in range(1, 9)]
+        new = dict(synthetic_reading("2026-08-09", 0.5))
+        new["battery"] = {"name": "deep", "version": "0.1", "sha256": "y"}
+        rep = detect.report(old + [new], "daily")
+        # only one reading shares the current battery sha -> accruing, no claim
+        self.assertEqual(rep["verdict"], "baseline-accruing")
+
     def test_latency_shift_flagged(self):
         readings = [synthetic_reading(f"2026-08-{i:02d}", 0.9, latency=100)
                     for i in range(1, 12)]

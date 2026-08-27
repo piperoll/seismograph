@@ -27,8 +27,13 @@ certificate as the registry.
 ## How it runs (implemented)
 
 - **Daily canary** (05:30 UTC, GitHub Actions cron + manual dispatch): the
-  30-probe battery x 3 samples against every daily-cadence model in the
-  roster. **Weekly battery** (Sundays) adds the premium tier.
+  30-probe canary battery x 3 samples against every daily-cadence model in
+  the roster - a fast, shallow tripwire. **Weekly deep battery** (Sundays):
+  a ~94-probe battery against ALL models, giving per-dimension statistical
+  power and, in the capability dimension, verifiable-answer probes (math,
+  logic, unambiguous facts) that catch reasoning-quality drift mechanically -
+  the proxy for semantic grading without an LLM judge. Two batteries, two
+  series; the daily canary stays frozen so its baseline accrues undisturbed.
 - **Pipeline per run**: restore the private battery from a secret (hash-checked
   on load) -> `seismo.run` collects raw responses (threaded, probe-major
   interleave so no provider is hammered contiguously; one bad response costs

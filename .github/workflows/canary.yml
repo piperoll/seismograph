@@ -38,23 +38,37 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Restore the private battery
+      - name: Restore the private batteries
         env:
           BATTERY_B64: ${{ secrets.SEISMO_BATTERY_B64 }}
+          DEEP_BATTERY_B64: ${{ secrets.SEISMO_DEEP_BATTERY_B64 }}
         run: |
           test -n "$BATTERY_B64" || { echo "SEISMO_BATTERY_B64 missing"; exit 1; }
           mkdir -p battery
           printf '%s' "$BATTERY_B64" | base64 -d > battery/canary-v0.json
+          # deep battery is only needed for weekly; absent is fine on daily
+          if [ -n "$DEEP_BATTERY_B64" ]; then
+            printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v0.json
+          fi
 
       - name: Decide cadence
         id: cadence
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "cadence=${{ inputs.cadence }}" >> "$GITHUB_OUTPUT"
+            CAD="${{ inputs.cadence }}"
           elif [ "${{ github.event.schedule }}" = "45 8 * * 0" ]; then
-            echo "cadence=weekly" >> "$GITHUB_OUTPUT"
+            CAD="weekly"
           else
-            echo "cadence=daily" >> "$GITHUB_OUTPUT"
+            CAD="daily"
+          fi
+          echo "cadence=$CAD" >> "$GITHUB_OUTPUT"
+          # daily runs the fast 30-probe canary against daily models; weekly
+          # runs the deep 94-probe battery against ALL models (per-dimension
+          # statistical power + verifiable-answer capability probes).
+          if [ "$CAD" = "weekly" ] && [ -f battery/deep-v0.json ]; then
+            echo "battery=battery/deep-v0.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "battery=battery/canary-v0.json" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run the battery
@@ -76,12 +90,13 @@ jobs:
           # providers, so this cuts wall-clock without hammering anyone. Run
           # time had crept to ~90 min at 4 workers as thinking-heavy models
           # joined - a budget risk against the 2,000 free private-repo minutes.
-          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" --out raw --workers 10
+          python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" \
+            --battery "${{ steps.cadence.outputs.battery }}" --out raw --workers 10
 
       - name: Digest to a reading
         run: |
           SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
-          python3 -m seismo.digest "$SESSION" --battery battery/canary-v0.json --out readings
+          python3 -m seismo.digest "$SESSION" --battery "${{ steps.cadence.outputs.battery }}" --out readings
 
       - name: Rebuild the series artifact
         run: python3 -m seismo.series

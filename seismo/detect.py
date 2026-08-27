@@ -216,6 +216,15 @@ def compare(current, baseline_readings):
 
 
 def report(readings, cadence):
+    # A battery change starts a new series: never pool readings across battery
+    # versions (the whole comparison assumes a fixed ruler). Restrict to the
+    # readings sharing the current reading's battery hash before slicing the
+    # baseline window. (Per-model roster changes are handled by per-series
+    # depth; a battery change is the global reset.)
+    if readings:
+        cur_sha = (readings[-1].get("battery") or {}).get("sha256")
+        readings = [r for r in readings
+                    if (r.get("battery") or {}).get("sha256") == cur_sha]
     if len(readings) < MIN_BASELINE + 1:
         return {"cadence": cadence, "verdict": "baseline-accruing",
                 "readings": len(readings),
