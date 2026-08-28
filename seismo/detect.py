@@ -265,6 +265,13 @@ def write_advisories(readings_dir="readings", out="advisories.json"):
         for f in rep.get("findings", []):
             if f.get("level") != "movement":
                 continue
+            # latency is advisory context, never a standalone drift claim
+            # (venue/network noise, runner self-contention): it appears in the
+            # current-reading findings but is never appended to the permanent
+            # movement log. Substantive movements - pass-rate and the
+            # thinking-token serving tripwire - are what the log records.
+            if f["metric"] == "latency_p50":
+                continue
             key = (rep.get("reading_date"), cadence, f["model"],
                    f["dimension"], f["metric"])
             if any(tuple(e["key"]) == key for e in log):

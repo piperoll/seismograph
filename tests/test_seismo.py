@@ -305,6 +305,26 @@ class TestDetect(unittest.TestCase):
         self.assertEqual(rep["findings"][0].get("correction"),
                          "benjamini-hochberg")
 
+    def test_latency_movement_not_logged(self):
+        # a latency-only movement is context, never a permanent advisory:
+        # it appears in current findings but never enters the append-only log.
+        with tempfile.TemporaryDirectory() as d:
+            ydir = os.path.join(d, "2026")
+            os.makedirs(ydir)
+            for i in range(1, 9):
+                r = synthetic_reading(f"2026-08-{i:02d}", 0.9, latency=100)
+                with open(os.path.join(ydir, f"reading-2026-08-{i:02d}-daily.json"), "w") as f:
+                    json.dump(r, f)
+            r = synthetic_reading("2026-08-09", 0.9, latency=400)  # 4x latency
+            with open(os.path.join(ydir, "reading-2026-08-09-daily.json"), "w") as f:
+                json.dump(r, f)
+            out = os.path.join(d, "advisories.json")
+            cur = detect.write_advisories(readings_dir=d, out=out)
+            day = cur["cadence"]["daily"]
+            metrics = {f["metric"] for f in day["findings"]}
+            self.assertIn("latency_p50", metrics)      # shown as context
+            self.assertEqual(cur["log"], [])           # but never logged
+
     def test_battery_version_isolates_series(self):
         # a battery change starts a new series; readings on the old battery
         # must not seed the baseline for the new one.
