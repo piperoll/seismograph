@@ -18,8 +18,8 @@ instrument in full.
   (pass rates, refusal rates, token and latency distributions). Readings
   contain no raw model text and no per-probe detail.
 - **Movement**: a change against the rolling baseline that survives
-  multiple-comparison correction (Bonferroni at alpha = 0.01 across all
-  comparisons in the check).
+  multiple-comparison correction (Benjamini-Hochberg FDR at alpha = 0.01
+  across all comparisons in the check; see section 4).
 - **Watch**: nominally significant movement that does not survive correction.
   Published as raw data in digests, never announced.
 - The instrument never publishes ratings, rankings, grades, scores, or

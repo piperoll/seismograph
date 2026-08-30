@@ -1,8 +1,9 @@
 """Advisory baseline comparison across readings.
 
 Charter decision 3 governs everything here: under-alerting is policy. This
-module never says "drift" - it reports "movement" (survives Bonferroni
-correction) and "watch" (nominally significant, could be noise). Claims about
+module never says "drift" - it reports "movement" (survives Benjamini-
+Hochberg FDR correction) and "watch" (nominally significant, could be
+noise). Claims about
 causes belong to humans; this is a needle, not an analyst.
 
 With fewer than MIN_BASELINE readings the verdict is always "baseline
