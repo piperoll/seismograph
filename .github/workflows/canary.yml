@@ -133,13 +133,30 @@ jobs:
           git add readings witness series.json advisories.json
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
           git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
-          # two scheduled runs can overlap (Aug 23: daily pushed while weekly
-          # ran; weekly's push was rejected and its reading lost from the
-          # repo). Rebase-and-retry: readings/witness files never collide
-          # across cadences, so the rebase is always clean.
+          # Two scheduled runs can race even with the concurrency queue: the
+          # queued run checks out moments before the finishing run pushes
+          # (Aug 23, Aug 30 - issue #32). readings/ and witness/ never collide
+          # across cadences, but series.json and advisories.json are single
+          # files BOTH cadences rewrite, so a textual rebase can genuinely
+          # conflict - and both are pure derivations of readings/. On any
+          # rejected push: rebase; if the derived files conflict, take
+          # upstream's copies to finish the rebase; then REGENERATE both from
+          # the now-merged readings/ and amend, so the pushed commit is always
+          # derived from the full set. (The witness bundles anchor the raw
+          # session hash; readings and derived files are reproducible
+          # derivations per the charter's provenance model.)
           for i in 1 2 3; do
             git push && exit 0
-            git pull --rebase origin main
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git checkout --theirs series.json advisories.json 2>/dev/null || true
+              git add series.json advisories.json
+              GIT_EDITOR=true git rebase --continue
+            fi
+            python3 -m seismo.series
+            python3 -m seismo.detect --write-advisories
+            git add series.json advisories.json
+            git diff --cached --quiet || git commit --amend --no-edit
           done
           git push
 
