@@ -204,6 +204,12 @@ def _call_openai_style(model_cfg, messages, system, params, base_url):
     }
     if params.get("temperature") is not None:
         payload["temperature"] = params["temperature"]
+    # OpenAI-only: a stable, non-PII source tag so refusal probes (which include
+    # deliberately unsafe prompts) are attributable to one controlled evaluator
+    # rather than reading as many abusive end-users. Not sent to other providers
+    # that share this OpenAI-compatible path.
+    if model_cfg.get("provider") == "openai":
+        payload["safety_identifier"] = "piperoll-seismograph"
     _merge_overrides(payload, model_cfg)
     status, body, latency = _post_json(
         base_url.rstrip("/") + "/chat/completions",
