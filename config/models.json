@@ -1,6 +1,6 @@
 {
-  "roster_version": "0.15",
-  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which is itself on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable.",
+  "roster_version": "0.16",
+  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which (with its sibling Claude Fable 5.1) is on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 or claude-fable-5.1 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable. v0.16 (Sep 2 2026): documented freeze exception - added claude-fable-5.1 (new frontier release). A pure addition of a new weekly model starts its own independent series and does not touch the 22 existing baselines (detection pools each model+dimension series independently), so the freeze's purpose - protecting existing stillness - is preserved.",
   "models": [
     {
       "id": "claude-sonnet-5",
@@ -41,6 +41,19 @@
       "id": "claude-fable-5",
       "provider": "anthropic",
       "model": "claude-fable-5",
+      "identity": "alias",
+      "tier": "premium",
+      "cadence": "weekly",
+      "env_key": "ANTHROPIC_API_KEY",
+      "token_headroom": 2048,
+      "request_overrides": {
+        "temperature": null
+      }
+    },
+    {
+      "id": "claude-fable-5.1",
+      "provider": "anthropic",
+      "model": "claude-fable-5-1",
       "identity": "alias",
       "tier": "premium",
       "cadence": "weekly",
