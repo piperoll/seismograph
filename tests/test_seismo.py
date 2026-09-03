@@ -572,5 +572,50 @@ class TestRosterAndMain(unittest.TestCase):
             self.assertEqual(meta["skipped_no_key"], [])
 
 
+class TestAccessPending(unittest.TestCase):
+    def test_classifier(self):
+        f = run_mod.looks_access_pending
+        self.assertTrue(f({"status": 404, "error": None}))
+        self.assertTrue(f({"status": 400, "error": "The model gpt-6-astra does not exist"}))
+        self.assertTrue(f({"status": 403, "error": "You do not have access to this model"}))
+        # transient / real failures must NOT read as pending
+        self.assertFalse(f({"status": 500, "error": "internal server error"}))
+        self.assertFalse(f({"status": 429, "error": "rate limit exceeded"}))
+        self.assertFalse(f({"status": 200, "error": None}))
+
+    def test_preflight_sets_pending_aside(self):
+        battery = copy.deepcopy(FIXTURE_BATTERY)
+        battery["_sha256"] = battery_mod.canonical_sha256(FIXTURE_BATTERY)
+        roster = copy.deepcopy(FIXTURE_ROSTER["models"])
+        for m in roster:
+            if m["id"] == "mock-b":
+                m["availability"] = "pending"
+
+        def fake_call(model, prompt, system, params, mock=None, probe_id=None):
+            if model["id"] == "mock-b":  # staged, not reachable yet
+                return {"text": None, "input_tokens": None, "output_tokens": None,
+                        "thinking_tokens": None, "latency_ms": 1.0, "status": 404,
+                        "finish": None, "error": "model does not exist"}
+            return {"text": "PING", "input_tokens": 1, "output_tokens": 1,
+                    "thinking_tokens": None, "latency_ms": 1.0, "status": 200,
+                    "finish": "stop", "error": None}
+
+        orig = run_mod.call_model
+        run_mod.call_model = fake_call
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                _, meta = run_session(battery, roster, tmp, "weekly",
+                                      mock=None, workers=2)
+        finally:
+            run_mod.call_model = orig
+
+        # pending model set aside, not errored, not in the ran set
+        self.assertEqual(meta["skipped_access_pending"], ["mock-b"])
+        ran = [m["id"] for m in meta["models"]]
+        self.assertIn("mock-a", ran)
+        self.assertNotIn("mock-b", ran)
+        self.assertEqual(meta["call_errors"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 {
-  "roster_version": "0.16",
-  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which (with its sibling Claude Fable 5.1) is on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 or claude-fable-5.1 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable. v0.16 (Sep 2 2026): documented freeze exception - added claude-fable-5.1 (new frontier release). A pure addition of a new weekly model starts its own independent series and does not touch the 22 existing baselines (detection pools each model+dimension series independently), so the freeze's purpose - protecting existing stillness - is preserved.",
+  "roster_version": "0.17",
+  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which (with its sibling Claude Fable 5.1) is on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 or claude-fable-5.1 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable. v0.16 (Sep 2 2026): documented freeze exception - added claude-fable-5.1 (new frontier release). A pure addition of a new weekly model starts its own independent series and does not touch the 22 existing baselines (detection pools each model+dimension series independently), so the freeze's purpose - protecting existing stillness - is preserved. v0.17 (Sep 4 2026): same freeze exception - added gpt-6-astra (OpenAI's new frontier model, released Sep 3, first at the 'Critical' cyber threshold). Pre-staged with availability=pending: API access is rolling out (Daybreak Access first, developers 'in coming days'). The runner preflights an availability=pending model once per run; if the account cannot reach it yet (not-found / no-access), it is set aside in the meta's skipped_access_pending list - like a keyless model - so it produces NO error records and raises NO coverage finding. The instant the preflight succeeds it joins the run and starts accruing its own baseline, with no config change. Weekly cadence, so first real attempt is the next weekly deep run. Remove the availability flag once access is confirmed live (cosmetic - it only gates the pending-error handling).",
   "models": [
     {
       "id": "claude-sonnet-5",
@@ -133,6 +133,22 @@
       "env_key": "OPENAI_API_KEY",
       "max_tokens_param": "max_completion_tokens",
       "token_headroom": 1024,
+      "request_overrides": {
+        "temperature": null,
+        "reasoning_effort": "none"
+      }
+    },
+    {
+      "id": "gpt-6-astra",
+      "provider": "openai",
+      "model": "gpt-6-astra",
+      "identity": "alias",
+      "tier": "premium",
+      "cadence": "weekly",
+      "env_key": "OPENAI_API_KEY",
+      "max_tokens_param": "max_completion_tokens",
+      "token_headroom": 2048,
+      "availability": "pending",
       "request_overrides": {
         "temperature": null,
         "reasoning_effort": "none"

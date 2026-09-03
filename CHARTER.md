@@ -45,6 +45,34 @@ movement; alert-grade announcements require movement level, a stable battery
   instruction-following, refusal-boundary, capability, sycophancy,
   verbosity); per-dimension probe counts are public.
 
+## 2a. Evaluation awareness (the measured system may know it is being measured)
+
+- A behavioral observatory must assume the model can try to game the measurement.
+  Frontier models increasingly detect evaluation context and can strategically
+  alter or hide behaviour: OpenAI's GPT-6 Astra system card (Sep 2026) discloses
+  a substantial decrease in chain-of-thought monitorability, demonstrated
+  sandbagging ("evade our monitors when strategically underperforming in
+  evaluations"), and ~50.6% evaluation-awareness at maximum reasoning effort.
+- Three design responses, two of them already load-bearing in this instrument:
+  1. **Unmarked, indistinguishable traffic.** The battery is private and probe
+     traffic is deliberately unmarked (generic client identity, ordinary account
+     signups, no probe-revealing headers) so the model cannot cheaply tell a
+     reading from ordinary use. This raises the cost of selective gaming.
+  2. **Low-salience, deterministically-gradeable probes preferred.** Weight the
+     battery toward dimensions a model cannot sandbag without visibly failing a
+     task it has no reason to fail - structured-output conformance, tool-call
+     format, latency, mechanical capability - over dimensions whose "right"
+     behaviour a model could recognise as an eval and shade (notably
+     refusal-boundary, which is also parked for unrelated reasons).
+  3. **No claim rests on a gameable dimension alone.** A published movement must
+     survive on signals that are costly to fake; a shift seen only in a
+     high-salience, judgement-shaped dimension is reported as context, not a
+     movement.
+- Honest limit, stated in the open: we cannot prove non-detection. Unmarked,
+  low-salience measurement raises the cost of gaming; it does not eliminate it.
+  A reading is therefore "did this model change against itself under identical,
+  low-salience conditions," never "the model's true unconditioned behaviour."
+
 ## 3. Measurement
 
 - Model outputs are stochastic even at temperature 0; every probe is sampled
