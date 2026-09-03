@@ -95,6 +95,24 @@ def _redact(message, models):
     return message
 
 
+_ACCESS_PENDING_SIGNS = (
+    "does not exist", "not found", "model_not_found", "no access",
+    "does not have access", "do not have access", "not available",
+    "unsupported model", "invalid model", "model not found")
+
+
+def looks_access_pending(resp):
+    """True when a call to a model flagged availability=pending fails with a
+    not-found / no-access signal - the model exists in the roster but the
+    account cannot reach it yet (staged ahead of API rollout). Distinct from a
+    transient failure: only clear not-available signals count, so a 500 or a
+    rate limit never masquerades as 'pending'."""
+    if resp.get("status") == 404:
+        return True
+    err = (resp.get("error") or "").lower()
+    return bool(err) and any(s in err for s in _ACCESS_PENDING_SIGNS)
+
+
 def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
                 skipped=None, roster_version=None):
     started = datetime.datetime.now(datetime.timezone.utc)
@@ -102,6 +120,34 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
     os.makedirs(out_dir, exist_ok=True)
     session_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.jsonl")
     meta_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.meta.json")
+
+    # Availability preflight: a model flagged availability=pending is staged
+    # ahead of its API rollout. Probe it once; if the account cannot reach it
+    # yet (not-found / no-access), set it aside as access-pending for this run -
+    # exactly like a keyless model - so it neither floods the reading with
+    # errors nor raises a coverage finding. The instant the probe succeeds it
+    # joins the run normally: no config flip needed to start measuring.
+    access_pending = []
+    if not mock and battery["probes"]:
+        probe0 = battery["probes"][0]
+        reachable = []
+        for model in models:
+            if model.get("availability") != "pending":
+                reachable.append(model)
+                continue
+            try:
+                r = call_model(model, probe0["prompt"], probe0.get("system"),
+                               probe0.get("params", {}), mock=mock,
+                               probe_id=probe0["id"])
+            except Exception as e:  # a thrown error is not a clean not-found; run it
+                r = {"status": 0, "error": _redact(f"{type(e).__name__}: {e}", models)}
+            if looks_access_pending(r):
+                access_pending.append(model["id"])
+                print(f"  access-pending: {model['id']} not reachable yet "
+                      f"(staged); skipping this run", file=sys.stderr, flush=True)
+            else:
+                reachable.append(model)
+        models = reachable
 
     # probe-major order: adjacent tasks hit DIFFERENT providers, so each
     # provider sees the battery spread across the whole run instead of 4
@@ -216,6 +262,9 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
         # models that should have run but could not - digest/detect read this
         # so a silently keyless model is a visible data gap, not a quiet hole
         "skipped_no_key": skipped or [],
+        # staged models the account cannot reach yet (availability=pending):
+        # noted, not errored, not a coverage gap - auto-joins when access lands
+        "skipped_access_pending": access_pending,
         "mock": mock is not None,
     }
     with open(meta_path, "w", encoding="utf-8") as f:
