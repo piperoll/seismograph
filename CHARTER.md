@@ -22,6 +22,15 @@ instrument in full.
   across all comparisons in the check; see section 4).
 - **Watch**: nominally significant movement that does not survive correction.
   Published as raw data in digests, never announced.
+- **Divergence**: a persistent, statistically significant gap between a model's
+  score on the **fixed** battery and its score on fresh **dynamic** probes of
+  the same capability (see section 2, two-tier battery). It is the instrument's
+  check on its own ruler: a large fixed-over-dynamic gap indicates the fixed
+  probes may be memorised, special-cased, or otherwise contaminated, and that
+  their drift signal is suspect. The gap is the finding; the reading of it
+  (gaming vs contamination vs coincidence) is labelled editorial interpretation
+  like any cause attribution, and it also triggers rotation of the fixed
+  battery (section 2).
 - The instrument never publishes ratings, rankings, grades, scores, or
   fitness-for-purpose claims about any model. Cause attribution ("provider
   changed X") is a human editorial act and is labeled as interpretation.
@@ -44,6 +53,36 @@ movement; alert-grade announcements require movement level, a stable battery
 - Battery content spans declared dimensions (structured-output, tool-call,
   instruction-following, refusal-boundary, capability, sycophancy,
   verbosity); per-dimension probe counts are public.
+
+**Two tiers: a fixed ruler and a dynamic control.** The battery has two parts
+with two different jobs. Do not conflate them.
+
+- **Tier 1 - the fixed battery** (everything above): frozen, hash-pinned, run
+  every cadence. Its job is DRIFT DETECTION - each model compared to itself over
+  time - which requires an identical ruler, so it is never varied inside a
+  version. This is the longitudinal signal (Movement / Watch).
+- **Tier 2 - the dynamic battery**: probes procedurally generated from fixed
+  templates with a fresh, **seeded** random parameterisation each run, measuring
+  the SAME deterministic-ground-truth properties as Tier 1 (capability,
+  structured-output, tool-call, instruction-following - never the
+  judgement-shaped dimensions, which have no generatable ground truth). Grading
+  stays mechanical. Generation is deterministic code with a witnessed seed and
+  is **never LLM-generated**: an LLM generator's own drift would become the
+  probe's drift and destroy the reproducibility the whole instrument rests on.
+  Tier 2's job is NOT drift - its instances change every run and carry no
+  longitudinal probe-level signal. Its job is the **gaming tripwire on Tier 1**:
+  per model, the fixed-battery score is compared against the fresh-dynamic score
+  for the same skill, and a persistent fixed-over-dynamic gap is a **Divergence**
+  finding (section 1) - the signature of a fixed probe being memorised or
+  special-cased. The load-bearing quantity is the delta, not either score alone.
+- A Divergence is also the **principled trigger to rotate the fixed battery** -
+  rotate when the control shows the ruler is compromised, not on a calendar.
+- Honest scope: Tier 2 catches gaming that manifests as a fixed-vs-dynamic gap
+  (memorisation / special-casing). A model that underperforms BOTH tiers equally
+  leaves no gap and is caught only by the unmarked-traffic and low-salience
+  defences (section 2a), not here. Dynamic instances carry instance-difficulty
+  variance, so the delta needs sufficient samples to clear noise; Tier 2 may run
+  at lower frequency than the daily fixed set to bound cost.
 
 ## 2a. Evaluation awareness (the measured system may know it is being measured)
 
@@ -146,6 +185,17 @@ movement; alert-grade announcements require movement level, a stable battery
   no gradable calls, or an established model absent from a reading, raises
   a coverage finding. A detector that reports calm during an outage is
   worse than no detector.
+- **Divergence (fixed vs dynamic, section 2 Tier 2)**: for each model and each
+  deterministic dimension, the fixed-battery pass rate is compared against the
+  same-run dynamic pass rate with a two-proportion test at probe-day
+  granularity, under the same Benjamini-Hochberg FDR as movements. A Divergence
+  is raised only on a **persistent** fixed-over-dynamic gap - sustained across a
+  minimum run count, not a single day - because instance-difficulty variance in
+  the dynamic tier makes one-day gaps noisy. Direction matters: only
+  fixed-exceeds-dynamic is a contamination/gaming signal; dynamic-exceeds-fixed
+  is treated as ordinary instance-difficulty noise, not a finding. A confirmed
+  Divergence flags the fixed probe's drift signal as suspect and triggers
+  battery rotation (section 2).
 - Detection parameters live in code, versioned; changing them is a charter
   amendment, not a tuning knob.
 - **Advisories are the instrument's published output.** Movement findings are
@@ -200,6 +250,13 @@ reading, movement, or finding is not.
 
 ## 8. Open at ratification (TBD)
 
+- **Dynamic tier (section 2 Tier 2) implementation** - a committed design, not
+  yet built: the current battery is Tier 1 (fixed) only. To settle before it
+  ships: the procedural template set and its seeded generator, the Divergence
+  significance parameters (minimum persistence run count, effect-size floor),
+  the dynamic-tier cadence and sample sizes (cost trade), and which
+  deterministic dimensions carry a Tier-2 twin. Until then, anti-gaming rests on
+  the section 2a defences (unmarked traffic, low-salience probes) alone.
 - Retired-probe publication lag.
 - Weekly digest format and publication surface.
 - Alert channel and editor sign-off procedure.
