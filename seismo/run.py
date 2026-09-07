@@ -114,7 +114,7 @@ def looks_access_pending(resp):
 
 
 def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
-                skipped=None, roster_version=None):
+                skipped=None, roster_version=None, dynamic_seed=None):
     started = datetime.datetime.now(datetime.timezone.utc)
     stamp = started.strftime("%Y-%m-%dT%H%M%SZ")
     os.makedirs(out_dir, exist_ok=True)
@@ -249,6 +249,10 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
         "cadence": cadence,
         "battery": {"name": battery["battery"], "version": battery["version"],
                     "sha256": battery["_sha256"]},
+        # Tier 2 only: the per-run seed that generated this session's probes.
+        # Witnessed with the rest of the meta so the reading is reproducible -
+        # the same seed rebuilds identical probes and graders. None for Tier 1.
+        "dynamic_seed": dynamic_seed,
         "models": [{"id": m["id"], "provider": m["provider"],
                     "model": m["model"], "identity": m["identity"],
                     "tier": m["tier"],
@@ -275,6 +279,12 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Run the probe battery.")
     ap.add_argument("--battery", default="battery/canary-v0.json")
+    ap.add_argument("--dynamic", action="store_true",
+                    help="Tier 2: generate a fresh seeded procedural battery "
+                         "instead of loading --battery (the gaming tripwire)")
+    ap.add_argument("--seed", type=int, default=None,
+                    help="Tier 2 seed (default: a fresh random draw). The seed "
+                         "is recorded in the session meta and witnessed.")
     ap.add_argument("--models", default="config/models.json")
     ap.add_argument("--cadence", choices=["daily", "weekly"], default="daily")
     ap.add_argument("--model", action="append",
@@ -287,7 +297,16 @@ def main(argv=None):
                     help="fail instead of skipping models with missing keys")
     args = ap.parse_args(argv)
 
-    battery = load_battery(args.battery)
+    dynamic_seed = None
+    if args.dynamic:
+        from .dynamic import build_dynamic_battery
+        # a fresh unpredictable seed by default: the model cannot precompute
+        # answers for probes that do not exist until the run starts
+        dynamic_seed = args.seed if args.seed is not None \
+            else int.from_bytes(os.urandom(8), "big")
+        battery = build_dynamic_battery(dynamic_seed)
+    else:
+        battery = load_battery(args.battery)
     with open(args.models, encoding="utf-8") as f:
         roster = json.load(f)
     roster_errors = validate_roster(roster)
@@ -315,7 +334,7 @@ def main(argv=None):
     session_path, meta = run_session(battery, models, args.out, args.cadence,
                                      mock=mock, workers=args.workers,
                                      roster_version=roster.get("roster_version"),
-                                     skipped=skipped)
+                                     skipped=skipped, dynamic_seed=dynamic_seed)
     if skipped:
         print(f"skipped (no key): {', '.join(skipped)}", file=sys.stderr)
     print(f"{session_path}  calls={meta['calls']} errors={meta['call_errors']}")

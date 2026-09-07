@@ -190,7 +190,12 @@ def build_reading(session_path, battery, cadence=None):
 def write_reading(reading, out_dir="readings"):
     year = reading["reading_date"][:4]
     os.makedirs(os.path.join(out_dir, year), exist_ok=True)
-    name = f"reading-{reading['reading_date']}-{reading['cadence']}.json"
+    # Tier 2 readings get a -dynamic suffix so they sit beside the fixed-tier
+    # readings without colliding, and so detect.load_readings' fixed-tier glob
+    # (reading-*-{cadence}.json) never picks them up: divergence pairs the two
+    # tiers explicitly by date instead (seismo/divergence.py).
+    suffix = "-dynamic" if reading["battery"].get("name") == "dynamic" else ""
+    name = f"reading-{reading['reading_date']}-{reading['cadence']}{suffix}.json"
     path = os.path.join(out_dir, year, name)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(reading, f, indent=2, sort_keys=True)
@@ -202,12 +207,26 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Digest a raw session into a public reading.")
     ap.add_argument("session", help="raw session .jsonl path")
     ap.add_argument("--battery", default="battery/canary-v0.json")
+    ap.add_argument("--dynamic", action="store_true",
+                    help="Tier 2: rebuild the seeded battery from the session "
+                         "meta's dynamic_seed instead of loading --battery")
     ap.add_argument("--out", default="readings")
     ap.add_argument("--graded-out", default=None,
                     help="optional private per-probe grading detail (jsonl)")
     args = ap.parse_args(argv)
 
-    battery = load_battery(args.battery)
+    if args.dynamic:
+        from .dynamic import build_dynamic_battery
+        meta_path = args.session.replace(".jsonl", ".meta.json")
+        with open(meta_path, encoding="utf-8") as f:
+            seed = json.load(f)["dynamic_seed"]
+        if seed is None:
+            print("session has no dynamic_seed - not a Tier 2 session",
+                  file=sys.stderr)
+            return 2
+        battery = build_dynamic_battery(seed)
+    else:
+        battery = load_battery(args.battery)
     reading, detail = build_reading(args.session, battery)
     path = write_reading(reading, args.out)
     if args.graded_out:

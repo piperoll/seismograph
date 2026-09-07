@@ -4,6 +4,7 @@ never appears here - tests are public, probes are not."""
 import copy
 import json
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -615,6 +616,150 @@ class TestAccessPending(unittest.TestCase):
         self.assertIn("mock-a", ran)
         self.assertNotIn("mock-b", ran)
         self.assertEqual(meta["call_errors"], 0)
+
+
+def _oracle_answer(grader):
+    """Synthesize the correct answer for a Tier 2 grader - proves the
+    generators and their graders agree end to end."""
+    t = grader["type"]
+    if t == "numeric_eq":
+        return str(grader["value"])
+    if t == "exact":
+        return grader["value"]
+    if t == "regex":
+        nums = re.findall(r"-?\d+", grader["pattern"])
+        return ",".join(nums)
+    if t == "all":
+        schema = next(c["schema"] for c in grader["checks"]
+                      if c["type"] == "json_schema")
+        vals = next(c["values"] for c in grader["checks"]
+                    if c["type"] == "contains_all")
+        numeric = [v for v in vals if v.lstrip("-").isdigit()]
+        strings = [v for v in vals if not v.lstrip("-").isdigit()]
+
+        def build(sch):
+            obj = {}
+            props = sch.get("properties", {})
+            for k in sch.get("required", []):
+                sub = props.get(k, {})
+                st = sub.get("type")
+                if st in ("integer", "number"):
+                    obj[k] = int(numeric.pop(0))
+                elif st == "object":
+                    obj[k] = build(sub)
+                else:
+                    obj[k] = strings.pop(0) if strings else ""
+            return obj
+        return json.dumps(build(schema))
+    raise AssertionError(f"no oracle for {t}")
+
+
+class TestDynamicBattery(unittest.TestCase):
+    def _build(self, seed):
+        from seismo import dynamic
+        return dynamic.build_dynamic_battery(seed)
+
+    def test_seed_is_deterministic(self):
+        a = self._build(4242)
+        b = self._build(4242)
+        self.assertEqual([p["id"] for p in a["probes"]],
+                         [p["id"] for p in b["probes"]])
+        self.assertEqual([p["prompt"] for p in a["probes"]],
+                         [p["prompt"] for p in b["probes"]])
+        self.assertEqual([p["grader"] for p in a["probes"]],
+                         [p["grader"] for p in b["probes"]])
+
+    def test_hash_is_manifest_not_instances(self):
+        # different seeds => different probes but the SAME ruler hash, so a
+        # series pools across runs even though instances change every time
+        a, b = self._build(1), self._build(2)
+        self.assertNotEqual([p["prompt"] for p in a["probes"]],
+                            [p["prompt"] for p in b["probes"]])
+        self.assertEqual(a["_sha256"], b["_sha256"])
+
+    def test_hash_changes_when_manifest_changes(self):
+        from seismo import dynamic
+        base = dynamic.manifest_hash()
+        saved = dynamic.MANIFEST
+        try:
+            dynamic.MANIFEST = saved + [("extra", "capability", 1)]
+            self.assertNotEqual(base, dynamic.manifest_hash())
+        finally:
+            dynamic.MANIFEST = saved
+
+    def test_battery_is_valid(self):
+        errors = battery_mod.validate_battery(self._build(7))
+        self.assertEqual(errors, [])
+
+    def test_oracle_scores_all_dimensions_perfect(self):
+        battery = self._build(31337)
+        responses = {p["id"]: _oracle_answer(p["grader"])
+                     for p in battery["probes"]}
+        mock = MockProvider(responses)
+        roster = [{"id": "mock-a", "provider": "mock", "model": "mock-a",
+                   "identity": "alias", "tier": "frontier", "cadence": "daily",
+                   "env_key": "X"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            session_path, _ = run_session(battery, roster, tmp, "daily",
+                                          mock=mock, workers=4,
+                                          dynamic_seed=31337)
+            reading, _ = build_reading(session_path, battery)
+        dims = reading["models"]["mock-a"]["dimensions"]
+        for dim, v in dims.items():
+            self.assertEqual(v["pass_rate"], 1.0,
+                             f"{dim} not perfect under oracle: {v['pass_rate']}")
+
+    def test_reproducible_from_seed_in_meta(self):
+        # the digest path: rebuild the identical battery from the meta seed
+        from seismo import dynamic
+        b1 = self._build(555)
+        b2 = dynamic.build_dynamic_battery(555)
+        self.assertEqual(b1["_sha256"], b2["_sha256"])
+        self.assertEqual({p["id"]: p["grader"] for p in b1["probes"]},
+                         {p["id"]: p["grader"] for p in b2["probes"]})
+
+
+class TestDivergence(unittest.TestCase):
+    @staticmethod
+    def _reading(date, models):
+        # models: {mid: {dim: (pass_rate, probes)}}
+        return {"reading_date": date, "models": {
+            mid: {"dimensions": {
+                dim: {"pass_rate": pr, "probes": n}
+                for dim, (pr, n) in dims.items()}}
+            for mid, dims in models.items()}}
+
+    def _series(self, fixed_dims, dyn_dims, days=8):
+        from seismo import divergence
+        fixed, dynamic = {}, {}
+        for i in range(days):
+            d = f"2026-09-{i + 1:02d}"
+            fixed[d] = self._reading(d, {"m": fixed_dims})
+            dynamic[d] = self._reading(d, {"m": dyn_dims})
+        return divergence.compare_tiers(fixed, dynamic)
+
+    def test_persistent_fixed_over_dynamic_flags(self):
+        rep = self._series({"capability": (1.0, 6)}, {"capability": (0.3, 6)})
+        self.assertEqual(rep["verdict"], "findings")
+        f = rep["findings"][0]
+        self.assertEqual(f["model"], "m")
+        self.assertEqual(f["dimension"], "capability")
+        self.assertGreater(f["gap"], 0)
+        self.assertIn(f["level"], ("divergence", "watch"))
+
+    def test_no_gap_is_quiet(self):
+        rep = self._series({"capability": (0.9, 6)}, {"capability": (0.9, 6)})
+        self.assertEqual(rep["verdict"], "quiet")
+
+    def test_dynamic_over_fixed_is_not_divergence(self):
+        # dynamic higher than fixed is not a gaming signal - never flagged
+        rep = self._series({"capability": (0.3, 6)}, {"capability": (1.0, 6)})
+        self.assertEqual(rep["verdict"], "quiet")
+
+    def test_accruing_below_floor(self):
+        rep = self._series({"capability": (1.0, 6)}, {"capability": (0.2, 6)},
+                           days=5)
+        self.assertEqual(rep["verdict"], "baseline-accruing")
 
 
 if __name__ == "__main__":
