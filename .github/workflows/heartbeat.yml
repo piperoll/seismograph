@@ -1,0 +1,56 @@
+# Heartbeat: catches the failure the canary itself cannot report - a run that
+# never FIRES. The canary's in-job failure alert only runs when the job runs;
+# a scheduled run that GitHub silently skips, or a commit that never lands,
+# leaves no trace. This independent workflow checks that a fresh daily reading
+# actually exists on main and pushes an ntfy alert if the series has gone stale.
+#
+# The daily cron commits reading-<today>-daily.json every day (Sundays too:
+# the 08:30 daily fires alongside the 08:45 weekly). So at 20:00 UTC - ~11.5h
+# after the daily should have committed - the newest daily reading must be
+# today. Older than that means a run was missed.
+name: heartbeat
+on:
+  schedule:
+    - cron: "0 20 * * *"   # 20:00 UTC: long after the 08:30 daily should be in
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Alert if the daily series is stale
+        env:
+          NTFY_TOPIC: ${{ secrets.SEISMO_NTFY_TOPIC }}
+        run: |
+          NEWEST=$(ls -1 readings/*/reading-*-daily.json 2>/dev/null \
+            | sed -E 's#.*/reading-([0-9]{4}-[0-9]{2}-[0-9]{2})-daily\.json#\1#' \
+            | sort | tail -1)
+          if [ -z "$NEWEST" ]; then
+            MSG="no daily readings found on main at all"
+          else
+            AGE=$(( ( $(date -u +%s) - $(date -u -d "$NEWEST" +%s) ) / 86400 ))
+            if [ "$AGE" -le 0 ]; then
+              echo "fresh: newest daily reading is $NEWEST (today)"; exit 0
+            fi
+            MSG="newest daily reading is $NEWEST (${AGE}d old) - a canary run was missed. A day not measured is a baseline gone forever."
+          fi
+          echo "STALE: $MSG"
+          if [ -z "$NTFY_TOPIC" ]; then
+            echo "SEISMO_NTFY_TOPIC unset - cannot push; failing loudly instead"
+            exit 1
+          fi
+          curl -sS --max-time 20 \
+            -H "Title: seismograph heartbeat: STALE" \
+            -H "Priority: urgent" \
+            -H "Tags: skull" \
+            -d "$MSG Check the canary workflow." \
+            "https://ntfy.sh/${NTFY_TOPIC}" || true
+          # exit non-zero so the heartbeat run itself is red in the Actions list
+          exit 1

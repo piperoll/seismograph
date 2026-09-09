@@ -204,3 +204,23 @@ jobs:
             --label "run-failure" \
             --body "The ${{ steps.cadence.outputs.cadence }} canary run failed - a reading may be missing for $(date -u +%F). A day not measured is a baseline gone forever; investigate promptly.\n\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
           || echo "issue creation failed (label may not exist yet); run still failed"
+
+      # A GitHub issue is a record, not a nudge - nobody watches the repo at
+      # 08:30 UTC. ntfy pushes to a phone the moment a run dies, so a
+      # baseline-threatening failure is loud in minutes, not at next login.
+      # Topic is a secret (ntfy topics are world-readable by name); unset =
+      # skipped, so the step is safe before the secret exists. Separate from the
+      # issue step so one failing does not suppress the other.
+      - name: Push failure alert (ntfy)
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.SEISMO_NTFY_TOPIC }}
+        run: |
+          [ -n "$NTFY_TOPIC" ] || { echo "SEISMO_NTFY_TOPIC unset - skipping push"; exit 0; }
+          curl -sS --max-time 20 \
+            -H "Title: seismograph canary FAILED" \
+            -H "Priority: urgent" \
+            -H "Tags: rotating_light" \
+            -d "The ${{ steps.cadence.outputs.cadence }} canary failed for $(date -u +%F). A missed reading is a baseline gone forever. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://ntfy.sh/${NTFY_TOPIC}" \
+          || echo "ntfy push failed (non-fatal)"
