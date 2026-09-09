@@ -98,11 +98,38 @@ jobs:
           SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
           python3 -m seismo.digest "$SESSION" --battery "${{ steps.cadence.outputs.battery }}" --out readings
 
+      - name: Run the dynamic tier (Tier 2 gaming tripwire)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+          SEISMO_CODE_COMMIT: ${{ github.sha }}
+        run: |
+          # Tier 2 needs NO battery secret - the probes are generated fresh from
+          # a per-run seed by seismo/dynamic.py (never LLM-generated). The seed
+          # lands in the session meta and is witnessed with everything else, so
+          # the reading is reproducible. Runs against the SAME cadence's models
+          # as the fixed tier so divergence pairs accrue day for day.
+          CAD="${{ steps.cadence.outputs.cadence }}"
+          python3 -m seismo.run --dynamic --cadence "$CAD" --out raw --workers 10
+          DSESSION=$(ls -1t raw/session-*-"$CAD".jsonl | head -1)
+          python3 -m seismo.digest --dynamic "$DSESSION" --out readings
+
       - name: Rebuild the series artifact
         run: python3 -m seismo.series
 
       - name: Update the advisory feed
         run: python3 -m seismo.detect --write-advisories
+
+      - name: Update the divergence log (fixed vs dynamic)
+        run: python3 -m seismo.divergence --write-log
 
       - name: Witness in Rekor (cosign keyless)
         run: |
@@ -114,12 +141,17 @@ jobs:
           # measurement; the reading is a reproducible derivation of it, and
           # advisories are derived from readings. Anchor the raw + code, treat
           # the rest as snapshots.
-          SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
-          META=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".meta.json | tail -1)
-          READING=$(ls -1t readings/*/reading-*.json | head -1)
+          # Both tiers ran this job, so witness EVERY raw session + meta from
+          # this run (fixed and dynamic) and every reading written today, plus
+          # the derived logs. The dynamic session's witnessed meta carries its
+          # seed - that is what makes the Tier 2 reading reproducible.
           mkdir -p witness
           STAMP=$(date -u +%Y-%m-%dT%H%M%SZ)
-          for f in "$SESSION" "$META" "$READING" advisories.json; do
+          TODAY=$(date -u +%F)
+          FILES=$(ls -1 raw/session-*.jsonl raw/session-*.meta.json 2>/dev/null)
+          FILES="$FILES $(ls -1 readings/*/reading-${TODAY}-*.json 2>/dev/null)"
+          FILES="$FILES advisories.json divergence.json"
+          for f in $FILES; do
             [ -f "$f" ] || continue
             base=$(basename "$f")
             COSIGN_YES=true ./cosign sign-blob "$f" \
@@ -130,7 +162,7 @@ jobs:
         run: |
           git config user.name "seismograph-canary"
           git config user.email "actions@users.noreply.github.com"
-          git add readings witness series.json advisories.json
+          git add readings witness series.json advisories.json divergence.json
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
           git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
           # Two scheduled runs can race even with the concurrency queue: the
@@ -149,13 +181,14 @@ jobs:
             git push && exit 0
             git fetch origin main
             if ! git rebase origin/main; then
-              git checkout --theirs series.json advisories.json 2>/dev/null || true
-              git add series.json advisories.json
+              git checkout --theirs series.json advisories.json divergence.json 2>/dev/null || true
+              git add series.json advisories.json divergence.json
               GIT_EDITOR=true git rebase --continue
             fi
             python3 -m seismo.series
             python3 -m seismo.detect --write-advisories
-            git add series.json advisories.json
+            python3 -m seismo.divergence --write-log
+            git add series.json advisories.json divergence.json
             git diff --cached --quiet || git commit --amend --no-edit
           done
           git push
