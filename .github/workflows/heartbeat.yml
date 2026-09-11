@@ -54,3 +54,66 @@ jobs:
             "https://ntfy.sh/${NTFY_TOPIC}" || true
           # exit non-zero so the heartbeat run itself is red in the Actions list
           exit 1
+
+      # Per-model coverage: the staleness check above proves *a* reading landed,
+      # but a single provider can go dark (quota exhausted, billing lapsed,
+      # account suspended) while every other model reads fine - and nobody is
+      # pinged. That is exactly what happened Sep 6-10 2026: five models on two
+      # credit-tier providers erroring 100% for days, invisible until a manual
+      # look. This flags a model fully errored across the two most recent daily
+      # readings (persistent, so a one-day provider blip does not cry wolf).
+      # runs even if the staleness step failed, so the two alerts are independent.
+      - name: Alert if any model has gone dark
+        if: always()
+        env:
+          NTFY_TOPIC: ${{ secrets.SEISMO_NTFY_TOPIC }}
+        run: |
+          python3 - <<'PY'
+          import glob, json, os, sys, urllib.request
+          # fixed-tier daily readings only: the -daily-dynamic.json suffix does
+          # not match, and weekly is a different battery
+          files = sorted(glob.glob("readings/*/reading-*-daily.json"))
+          if len(files) < 2:
+              print("need 2 daily readings to confirm a persistent outage; skipping")
+              sys.exit(0)
+          latest = json.load(open(files[-1]))
+          prev = json.load(open(files[-2]))
+
+          def dark(reading):
+              out = {}
+              for mid, m in reading["models"].items():
+                  calls = m.get("calls", 0)
+                  if calls and m.get("call_errors", 0) == calls:
+                      cls = max((m.get("errors_by_class") or {"unknown": 1}).items(),
+                                key=lambda kv: kv[1])[0]
+                      out[mid] = cls
+              return out
+
+          # persistent = fully errored in BOTH readings; a transient one-day
+          # failure (network, brief provider outage) is not alerted
+          latest_dark, prev_dark = dark(latest), dark(prev)
+          persistent = {mid: cls for mid, cls in latest_dark.items() if mid in prev_dark}
+          if not persistent:
+              print("no persistently-dark models")
+              sys.exit(0)
+
+          lines = "; ".join(f"{mid} ({cls})" for mid, cls in sorted(persistent.items()))
+          msg = (f"{len(persistent)} model(s) fully errored two days running "
+                 f"(through {latest['reading_date']}): {lines}. "
+                 "Likely quota/billing or a provider outage - check credit.")
+          print("DARK:", msg)
+          topic = os.environ.get("NTFY_TOPIC", "").strip()
+          if not topic:
+              print("SEISMO_NTFY_TOPIC unset - failing loudly instead")
+              sys.exit(1)
+          req = urllib.request.Request(
+              f"https://ntfy.sh/{topic}", data=msg.encode("utf-8"),
+              headers={"Title": "seismograph: model(s) dark",
+                       "Priority": "high", "Tags": "warning"})
+          try:
+              urllib.request.urlopen(req, timeout=20)
+          except Exception as e:
+              print("ntfy push failed (non-fatal):", e)
+          # red so a standing outage stays visible in the Actions list
+          sys.exit(1)
+          PY
