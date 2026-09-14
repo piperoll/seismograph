@@ -5,19 +5,18 @@ against the model APIs that agent fleets actually depend on, publishing
 detected behavioral drift as witnessed readings - "model X changed on date Y,
 in dimensions Z."
 
-**Status: LIVE and measuring since 2026-08-20. No readings published yet.**
-The instrument runs daily; publication waits on charter ratification and the
-repository going public (see Visibility below). The second instrument of
+**Status: LIVE and measuring since 2026-08-20 (~26 daily readings witnessed so
+far). No readings published yet.** The instrument runs daily; publication waits
+on charter ratification and the repository going public (see Visibility below). The second instrument of
 [PipeRoll](https://piperoll.org), the agent-incident measurement institution;
 the [registry](https://github.com/piperoll/registry) is the first.
 
 ## Why this exists
 
 Providers ship silent behavioral changes; downstream agents discover them by
-breaking. Six of the registry's first 46 records are model-update regressions,
-every one with fleet-wide blast radius (PIR-2026-0004, 0022, 0025, 0029, 0033,
-0034). This failure class is provider-side, unannounced, and correlated across
-every deployment pinned to the model.
+breaking. Six of the registry's records are model-update regressions, every one
+with fleet-wide blast radius. This failure class is provider-side, unannounced,
+and correlated across every deployment pinned to the model.
 
 A day not measured is a baseline gone forever. When the next fleet regression
 hits, only an entity already recording can say when it drifted and what
@@ -26,14 +25,26 @@ certificate as the registry.
 
 ## How it runs (implemented)
 
-- **Daily canary** (05:30 UTC, GitHub Actions cron + manual dispatch): the
-  30-probe canary battery x 3 samples against every daily-cadence model in
-  the roster - a fast, shallow tripwire. **Weekly deep battery** (Sundays):
-  a ~94-probe battery against ALL models, giving per-dimension statistical
-  power and, in the capability dimension, verifiable-answer probes (math,
-  logic, unambiguous facts) that catch reasoning-quality drift mechanically -
-  the proxy for semantic grading without an LLM judge. Two batteries, two
-  series; the daily canary stays frozen so its baseline accrues undisturbed.
+- **Daily canary** (08:30 UTC, GitHub Actions cron + manual dispatch): the
+  29-probe canary battery against every daily-cadence model in the roster - a
+  fast, shallow tripwire. **Weekly deep battery** (Sundays): an 87-probe battery
+  against ALL models, giving per-dimension statistical power and, in the
+  capability dimension, verifiable-answer probes (math, logic, unambiguous
+  facts) that catch reasoning-quality drift mechanically - the proxy for
+  semantic grading without an LLM judge. The fixed batteries stay frozen so
+  their baselines accrue undisturbed.
+- **Two tiers - a fixed ruler and a dynamic control.** Tier 1 is the fixed
+  battery above: identical probes every run, so a model's change against its
+  own past is drift. Tier 2 runs alongside it - a *seeded, procedurally
+  generated* battery whose task families are fixed but whose concrete instances
+  are new every run (arithmetic, counting, format-conformance, tool-call shape),
+  never LLM-generated and graded deterministically from the seed. A model cannot
+  memorise or pre-answer probes that do not exist until the run starts. A
+  persistent gap where a model scores well on the fixed battery but worse on the
+  same-capability fresh probes is a **Divergence** finding - the tripwire for a
+  score inflated by contamination or evaluation-gaming rather than capability.
+  This is the concrete answer to the frontier's growing eval-gaming concern:
+  more capable models are better at recognising and shading tests.
 - **Pipeline per run**: restore the private battery from a secret (hash-checked
   on load) -> `seismo.run` collects raw responses (threaded, probe-major
   interleave so no provider is hammered contiguously; one bad response costs
@@ -44,17 +55,20 @@ certificate as the registry.
 - **Every reading pins its full provenance**: battery sha256, roster version,
   runner version, grader version, and the git commit of the running code. A
   reading is a self-describing, citable document.
-- **The roster** (`config/models.json`, v0.7): 14 models across Anthropic,
-  OpenAI, Google, Mistral, Sarvam, and DeepSeek - 12 daily, 2 weekly premium.
-  Settings are part of the instrument: every model runs its provider's
-  minimum-thinking channel, pinned in the roster; any settings change bumps
-  the roster version and starts a new series segment.
+- **The roster** (`config/models.json`, v0.18): 24 models across 12 labs -
+  Anthropic, OpenAI, Google, xAI, DeepSeek, Moonshot, Mistral, Alibaba, Zhipu,
+  Meta, MiniMax, and Sarvam - 19 daily, 5 weekly. Settings are part of the
+  instrument: every model runs its provider's minimum-thinking channel, pinned
+  in the roster; any settings change bumps the roster version and starts a new
+  series segment.
 
-Layout: `seismo/` (providers, battery loader, graders, runner, digest,
-detection) · `config/models.json` (roster) · `readings/` (public-safe
-statistics) · `witness/` (Rekor bundles) · `tests/` (offline suite) ·
-`CHARTER.md` (methodology charter, **DRAFT - unratified**) ·
-`.github/workflows/canary.yml` (the daily run).
+Layout: `seismo/` (providers, battery loader, procedural generators, graders,
+runner, digest, drift + divergence detection) · `config/models.json` (roster) ·
+`readings/` (public-safe statistics; `-dynamic` files are the Tier 2 series) ·
+`series.json` / `advisories.json` / `divergence.json` (derived board, movement
+feed, fixed-vs-dynamic gaps) · `witness/` (Rekor bundles) · `tests/` (offline
+suite) · `CHARTER.md` (methodology charter, **DRAFT - unratified**) ·
+`.github/workflows/canary.yml` (the daily run) · `heartbeat.yml` (coverage watch).
 
 Not in this repository, by construction: the probe battery (private; only its
 sha256 is public), API keys (Actions secrets), raw model outputs (separate
@@ -135,8 +149,9 @@ Full doctrine: CHARTER.md section 7.
 
 ## Cost
 
-Founding envelope ~$100-150/month raw across all providers at canary scope.
-Measured burn is recomputed from session token counts as the series accrues.
+Founding envelope was ~$100-150/month at single-battery canary scope; the daily
+Tier 2 run and the expanded roster roughly double that. Measured burn is
+recomputed from session token counts as the series accrues, never estimated.
 
 ## Licensing
 
