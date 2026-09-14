@@ -5,11 +5,10 @@ against the model APIs that agent fleets actually depend on, publishing
 detected behavioral drift as witnessed readings - "model X changed on date Y,
 in dimensions Z."
 
-**Status: LIVE and measuring since 2026-08-20 (~26 daily readings witnessed so
-far). No readings published yet.** The instrument runs daily; publication waits
-on charter ratification and the repository going public (see Visibility below). The second instrument of
-[PipeRoll](https://piperoll.org), the agent-incident measurement institution;
-the [registry](https://github.com/piperoll/registry) is the first.
+**Status: LIVE, measuring since 2026-08-20, and PUBLISHING.** Charter ratified
+2026-09-15; the repository is public and readings publish under it. The second
+instrument of [PipeRoll](https://piperoll.org), the agent-incident measurement
+institution; the [registry](https://github.com/piperoll/registry) is the first.
 
 ## Why this exists
 
@@ -67,7 +66,7 @@ runner, digest, drift + divergence detection) · `config/models.json` (roster) �
 `readings/` (public-safe statistics; `-dynamic` files are the Tier 2 series) ·
 `series.json` / `advisories.json` / `divergence.json` (derived board, movement
 feed, fixed-vs-dynamic gaps) · `witness/` (Rekor bundles) · `tests/` (offline
-suite) · `CHARTER.md` (methodology charter, **DRAFT - unratified**) ·
+suite) · `CHARTER.md` (methodology charter, **ratified 2026-09-15**) ·
 `.github/workflows/canary.yml` (the daily run) · `heartbeat.yml` (coverage watch).
 
 Not in this repository, by construction: the probe battery (private; only its
@@ -137,15 +136,14 @@ honesty: readings cover the model API channel only; serving changes made in a
 product harness above the API (a coding tool's own plumbing) are out of scope
 for this instrument.
 
-## Visibility (measure now, publish later)
+## Visibility
 
-This repository is **private until the first published digest** and MUST be
-public before any reading is published. Measurement did not wait: every run
-since ignition is anchored in Rekor's public log, so the entire private
-history is retroactively verifiable against public timestamps the day the
-repository opens. Stating that the instrument exists and how many witnessed
-readings it has taken is permitted meanwhile; stating any reading is not.
-Full doctrine: CHARTER.md section 7.
+The measurement clock started 2026-08-20; the repository opened and the first
+readings published on 2026-09-15, under the ratified charter. Every run since
+ignition was anchored in Rekor's public log, so the entire pre-publication
+history is retroactively verifiable against public timestamps - the baselines
+provably predate the events they are later cited against, which is the whole
+point. Full doctrine: CHARTER.md section 7.
 
 ## Cost
 
