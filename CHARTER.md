@@ -1,9 +1,9 @@
 # Seismograph Methodology Charter
 
-**Status: DRAFT - not ratified. No reading is published under a draft
-charter.** Ratification is a signed commit by the editor changing this line;
-amendments after ratification follow the registry's convention: by PR, dated,
-never silently.
+**Status: RATIFIED 2026-09-15 by the editor (this signed commit).** Amendments
+follow the registry's convention: by PR, dated, never silently. The draft-era
+rule is now lifted: readings may be published under this ratified charter, subject
+to the repository being public per section 7.
 
 This charter is the seismograph's epistemic contract, separate from the
 registry's (verified facts) by design: the seismograph publishes statistical
@@ -248,42 +248,60 @@ reading is published. Stating that the instrument exists and how many
 witnessed readings it has taken is permitted while private; stating any
 reading, movement, or finding is not.
 
-## 8. Open at ratification (TBD)
+## 8. Settled at ratification (2026-09-15)
 
-- **Dynamic tier (section 2 Tier 2) implementation** - a committed design, not
-  yet built: the current battery is Tier 1 (fixed) only. To settle before it
-  ships: the procedural template set and its seeded generator, the Divergence
-  significance parameters (minimum persistence run count, effect-size floor),
-  the dynamic-tier cadence and sample sizes (cost trade), and which
-  deterministic dimensions carry a Tier-2 twin. Until then, anti-gaming rests on
-  the section 2a defences (unmarked traffic, low-salience probes) alone.
-- Retired-probe publication lag.
-- Weekly digest format and publication surface.
-- Alert channel and editor sign-off procedure.
-- Per-provider terms-of-service review for sustained automated evaluation
-  (includes the credit-tier train-on-inputs check per provider; a tier that
-  trains on API inputs is never used for the private battery, per rule in
-  section 6 - promotional credits do not bypass this).
-- Sample sizes per probe per cadence (cost-accuracy trade), and the model
-  roster's initial exposure weighting.
-- **Settings-sweep calibration**: an occasional (roughly quarterly) run of
-  the battery across temperature / effort levels for models that accept
-  them, published as a dated calibration note, never as a series. Daily
-  cadence stays single-channel at the pinned settings.
-- **Dual-channel experiment**: optionally, one model carrying a second
-  standing series at provider-default settings, to measure the gap between
-  the pinned channel and the default experience. Declared as an experiment
-  if adopted.
-- **Publication tiering (added Aug 24)**: whether "published readings" means
-  the full-resolution archive or a tiered surface. Proposal under
-  consideration: the conditions board (current levels, a trailing window)
-  and EVERY movement/advisory are public and free forever - the
-  early-warning function is a public duty and is never tiered; the
-  full-resolution historical series, bulk machine feeds, and attested
-  parametric-grade delivery are licensed; academic research access is
-  granted free on request. Every reading remains Rekor-witnessed at
-  measurement time regardless of tier, so unpublished history stays
-  provable. This must be settled BEFORE the first public reading - tiering
-  announced at birth is a business model, tiering imposed later is a
-  rug-pull. (The registry's CC BY absolutism is untouched by this item;
-  the two instruments have different value physics.)
+The draft-era open items are resolved here. Changes after this are charter
+amendments: by PR, dated, never silently.
+
+**Publication tiering.** The early-warning function is a public duty and is never
+tiered: the conditions board (current levels plus a trailing window) and EVERY
+movement, watch, and advisory in the append-only feed are public and free forever.
+Licensed: the full-resolution historical series, bulk machine feeds, and any
+attested parametric-grade delivery. Academic and research access to the full series
+is granted free on request. Every reading remains Rekor-witnessed at measurement
+time regardless of tier, so unpublished history stays provable. The registry's
+CC BY 4.0 absolutism is untouched; the two instruments have different value
+physics. Tiering is fixed here, at the instrument's birth, precisely so it can
+never be a rug-pull imposed later.
+
+**Dynamic tier (section 2, Tier 2).** Built and deployed daily. The seeded
+procedural generators live in `seismo/dynamic.py` (generator version pinned) and
+the Divergence detector in `seismo/divergence.py`: a directional fixed-over-dynamic
+gap, tested at probe-day granularity with a two-proportion test under
+Benjamini-Hochberg FDR at the same alpha as section 4, and a persistence floor
+equal to the baseline minimum. Parameters are as pinned in code; changing them is
+an amendment. Anti-gaming now rests on section 2a and this tripwire together.
+
+**Retired-probe publication lag: 90 days.** A probe retired at a rotation point is
+published complete - prompt, parameters, grader - 90 days after retirement, so a
+historical reading eventually becomes fully auditable without exposing a live
+battery.
+
+**Digest surface.** The public conditions board and the append-only advisory feed
+are the published digest, continuously, rather than a separate periodic artifact.
+A dated summary note is optional editorial, not required.
+
+**Alerting and sign-off.** Movements append to the public advisory feed
+automatically; the feed is the instrument's product. Calling a movement out as a
+named, alert-grade advisory requires editor sign-off - a signed commit by the
+editor - consistent with the under-alerting policy of sections 1 and 4.
+Operational failure alerts (a missed run, a model gone dark) go to a private
+channel, never the public feed.
+
+**Provider terms-of-service.** Each provider's terms for sustained automated
+evaluation, including whether any tier trains on API inputs, are tracked per
+provider; a tier that trains on inputs is never used for the battery (section 6),
+promotional credits included. Reviewed at each ratification sitting.
+
+**Sample sizes and exposure weighting.** As pinned per battery in the private
+battery files and in the versioned roster; the current roster is the initial
+exposure weighting. Sample or roster changes are marked series events and bump the
+roster version.
+
+**Settings-sweep calibration.** An occasional (roughly quarterly) run across
+temperature and effort levels, for models that accept them, is published as a dated
+calibration note, never as a series. Daily cadence stays single-channel at the
+pinned settings.
+
+**Dual-channel experiment.** Not adopted. May be adopted later and declared as an
+experiment if so; there is no standing default-settings series today.
