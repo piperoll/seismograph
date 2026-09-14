@@ -13,5 +13,7 @@ __pycache__/
 # beads tracker infra
 .gitattributes
 
-# base64 of the private battery secrets - never commit
-ops/SEISMO_*.txt
+# internal ops workspace - held incident drafts (0054/0055), postmortems, the
+# base64 battery secrets: NONE of ops/ is ever meant for the public repo.
+# ignore the whole dir so a `git add -A` (esp. at the public flip) cannot leak it.
+ops/
