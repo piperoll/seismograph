@@ -89,24 +89,36 @@ def main():
     if isinstance(series.get("models"), dict):  # the daily alias
         _strip_models({"models": series["models"]})
 
-    # Embed the series as the board payload. Escape "<" so no "</script>"
-    # sequence can break out of the <script type="application/json"> block.
-    payload = json.dumps(series, separators=(",", ":")).replace("<", "\\u003c")
+    # The journal reads published findings; strip parked-dimension findings and
+    # embed the advisories feed alongside the series.
+    advisories = {}
+    adv_src = os.path.join(ROOT, "advisories.json")
+    if os.path.exists(adv_src):
+        advisories = json.load(open(adv_src, encoding="utf-8"))
+        _strip_findings(advisories)
+
+    # Embed as the board payload. Escape "<" so no "</script>" sequence can break
+    # out of a <script type="application/json"> block.
+    def _embed(obj):
+        return json.dumps(obj, separators=(",", ":")).replace("<", "\\u003c")
+
     template = open(TEMPLATE, encoding="utf-8").read()
-    if "__PAYLOAD__" not in template:
-        raise SystemExit("board_template.html has no __PAYLOAD__ slot")
-    page = template.replace("__PAYLOAD__", payload)
+    for slot in ("__PAYLOAD__", "__ADVISORIES__"):
+        if slot not in template:
+            raise SystemExit(f"board_template.html has no {slot} slot")
+    page = (template.replace("__PAYLOAD__", _embed(series))
+                    .replace("__ADVISORIES__", _embed(advisories)))
 
     sited = os.path.dirname(os.path.abspath(OUT))
     os.makedirs(sited, exist_ok=True)
     open(OUT, "w", encoding="utf-8").write(page)
 
     # Machine-readable feeds served alongside the board (all parked-dimension
-    # stripped). series.json is the exact stripped series we embedded.
-    with open(os.path.join(sited, "series.json"), "w", encoding="utf-8") as f:
-        json.dump(series, f, separators=(",", ":"))
-        f.write("\n")
-    _copy_feed("advisories.json", sited, _strip_findings)
+    # stripped). series.json + advisories.json are the exact objects we embedded.
+    for name, obj in (("series.json", series), ("advisories.json", advisories)):
+        with open(os.path.join(sited, name), "w", encoding="utf-8") as f:
+            json.dump(obj, f, separators=(",", ":"))
+            f.write("\n")
     _copy_feed("divergence.json", sited, _strip_findings)
 
     # Figures for llms.txt. Roster totals come from config/models.json (the
