@@ -145,6 +145,15 @@ history is retroactively verifiable against public timestamps - the baselines
 provably predate the events they are later cited against, which is the whole
 point. Full doctrine: CHARTER.md section 7.
 
+## Incident disclosure
+
+We hold ourselves to the registry's standard. The seismograph's own governance
+incident - a refusal-boundary probe set that drew a provider usage-policy notice,
+and a data-loss during its cleanup - is disclosed in
+[POSTMORTEM-2026-09.md](POSTMORTEM-2026-09.md) and recorded in the registry as
+PIR-2026-0054 and PIR-2026-0055. If we ask other operators to disclose their agent
+failures, the first held to that standard is us.
+
 ## Cost
 
 Founding envelope was ~$100-150/month at single-battery canary scope; the daily
