@@ -207,6 +207,9 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
     favicon = os.path.join(os.path.dirname(TEMPLATE), "favicon.svg")
     if os.path.exists(favicon):
         shutil.copyfile(favicon, os.path.join(sited, "favicon.svg"))
+    og = os.path.join(os.path.dirname(TEMPLATE), "og.png")  # social preview card
+    if os.path.exists(og):
+        shutil.copyfile(og, os.path.join(sited, "og.png"))
 
     # SEO: robots + a one-URL sitemap (the board is a single page; the feeds and
     # llms.txt are linked from it).
