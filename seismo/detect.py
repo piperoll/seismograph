@@ -27,6 +27,9 @@ LATENCY_WATCH = 0.5   # relative p50 shift vs baseline median
 THINKING_WATCH = 0.5    # relative shift in mean thinking tokens per dimension
 THINKING_MOVEMENT = 1.0  # a silent effort/serving remap shows here first
 LATENCY_MOVEMENT = 1.0
+# Parked dimensions are excluded from the public assessment tally (withheld
+# per the charter); they are not counted toward eligible/attempted metrics.
+PARKED_DIMS = {"refusal-boundary"}
 
 
 def two_proportion_p(x1, n1, x2, n2):
@@ -216,6 +219,97 @@ def compare(current, baseline_readings):
     return findings + coverage
 
 
+def assess(current, baseline_readings):
+    """Per-model assessment status for the current reading.
+
+    Mirrors the detector's own eligibility rules (the same MIN_BASELINE floor
+    and coverage conditions used in compare()) so the public feed can say, for
+    every model, whether the detector was actually ABLE to test it - separating
+    a measured-but-unflagged model from one that could not be assessed. It makes
+    no quality, safety, or "unchanged" claim; it reports test eligibility only.
+
+    Status per model:
+      assessed  - at least one eligible comparison ran and all attempted metrics
+                  were eligible (a completed assessment; findings, if any, are in
+                  the findings feed, not here)
+      partial   - some metrics eligible, others not (baseline short or coverage)
+      baseline  - no metric had the required baseline yet (still accruing)
+      coverage  - established series returned no gradable calls this reading
+      absent    - an established model with no reading on this date
+    Parked dimensions are excluded from all counts.
+    """
+    out = []
+    cur_models = current.get("models", {})
+    for model_id in sorted(cur_models):
+        model = cur_models[model_id]
+        eligible = blocked = short = 0
+        dims = {d: v for d, v in model.get("dimensions", {}).items()
+                if d not in PARKED_DIMS}
+        # pass-rate per dimension
+        for dim, stats in dims.items():
+            _, _, depth = _series_stats(baseline_readings, model_id, dim)
+            if depth < MIN_BASELINE:
+                short += 1
+            elif stats.get("pass_rate") is None or not stats.get("probes"):
+                blocked += 1
+            else:
+                eligible += 1
+        # thinking-token mean per dimension. A model that never emits thinking
+        # tokens has no such series, so the tripwire simply does not apply to it
+        # (not a coverage gap) - only count the metric where a series exists.
+        for dim, v in dims.items():
+            th = (v.get("thinking_tokens") or {})
+            base = []
+            for r in baseline_readings:
+                bm = r["models"].get(model_id)
+                if not bm or dim not in bm.get("dimensions", {}):
+                    continue
+                bt = (bm["dimensions"][dim].get("thinking_tokens") or {})
+                if bt.get("mean") is not None and bt.get("n", 0) >= 5:
+                    base.append(bt["mean"])
+            if not base:
+                continue  # not applicable: model emits no thinking tokens
+            if len(base) < MIN_BASELINE:
+                short += 1
+            elif th.get("mean") is None or th.get("n", 0) < 5:
+                blocked += 1
+            else:
+                eligible += 1
+        # latency p50 (one series per model)
+        cur_lat = (model.get("latency_ms") or {}).get("p50")
+        base_lat = [r["models"][model_id]["latency_ms"]["p50"]
+                    for r in baseline_readings
+                    if model_id in r["models"]
+                    and (r["models"][model_id].get("latency_ms") or {}).get("p50") is not None]
+        if len(base_lat) < MIN_BASELINE:
+            short += 1
+        elif cur_lat is None:
+            blocked += 1
+        else:
+            eligible += 1
+
+        attempted = eligible + blocked + short
+        if eligible == 0:
+            status = "coverage" if blocked > 0 else "baseline"
+        elif blocked > 0 or short > 0:
+            status = "partial"
+        else:
+            status = "assessed"
+        out.append({"model": model_id, "status": status,
+                    "eligible": eligible, "attempted": attempted})
+
+    # established models with no reading on this date
+    base_ids = set()
+    for r in baseline_readings[-MIN_BASELINE:]:
+        base_ids.update(r["models"].keys())
+    for model_id in sorted(base_ids - set(cur_models.keys())):
+        depth = sum(1 for r in baseline_readings if model_id in r["models"])
+        if depth >= MIN_BASELINE:
+            out.append({"model": model_id, "status": "absent",
+                        "eligible": 0, "attempted": 0})
+    return sorted(out, key=lambda a: a["model"])
+
+
 def report(readings, cadence):
     # A battery change starts a new series: never pool readings across battery
     # versions (the whole comparison assumes a fixed ruler). Restrict to the
@@ -226,18 +320,22 @@ def report(readings, cadence):
         cur_sha = (readings[-1].get("battery") or {}).get("sha256")
         readings = [r for r in readings
                     if (r.get("battery") or {}).get("sha256") == cur_sha]
+    current = readings[-1] if readings else {"models": {}}
     if len(readings) < MIN_BASELINE + 1:
         return {"cadence": cadence, "verdict": "baseline-accruing",
                 "readings": len(readings),
-                "needed": MIN_BASELINE + 1, "findings": []}
-    current = readings[-1]
+                "needed": MIN_BASELINE + 1,
+                "reading_date": current.get("reading_date"),
+                "findings": [],
+                "assessment": assess(current, readings[:-1])}
     baseline = readings[-(BASELINE_WINDOW + 1):-1]
     findings = compare(current, baseline)
     return {"cadence": cadence,
             "verdict": "findings" if findings else "quiet",
             "reading_date": current["reading_date"],
             "baseline_readings": len(baseline),
-            "findings": findings}
+            "findings": findings,
+            "assessment": assess(current, baseline)}
 
 
 def write_advisories(readings_dir="readings", out="advisories.json"):
@@ -262,6 +360,7 @@ def write_advisories(readings_dir="readings", out="advisories.json"):
             "verdict": rep["verdict"],
             "reading_date": rep.get("reading_date"),
             "findings": rep.get("findings", []),
+            "assessment": rep.get("assessment", []),
         }
         for f in rep.get("findings", []):
             if f.get("level") != "movement":
