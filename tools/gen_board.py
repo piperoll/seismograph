@@ -98,6 +98,7 @@ def main():
     if os.path.exists(adv_src):
         advisories = json.load(open(adv_src, encoding="utf-8"))
         _strip_findings(advisories)
+    witnesses = gen_pages.reading_witnesses(ROOT)
 
     # Embed as the board payload. Escape "<" so no "</script>" sequence can break
     # out of a <script type="application/json"> block.
@@ -107,11 +108,12 @@ def main():
     seo_latest = series.get("latest_reading") or \
         __import__("datetime").date.today().isoformat()
     template = open(TEMPLATE, encoding="utf-8").read()
-    for slot in ("__PAYLOAD__", "__ADVISORIES__"):
+    for slot in ("__PAYLOAD__", "__ADVISORIES__", "__WITNESSES__"):
         if slot not in template:
             raise SystemExit(f"board_template.html has no {slot} slot")
     page = (template.replace("__PAYLOAD__", _embed(series))
                     .replace("__ADVISORIES__", _embed(advisories))
+                    .replace("__WITNESSES__", _embed(witnesses))
                     .replace("__LATEST_READING__", seo_latest))
 
     sited = os.path.dirname(os.path.abspath(OUT))
@@ -146,7 +148,7 @@ def main():
 
 > An independent observatory for AI model behavioural drift. It runs a fixed,
 > private probe battery every day against the model APIs that agent fleets depend
-> on, and publishes detected behavioural change as witnessed statistical readings:
+> on, and publishes detected behavioural change as witnessed readings:
 > "model X changed on date Y, in dimension Z." It measures each model against its
 > OWN past, never against other models - it is not a leaderboard and never ranks,
 > rates, scores, or certifies a model.
@@ -154,19 +156,25 @@ def main():
 The seismograph is the second instrument of PipeRoll, the agent-incident
 measurement institution (the first is the verified incident registry at
 piperoll.org). Roster: {n_models} models across {n_labs} labs ({n_daily} measured
-daily on the canary battery, the rest weekly on the deep battery).
+daily on the canary battery; all {n_models} measured weekly on the deep battery).
 Baseline running since 2026-08-20. Latest daily reading: {latest};
 {n_read} daily readings witnessed.
 
 ## What the readings mean
 - Reading: a per-model, per-dimension aggregate from one battery run (pass rates,
-  refusal rates, token and latency distributions). No raw model text, no per-probe
+  token and latency distributions for active dimensions). No raw model text, no per-probe
   detail is ever published.
-- Movement: a change against the model's rolling baseline that survives
-  Benjamini-Hochberg FDR correction at alpha 0.01 - the strongest claim the
-  instrument makes.
-- Watch: nominally significant but unconfirmed, possibly noise. Under-alerting is
-  policy: the feed publishes raw movement, announcements require editor sign-off.
+- Pass-rate Movement: a change against the model's rolling baseline that survives
+  Benjamini-Hochberg FDR correction at alpha 0.01. A pass-rate Watch is nominally
+  significant (p < 0.01) but unconfirmed.
+- Thinking-token findings use relative-shift thresholds, not significance tests:
+  Watch at 50%, Movement at 100%; the detector also handles thinking appearing
+  on a previously zero-thinking channel under its stated rule.
+- Latency uses relative-shift thresholds and appears as Context, never a standalone
+  behavioural-drift claim. Coverage Watches in the feed indicate unassessable
+  series and appear as coverage status on the board.
+- Watches remain unconfirmed and may be noise. Under-alerting is policy:
+  the feed publishes detected movement; announcements require editor sign-off.
 - Drift means a model changing against itself over time, at pinned minimum-thinking
   settings. Dimensions: capability, instruction-following, structured-output,
   tool-call, sycophancy, verbosity.
@@ -184,9 +192,10 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
   anchor, and readings are their reproducible derivations.
 
 ## The readings (machine-readable, updated every run)
-- Movement + watch feed: https://seismo.piperoll.org/advisories.json - every
-  detected movement and watch, append-only, witnessed each run. This is "what
-  changed."
+- Movement + watch feed: https://seismo.piperoll.org/advisories.json - current
+  findings and coverage status plus an append-only log of non-latency Movements.
+  Current Watches and latency Context are refreshed each run, not appended to
+  that log. The feed is witnessed each run.
 - Full series: https://seismo.piperoll.org/series.json - per-model, per-dimension
   time series behind the board (pass rates, token and latency distributions).
 - Divergence (fixed-vs-dynamic gaps): https://seismo.piperoll.org/divergence.json -
@@ -216,7 +225,7 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
     # Static, crawlable content pages (methodology / models / findings). These
     # carry real server-rendered content for non-JS crawlers; the board at / is
     # the interactive view. Returns every page path for the sitemap.
-    page_paths = gen_pages.build_static_pages(series, advisories, sited)
+    page_paths = gen_pages.build_static_pages(series, advisories, sited, witnesses)
 
     # SEO: robots + a sitemap covering the board and every static page.
     open(os.path.join(sited, "robots.txt"), "w", encoding="utf-8").write(

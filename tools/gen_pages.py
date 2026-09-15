@@ -17,8 +17,13 @@ Pages:
 """
 
 import html
+import base64
+import hashlib
+import json
 import os
 import re
+from pathlib import Path
+from urllib.parse import urlencode
 
 BASE = "https://seismo.piperoll.org"
 REPO = "https://github.com/piperoll/seismograph"
@@ -78,6 +83,7 @@ def page(title, description, path, body, og_type="article"):
         f'<meta property="og:url" content="{url}">'
         '<meta property="og:image" content="https://seismo.piperoll.org/og.png">'
         '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+        '<meta property="og:image:alt" content="PipeRoll Seismograph: AI model behaviour, measured over time.">'
         '<meta name="twitter:card" content="summary_large_image">'
         '<meta name="twitter:image" content="https://seismo.piperoll.org/og.png">'
         f"<style>{CSS}</style></head><body><div class=\"wrap\">"
@@ -104,6 +110,32 @@ def _write(sited, path, content):
     os.makedirs(d, exist_ok=True)
     with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
         f.write(content)
+
+
+def reading_witnesses(root):
+    """Link a reading to a bundle with the same SHA-256 digest.
+
+    This associates artifacts; it does not verify the signature or Rekor proof.
+    Missing or mismatched bundles use the explicitly labelled directory fallback.
+    """
+    root = Path(root)
+    links = {}
+    for bundle in sorted((root / "witness").glob("*-reading-*.json.bundle.json")):
+        match = re.search(r"reading-(\d{4}-\d{2}-\d{2})-(daily|weekly)\.json\.bundle\.json$", bundle.name)
+        if not match:
+            continue
+        date, cadence = match.groups()
+        reading = root / "readings" / date[:4] / f"reading-{date}-{cadence}.json"
+        try:
+            digest = json.loads(bundle.read_text())["messageSignature"]["messageDigest"]
+            if digest.get("algorithm") != "SHA2_256":
+                continue
+            if base64.b64decode(digest["digest"], validate=True) != hashlib.sha256(reading.read_bytes()).digest():
+                continue
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+        links[f"{date}|{cadence}"] = f"{REPO}/blob/main/witness/{bundle.name}"
+    return links
 
 
 # --- finding derivation (mirrors the board's findingItems) -------------------
@@ -138,7 +170,7 @@ def finding_items(advisories, cad):
         if f.get("level") == "movement" and not latency:
             continue
         items.append({"model": f["model"], "f": f,
-                      "level": "watch" if latency else f.get("level"),
+                      "level": "context" if latency else f.get("level"),
                       "onset": cd, "latest": cd, "n": 1,
                       "dimension": f.get("dimension"), "metric": f.get("metric"),
                       "latency": latency})
@@ -152,7 +184,7 @@ def _num(v):
 NAMES = {"capability": "Capability", "instruction-following": "Instruction following",
          "structured-output": "Structured output", "tool-call": "Tool call",
          "sycophancy": "Sycophancy probes", "verbosity": "Verbosity probes"}
-ASSESS = {"assessed": "No findings in completed tests", "partial": "Assessment limited",
+ASSESS = {"assessed": "Assessed", "partial": "Assessment limited",
           "baseline": "Baseline accruing", "coverage": "Insufficient coverage",
           "absent": "No reading"}
 
@@ -220,7 +252,7 @@ def model_slug(mid):
 
 # --- page builders -----------------------------------------------------------
 
-def build_static_pages(series, advisories, sited):
+def build_static_pages(series, advisories, sited, witnesses=None):
     """Generate all static pages; return the list of URL paths for the sitemap."""
     paths = []
     daily_models = (series.get("daily", {}) or {}).get("models", {}) or {}
@@ -296,12 +328,13 @@ def build_static_pages(series, advisories, sited):
         "/findings/",
         '<div class="eyebrow">The feed</div><h1>Published findings</h1>'
         '<p class="lede">Every change the detector flagged against a model\'s own '
-        'witnessed baseline. Movements survive multiple-comparison correction; '
-        'watches are unconfirmed; latency is operational context.</p>'
+        'witnessed baseline. Pass-rate Movements survive multiple-comparison '
+        'correction; thinking-token Movements cross a relative-shift threshold. '
+        'Watches are unconfirmed; latency is operational context.</p>'
         + ("".join(frows) if frows else '<p class="note">No findings currently published.</p>')))
     paths.append("/findings/")
     for it in flat:
-        _write(sited, f"/findings/{finding_slug(it)}/", _finding_page(it, series))
+        _write(sited, f"/findings/{finding_slug(it)}/", _finding_page(it, series, witnesses))
         paths.append(f"/findings/{finding_slug(it)}/")
 
     return paths
@@ -317,8 +350,8 @@ def _methodology():
         '<h2>What it measures</h2>'
         '<p>Every day a fixed, private probe battery runs against the model APIs in '
         'the roster. Responses are graded by deterministic, versioned code - no LLM '
-        'judge. The result is a per-model, per-dimension reading: pass rates, refusal '
-        'rates, token and latency distributions. No raw model text and no per-probe '
+        'judge. The public board shows per-model, per-dimension pass rates, '
+        'token and latency distributions for the active dimensions. No raw model text and no per-probe '
         'detail is ever published.</p>'
         '<h2>Two batteries</h2>'
         '<p>A <b>daily canary</b> (a fast, shallow tripwire) runs against the '
@@ -362,16 +395,33 @@ def _methodology():
 
 
 def _model_page(mid, dm, wm, assess, its):
-    src = dm or wm or {}
-    cad = "daily" if dm else "weekly"
-    dates = src.get("dates") or []
-    provider = src.get("provider") or "-"
-    tier = src.get("tier") or ("daily" if dm else "weekly")
-    st = (assess.get("daily") or assess.get("weekly") or {})
-    status = ASSESS.get(st.get("status"), "measured")
-    elig = (f" ({st.get('eligible')}/{st.get('attempted')} metrics eligible)"
-            if st.get("attempted") else "")
-    rng = (f"{dates[0]} to {dates[-1]}" if dates else "-")
+    sources = [(cad, src) for cad, src in (("daily", dm), ("weekly", wm)) if src]
+    cadences = " and ".join(cad for cad, _ in sources)
+    rows, notes, explore, summaries = [], [], [], []
+    for cad, src in sources:
+        dates = src.get("dates") or []
+        st = assess.get(cad) or {}
+        status = ASSESS.get(st.get("status"), "Assessment not reported")
+        elig = (f" ({st.get('eligible')}/{st.get('attempted')} metrics eligible)"
+                if st.get("attempted") else "")
+        rng = f"{dates[0]} to {dates[-1]}" if dates else "no readings"
+        rows.append(
+            f'<tr><th>{cad} battery</th><td>{len(dates)} readings ({esc(rng)})<br>'
+            f'Latest assessment: {esc(status)}{elig}</td></tr>')
+        summaries.append(f"{cad}: {status}")
+        if st.get("status") == "assessed":
+            note = "No findings in completed eligible tests on the latest reading."
+        elif st.get("status") == "partial":
+            note = "Only some metrics could be assessed; the rest lacked baseline or coverage."
+        elif st.get("status") == "baseline":
+            note = "No assessment completes until enough baseline readings accumulate."
+        elif st.get("status") == "coverage":
+            note = "The latest reading could not be assessed because it lacked gradable calls."
+        else:
+            note = "No assessment conclusion is available for the latest reading."
+        notes.append(f'<p class="note">{cad.capitalize()}: {note}</p>')
+        params = urlencode({"model": mid, "cadence": cad})
+        explore.append(f'<a href="/#dossier?{esc(params)}">Open the {cad} dossier</a>')
     cards = ""
     for it in its:
         f = it["f"]
@@ -383,43 +433,40 @@ def _model_page(mid, dm, wm, assess, its):
             f'<span class="pill {pcls}">{plabel}</span></h3>'
             f'<div class="ba">{_fmt(f.get("baseline"), f)}<span class="to">&rarr;</span>'
             f'{_fmt(f.get("current"), f)}</div>'
-            f'<div class="meta">{_rule(f)} &middot; first flagged {esc(it["onset"])}</div></div>')
-    if not cards:
-        cards = f'<p class="note">{esc(status)}{elig} on the latest reading. No movement or watch.</p>'
+            f'<div class="meta">{esc(it["cad"])} battery &middot; {_rule(f)} '
+            f'&middot; first flagged {esc(it["onset"])}</div></div>')
+    src = dm or wm or {}
     body = (
         '<div class="eyebrow">Model</div>'
         f'<h1>{esc(mid)}</h1>'
-        f'<p class="lede">Measured against its own past on the {cad} battery. '
-        'This is a within-model record, never a comparison to other models.</p>'
+        f'<p class="lede">Measured against its own past on the {cadences} '
+        'batteries. Each battery has its own history and assessment.</p>'
         '<table>'
-        f'<tr><th>provider channel</th><td>{esc(provider)}</td></tr>'
-        f'<tr><th>battery</th><td>{esc(cad)} ({esc(tier)})</td></tr>'
-        f'<tr><th>readings</th><td>{len(dates)} ({esc(rng)})</td></tr>'
-        f'<tr><th>latest assessment</th><td>{esc(status)}{elig}</td></tr>'
-        '</table>'
-        '<h2>Published findings</h2>'
-        f'{cards}'
-        '<h3>Explore</h3>'
-        f'<p><a href="/">Open the interactive board</a> to see this model\'s full '
-        f'dimension history, or read the '
-        f'<a href="{REPO}/tree/main/readings/2026">witnessed readings</a> directly.</p>'
+        f'<tr><th>provider channel</th><td>{esc(src.get("provider") or "-")}</td></tr>'
+        + "".join(rows) + '</table><h2>Published findings</h2>'
+        + (cards or "".join(notes))
+        + '<h3>Explore</h3><p>' + " &middot; ".join(explore)
+        + '. Each dossier shows this model and battery, with the full dimension history.</p>'
     )
-    findings_note = (f"{len(its)} published finding{'s' if len(its) != 1 else ''}; "
+    findings_note = (f"{len(its)} published finding{'s' if len(its) != 1 else ''}. "
                      if its else "")
     return page(
         f"{mid} - drift readings - PipeRoll Seismograph",
-        f"Behavioural-drift readings for {mid}, measured against its own past on the {cad} battery. {findings_note}Latest assessment: {status}. Readings, not ratings.",
+        f"Behavioural-drift readings for {mid}, measured against its own past. {findings_note}"
+        + "Latest assessments: " + "; ".join(summaries) + ". Readings, not ratings.",
         f"/models/{model_slug(mid)}/", body)
 
 
-def _finding_page(it, series):
+def _finding_page(it, series, witnesses=None):
     f = it["f"]
     cad = it["cad"]
     latency = str(it["metric"] or "").startswith("latency")
     plabel = "Movement" if it["level"] == "movement" else ("Context" if latency else "Watch")
     pcls = "mv" if it["level"] == "movement" else "wt"
-    reading_url = f"{REPO}/blob/main/readings/2026/reading-{it['onset']}-{cad}.json"
-    witness_url = f"{REPO}/tree/main/witness"
+    reading_url = f"{REPO}/blob/main/readings/{it['onset'][:4]}/reading-{it['onset']}-{cad}.json"
+    witness_url = (witnesses or {}).get(f"{it['onset']}|{cad}")
+    witness_label = "Rekor witness bundle" if witness_url else "Rekor witness directory"
+    witness_url = witness_url or f"{REPO}/tree/main/witness"
     persist = (f"still flagged {it['latest']} ({it['n']} readings)"
                if it["latest"] > it["onset"] else "latest reading")
     # coverage: call errors on the onset reading, from series
@@ -448,10 +495,11 @@ def _finding_page(it, series):
         + '</table>'
         '<h3>Trace the evidence</h3>'
         f'<p><a href="{reading_url}">The witnessed reading</a> for this date and battery, '
-        f'and its <a href="{witness_url}">Rekor witness bundle</a>. '
+        f'and the <a href="{witness_url}">{witness_label}</a>. '
         f'The full series is in <a href="/series.json">series.json</a>.</p>'
-        '<p class="note">A finding says a model\'s measured behaviour changed, not why. '
-        'Cause is a separate question the instrument does not settle.</p>'
+        '<p class="note">This entry records an observation under the stated decision rule. '
+        'Watches remain unconfirmed; latency is operational context. '
+        'The instrument does not establish the cause of a change.</p>'
     )
     desc = (f"{plabel}: {it['model']} {head.lower()}, {_fmt(f.get('baseline'), f)} to "
             f"{_fmt(f.get('current'), f)}, first flagged {it['onset']}. "
