@@ -199,6 +199,12 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
 """
     open(os.path.join(sited, "llms.txt"), "w", encoding="utf-8").write(_llms)
 
+    # Favicon: the PipeRoll wax seal (shared institutional identity), served
+    # same-origin so the board stays free of external requests.
+    favicon = os.path.join(os.path.dirname(TEMPLATE), "favicon.svg")
+    if os.path.exists(favicon):
+        shutil.copyfile(favicon, os.path.join(sited, "favicon.svg"))
+
     # custom domain for GitHub Pages: OPT-IN via SEISMO_CNAME (default off).
     # Emitting a CNAME makes github.io 301-redirect to that domain immediately,
     # so it must only be set once the domain is verified + serving in GitHub
