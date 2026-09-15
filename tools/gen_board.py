@@ -268,9 +268,10 @@ tr.mrow:hover td,tr.mrow:focus td{background:var(--keysoft)}
 #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--paper);
  font:.75rem "IBM Plex Mono",monospace;padding:.2rem .5rem;border-radius:4px;
  z-index:50;transform:translate(-50%,-130%)}
-#dissect{background:var(--panel);border:1px solid var(--rule);border-radius:8px;
- padding:1rem 1.3rem;margin:1rem 0;max-width:76rem}
-#dissect h3{font-family:"IBM Plex Mono",monospace;font-size:.95rem;margin:.2rem 0 .8rem}
+.dxrow td{padding:0;background:var(--paper)}
+.dissect{background:var(--panel);border:1px solid var(--rule);border-radius:8px;
+ padding:1rem 1.3rem;margin:.4rem 0}
+.dissect h3{font-family:"IBM Plex Mono",monospace;font-size:.95rem;margin:.2rem 0 .8rem}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:1rem}
 .dcell{border:1px solid var(--rule);border-radius:6px;padding:.5rem .7rem;background:var(--paper)}
 .dcell h4{margin:0 0 .2rem;font:600 .68rem "IBM Plex Sans",sans-serif;
@@ -331,7 +332,12 @@ function mini(dates,vals,w,h){
     dots+=`<circle cx='${X(i).toFixed(1)}' cy='${Y(v).toFixed(1)}' r='2.2' class='dot' data-tip='${dates[i]}: ${pct(v)}'/>`;
   return `<svg width='${w}' height='${h}'><path d='${path}' class='trend' style='stroke-width:1.4'/>${dots}</svg>`;
 }
-function dissect(mid,cad){
+let openRow=null;
+function dissect(mid,cad,tr){
+  // toggle: clicking the row whose panel is open closes it; otherwise open here
+  const toggleOff=openRow&&openRow.previousElementSibling===tr;
+  if(openRow){openRow.remove();openRow=null;}
+  if(toggleOff)return;
   const e=P[cad][mid]; if(!e)return;
   let cells='';
   for(const d of P.dims){
@@ -346,16 +352,19 @@ function dissect(mid,cad){
   const cost=e.cost[e.cost.length-1];
   const calls=e.calls[e.calls.length-1];
   const costs=e.cost.filter(c=>c!=null);
-  dEl.innerHTML=`<button class='dclose' onclick="this.parentNode.hidden=true">close</button>
+  const xr=document.createElement('tr');
+  xr.className='dxrow';
+  xr.innerHTML=`<td colspan='7'><div class='dissect'><button class='dclose' onclick="this.closest('tr').remove()">close</button>
     <h3>${mid} <span class='quiet'>(${cad})</span></h3>
     <div class='dgrid'>${cells}</div>
     <div class='drow'>errored calls today by cause: <b>${errs}</b></div>
     <div class='drow'>est. cost: today <b>${cost==null?'unpriced':'$'+cost.toFixed(3)}</b>${cost!=null?` (${calls} calls, $${(cost/calls).toFixed(5)}/call)`:''}${costs.length>1?` &middot; ${costs.length}-day total $${costs.reduce((a,b)=>a+b,0).toFixed(2)}`:''}</div>
-    <div class='drow'>latency today: <b>${e.lat50[e.lat50.length-1]==null?'–':Math.round(e.lat50[e.lat50.length-1])+' ms p50 / '+Math.round(e.lat95[e.lat95.length-1])+' ms p95'}</b> <span class='quiet'>(context only - never a drift claim)</span></div>`;
-  dEl.hidden=false; dEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    <div class='drow'>latency today: <b>${e.lat50[e.lat50.length-1]==null?'–':Math.round(e.lat50[e.lat50.length-1])+' ms p50 / '+Math.round(e.lat95[e.lat95.length-1])+' ms p95'}</b> <span class='quiet'>(context only - never a drift claim)</span></div></div></td>`;
+  tr.parentNode.insertBefore(xr,tr.nextSibling);
+  openRow=xr;
 }
 document.querySelectorAll('tr.mrow').forEach(tr=>{
-  const go=()=>dissect(tr.dataset.mid,tr.dataset.cad);
+  const go=()=>dissect(tr.dataset.mid,tr.dataset.cad,tr);
   tr.addEventListener('click',go);
   tr.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 });
@@ -391,7 +400,6 @@ Readings: {datelist}. Click any row to open it. New here? <a href="#guide">How t
 <tr><th>model</th><th>trendline</th><th>today</th><th>7d</th><th>30d</th><th>flags (today)</th><th>latency ms p50 / p95</th></tr>
 {rows(D,"daily")}
 </table></div>
-<div id="dissect" hidden></div>
 <h2>Deep battery (weekly, all {n_models} models, 87 probes)</h2>
 <div class="notice">First deep reading 2026-08-27. The 2026-08-30 deep run's digest was lost to a
 push race before commit; it has been reconstructed from its witnessed raw session (marked
