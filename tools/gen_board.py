@@ -102,12 +102,15 @@ def main():
     def _embed(obj):
         return json.dumps(obj, separators=(",", ":")).replace("<", "\\u003c")
 
+    seo_latest = series.get("latest_reading") or \
+        __import__("datetime").date.today().isoformat()
     template = open(TEMPLATE, encoding="utf-8").read()
     for slot in ("__PAYLOAD__", "__ADVISORIES__"):
         if slot not in template:
             raise SystemExit(f"board_template.html has no {slot} slot")
     page = (template.replace("__PAYLOAD__", _embed(series))
-                    .replace("__ADVISORIES__", _embed(advisories)))
+                    .replace("__ADVISORIES__", _embed(advisories))
+                    .replace("__LATEST_READING__", seo_latest))
 
     sited = os.path.dirname(os.path.abspath(OUT))
     os.makedirs(sited, exist_ok=True)
@@ -211,11 +214,13 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
         "User-agent: *\nAllow: /\nSitemap: https://seismo.piperoll.org/sitemap.xml\n")
     lastmod = latest if latest and latest != "unknown" else \
         __import__("datetime").date.today().isoformat()
+    # lastmod = the latest reading date (each reading is a substantive content
+    # change to the board). priority/changefreq omitted - search engines ignore
+    # them.
     open(os.path.join(sited, "sitemap.xml"), "w", encoding="utf-8").write(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        f'<url><loc>https://seismo.piperoll.org/</loc><lastmod>{lastmod}</lastmod>'
-        '<changefreq>daily</changefreq><priority>1.0</priority></url>\n'
+        f'<url><loc>https://seismo.piperoll.org/</loc><lastmod>{lastmod}</lastmod></url>\n'
         '</urlset>\n')
 
     # custom domain for GitHub Pages: OPT-IN via SEISMO_CNAME (default off).
