@@ -425,4 +425,57 @@ open(OUT,"w").write(page)
 _cname = os.environ.get("SEISMO_CNAME", "").strip()
 if _cname:
     open(os.path.join(os.path.dirname(os.path.abspath(OUT)), "CNAME"), "w").write(_cname + "\n")
+
+# llms.txt - a concise, LLM-readable description of the instrument, regenerated
+# with the board so its figures stay current (the /llms.txt convention).
+_llms = f"""# PipeRoll Seismograph
+
+> An independent observatory for AI model behavioural drift. It runs a fixed,
+> private probe battery every day against the model APIs that agent fleets depend
+> on, and publishes detected behavioural change as witnessed statistical readings:
+> "model X changed on date Y, in dimension Z." It measures each model against its
+> OWN past, never against other models - it is not a leaderboard and never ranks,
+> rates, scores, or certifies a model.
+
+The seismograph is the second instrument of PipeRoll, the agent-incident
+measurement institution (the first is the verified incident registry at
+piperoll.org). Roster: {n_models} models across {n_labs} providers, measured daily.
+Baseline running since 2026-08-20. Latest daily reading: {latest['reading_date']};
+{n_read} daily readings witnessed.
+
+## What the readings mean
+- Reading: a per-model, per-dimension aggregate from one battery run (pass rates,
+  refusal rates, token and latency distributions). No raw model text, no per-probe
+  detail is ever published.
+- Movement: a change against the model's rolling baseline that survives
+  Benjamini-Hochberg FDR correction at alpha 0.01 - the strongest claim the
+  instrument makes.
+- Watch: nominally significant but unconfirmed, possibly noise. Under-alerting is
+  policy: the feed publishes raw movement, announcements require editor sign-off.
+- Drift means a model changing against itself over time, at pinned minimum-thinking
+  settings. Dimensions: capability, instruction-following, structured-output,
+  tool-call, sycophancy, verbosity (refusal-boundary is parked).
+
+## How it works
+- The probe battery is private; its sha256 is public and witnessed with every
+  reading, so the series is provably unchanged without revealing the probes.
+- Every reading is hash-anchored in the Rekor public transparency log at
+  measurement time, so baselines provably predate the events they are later cited
+  against.
+- Two tiers: a fixed frozen ruler (drift) plus a seeded procedural dynamic control
+  (an anti-gaming tripwire; a persistent fixed-over-dynamic gap is a Divergence
+  finding). Grading is mechanical, deterministic code - no LLM judge.
+- Readings are the published artifact; the private raw sessions are the witnessed
+  anchor, and readings are their reproducible derivations.
+
+## Key resources
+- Methodology charter (ratified 2026-09-15): https://github.com/piperoll/seismograph/blob/main/CHARTER.md
+- How it runs (README): https://github.com/piperoll/seismograph/blob/main/README.md
+- Repository (code, readings, witness bundles): https://github.com/piperoll/seismograph
+- PipeRoll incident registry (the first instrument): https://piperoll.org
+- The conditions board (this site): current levels, a trailing window, and every
+  movement/advisory - public and free forever.
+"""
+open(os.path.join(os.path.dirname(os.path.abspath(OUT)), "llms.txt"), "w").write(_llms)
+
 print("wrote",OUT,len(page),"bytes;",n_read,"daily readings;",len(W),"weekly models;",n_mv,"movement",n_watch,"watch")
