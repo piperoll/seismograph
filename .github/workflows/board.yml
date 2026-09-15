@@ -40,6 +40,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Build the board
+        # SEISMO_CNAME persists the custom domain in every deploy's CNAME file, so
+        # a deploy can't drop seismo.piperoll.org. Safe now that the domain is
+        # verified and serving with HTTPS.
+        env:
+          SEISMO_CNAME: seismo.piperoll.org
         run: python3 tools/gen_board.py site/index.html
       - name: Upload board as a workflow artifact (always)
         uses: actions/upload-artifact@v4
