@@ -420,6 +420,7 @@ stack, not model drift.</div>
 <dt>dissect</dt><dd>click a row to open it: score by topic, what any errors were, how much the model "thought", and estimated cost. Cost comes from a public price list; unpriced models say so instead of guessing.</dd>
 <dt>the words</dt><dd><b>Quiet</b>: we measured, nothing to report. <b>Watch</b>: something moved, probably noise, we keep watching. <b>Movement</b>: the same test, run the same way, says this model changed from its own past - that is all it says. Full definitions: STATES.md in the repo.</dd>
 <dt>what this is not</dt><dd>not a leaderboard. Rows are in roster order, not ranked. We answer "did this model change?", never "which model is best?".</dd>
+<dt>the data</dt><dd>the readings behind this board are public and machine-readable: <a href="advisories.json">advisories.json</a> (every movement and watch), <a href="series.json">series.json</a> (the full per-model series), <a href="divergence.json">divergence.json</a> (fixed-vs-dynamic gaps). <a href="llms.txt">llms.txt</a> describes the instrument for LLMs. CC BY 4.0.</dd>
 </dl>
 <script type="application/json" id="payload">{PJ}</script>
 <script>{js}</script>
@@ -476,6 +477,17 @@ Baseline running since 2026-08-20. Latest daily reading: {latest['reading_date']
 - Readings are the published artifact; the private raw sessions are the witnessed
   anchor, and readings are their reproducible derivations.
 
+## The readings (machine-readable, updated every run)
+- Movement + watch feed: https://seismo.piperoll.org/advisories.json - every
+  detected movement and watch, append-only, witnessed each run. This is "what
+  changed."
+- Full series: https://seismo.piperoll.org/series.json - per-model, per-dimension
+  time series behind the board (pass rates, token and latency distributions).
+- Divergence (fixed-vs-dynamic gaps): https://seismo.piperoll.org/divergence.json -
+  the anti-gaming tripwire; a persistent gap is a Divergence finding.
+- All three are also in the repository, and every reading is a witnessed document
+  in witness/ (Rekor bundles). No raw model text or per-probe detail is published.
+
 ## Key resources
 - Methodology charter (ratified 2026-09-15): https://github.com/piperoll/seismograph/blob/main/CHARTER.md
 - How it runs (README): https://github.com/piperoll/seismograph/blob/main/README.md
@@ -484,6 +496,14 @@ Baseline running since 2026-08-20. Latest daily reading: {latest['reading_date']
 - The conditions board (this site): current levels, a trailing window, and every
   movement/advisory - public and free forever.
 """
-open(os.path.join(os.path.dirname(os.path.abspath(OUT)), "llms.txt"), "w").write(_llms)
+_sited = os.path.dirname(os.path.abspath(OUT))
+open(os.path.join(_sited, "llms.txt"), "w").write(_llms)
+# Serve the machine-readable result feeds alongside the board so an agent can fetch
+# the actual readings, not just this description. Copied fresh every build.
+import shutil
+for _f in ("advisories.json", "series.json", "divergence.json"):
+    _src = os.path.join(ROOT, _f)
+    if os.path.exists(_src):
+        shutil.copyfile(_src, os.path.join(_sited, _f))
 
 print("wrote",OUT,len(page),"bytes;",n_read,"daily readings;",len(W),"weekly models;",n_mv,"movement",n_watch,"watch")
