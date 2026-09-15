@@ -418,9 +418,11 @@ stack, not model drift.</div>
 """
 os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
 open(OUT,"w").write(page)
-# custom domain for GitHub Pages: emit a CNAME next to index.html so every
-# Actions deploy keeps the domain (an Actions deploy without it would reset it).
-_cname = os.environ.get("SEISMO_CNAME", "seismo.piperoll.org")
+# custom domain for GitHub Pages: OPT-IN via SEISMO_CNAME (default off). Emitting
+# a CNAME makes github.io 301-redirect to that domain immediately, so it must only
+# be set once the domain is verified + serving in GitHub Pages - otherwise the board
+# goes dark at both URLs. When ready, set SEISMO_CNAME (repo variable / workflow env).
+_cname = os.environ.get("SEISMO_CNAME", "").strip()
 if _cname:
     open(os.path.join(os.path.dirname(os.path.abspath(OUT)), "CNAME"), "w").write(_cname + "\n")
 print("wrote",OUT,len(page),"bytes;",n_read,"daily readings;",len(W),"weekly models;",n_mv,"movement",n_watch,"watch")
