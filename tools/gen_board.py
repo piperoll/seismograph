@@ -365,7 +365,7 @@ page = f"""<title>Seismograph Conditions Board</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>{css}</style>
 <div class="masthead">
-<div class="org">PipeRoll &middot; Seismograph &mdash; private preview &middot; real readings, not published</div>
+<div class="org"><a href="https://piperoll.org">PipeRoll</a> &middot; Seismograph &mdash; live model-drift readings, witnessed daily</div>
 <h1>Conditions board</h1>
 <div class="meta">Readings, not ratings: each model is compared only to itself, never ranked.
 Roster v{latest['roster_version']} &middot; canary battery {latest['battery']['sha256'][:12]} &middot; grader {latest['grader_version']} &middot; every run Rekor-witnessed.</div>
