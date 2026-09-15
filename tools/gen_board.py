@@ -205,6 +205,19 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
     if os.path.exists(favicon):
         shutil.copyfile(favicon, os.path.join(sited, "favicon.svg"))
 
+    # SEO: robots + a one-URL sitemap (the board is a single page; the feeds and
+    # llms.txt are linked from it).
+    open(os.path.join(sited, "robots.txt"), "w", encoding="utf-8").write(
+        "User-agent: *\nAllow: /\nSitemap: https://seismo.piperoll.org/sitemap.xml\n")
+    lastmod = latest if latest and latest != "unknown" else \
+        __import__("datetime").date.today().isoformat()
+    open(os.path.join(sited, "sitemap.xml"), "w", encoding="utf-8").write(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f'<url><loc>https://seismo.piperoll.org/</loc><lastmod>{lastmod}</lastmod>'
+        '<changefreq>daily</changefreq><priority>1.0</priority></url>\n'
+        '</urlset>\n')
+
     # custom domain for GitHub Pages: OPT-IN via SEISMO_CNAME (default off).
     # Emitting a CNAME makes github.io 301-redirect to that domain immediately,
     # so it must only be set once the domain is verified + serving in GitHub
