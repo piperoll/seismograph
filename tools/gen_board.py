@@ -25,7 +25,9 @@ import sys
 ROOT = os.environ.get("SEISMO_ROOT") or os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import gen_pages  # noqa: E402  (sibling module: static content pages)
 from seismo.series import build_series  # noqa: E402
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "site", "index.html")
@@ -211,20 +213,27 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
     if os.path.exists(og):
         shutil.copyfile(og, os.path.join(sited, "og.png"))
 
-    # SEO: robots + a one-URL sitemap (the board is a single page; the feeds and
-    # llms.txt are linked from it).
+    # Static, crawlable content pages (methodology / models / findings). These
+    # carry real server-rendered content for non-JS crawlers; the board at / is
+    # the interactive view. Returns every page path for the sitemap.
+    page_paths = gen_pages.build_static_pages(series, advisories, sited)
+
+    # SEO: robots + a sitemap covering the board and every static page.
     open(os.path.join(sited, "robots.txt"), "w", encoding="utf-8").write(
         "User-agent: *\nAllow: /\nSitemap: https://seismo.piperoll.org/sitemap.xml\n")
     lastmod = latest if latest and latest != "unknown" else \
         __import__("datetime").date.today().isoformat()
     # lastmod = the latest reading date (each reading is a substantive content
-    # change to the board). priority/changefreq omitted - search engines ignore
-    # them.
+    # change). priority/changefreq omitted - search engines ignore them.
+    urls = ["/"] + list(page_paths)
+    entries = "".join(
+        f'<url><loc>https://seismo.piperoll.org{u}</loc>'
+        f'<lastmod>{lastmod}</lastmod></url>\n' for u in urls)
     open(os.path.join(sited, "sitemap.xml"), "w", encoding="utf-8").write(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        f'<url><loc>https://seismo.piperoll.org/</loc><lastmod>{lastmod}</lastmod></url>\n'
-        '</urlset>\n')
+        f'{entries}</urlset>\n')
+    print(f"static pages: {len(page_paths)}")
 
     # custom domain for GitHub Pages: OPT-IN via SEISMO_CNAME (default off).
     # Emitting a CNAME makes github.io 301-redirect to that domain immediately,
