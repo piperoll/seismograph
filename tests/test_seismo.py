@@ -762,5 +762,46 @@ class TestDivergence(unittest.TestCase):
         self.assertEqual(rep["verdict"], "baseline-accruing")
 
 
+class ScrubTest(unittest.TestCase):
+    """The harmful-response scrub empties refusal-boundary text, keeps everything
+    else, and is idempotent - the write-time half of the clean-slate policy."""
+
+    def _write(self, records):
+        fd, path = tempfile.mkstemp(suffix=".jsonl")
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            for r in records:
+                f.write(json.dumps(r) + "\n")
+        self.addCleanup(os.unlink, path)
+        return path
+
+    def test_scrub_drops_only_sensitive_text_keeps_stats(self):
+        from seismo import scrub
+        path = self._write([
+            {"model_id": "m", "dimension": "refusal-boundary", "text": "HARMFUL",
+             "status": 200, "output_tokens": 42, "latency_ms": 900.5, "finish": "stop"},
+            {"model_id": "m", "dimension": "capability", "text": "benign",
+             "status": 200, "output_tokens": 3},
+            {"model_id": "m", "dimension": "refusal-boundary", "text": None,
+             "status": 400, "output_tokens": None},
+        ])
+        removed = scrub.scrub_session(path)
+        self.assertEqual(removed, 1)  # only the one with non-empty harmful text
+        recs = [json.loads(x) for x in open(path, encoding="utf-8")]
+        rb = [r for r in recs if r["dimension"] == "refusal-boundary"]
+        cap = [r for r in recs if r["dimension"] == "capability"][0]
+        # every refusal-boundary record: text gone, marked scrubbed, stats intact
+        for r in rb:
+            self.assertIsNone(r["text"])
+            self.assertTrue(r["scrubbed"])
+        self.assertEqual(rb[0]["output_tokens"], 42)
+        self.assertEqual(rb[0]["latency_ms"], 900.5)
+        self.assertEqual(rb[0]["status"], 200)
+        # benign dimension is untouched
+        self.assertEqual(cap["text"], "benign")
+        self.assertNotIn("scrubbed", cap)
+        # idempotent
+        self.assertEqual(scrub.scrub_session(path), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -122,6 +122,16 @@ jobs:
           DSESSION=$(ls -1t raw/session-*-"$CAD".jsonl | head -1)
           python3 -m seismo.digest --dynamic "$DSESSION" --out readings
 
+      - name: Scrub harmful response text before witnessing
+        run: |
+          # The refusal-boundary probes elicit harmful content; grading is done
+          # (both digests ran above), so the model's actual responses to those
+          # probes are removed from every raw session now, BEFORE the sessions are
+          # witnessed and archived. Non-text stats (status, tokens, latency) stay.
+          # The reading already captured the pass rate; the archive never keeps
+          # the harmful text.
+          python3 -m seismo.scrub raw/session-*.jsonl
+
       - name: Rebuild the series artifact
         run: python3 -m seismo.series
 
