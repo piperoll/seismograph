@@ -1,6 +1,6 @@
 {
-  "roster_version": "0.19",
-  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which (with its sibling Claude Fable 5.1) is on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 or claude-fable-5.1 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable. v0.16 (Sep 2 2026): documented freeze exception - added claude-fable-5.1 (new frontier release). A pure addition of a new weekly model starts its own independent series and does not touch the 22 existing baselines (detection pools each model+dimension series independently), so the freeze's purpose - protecting existing stillness - is preserved. v0.17 (Sep 4 2026): same freeze exception - added gpt-6-astra (OpenAI's new frontier model, released Sep 3, first at the 'Critical' cyber threshold). Pre-staged with availability=pending: API access is rolling out (Daybreak Access first, developers 'in coming days'). The runner preflights an availability=pending model once per run; if the account cannot reach it yet (not-found / no-access), it is set aside in the meta's skipped_access_pending list - like a keyless model - so it produces NO error records and raises NO coverage finding. The instant the preflight succeeds it joins the run and starts accruing its own baseline, with no config change. Weekly cadence, so first real attempt is the next weekly deep run. Remove the availability flag once access is confirmed live (cosmetic - it only gates the pending-error handling). v0.18 (Sep 6 2026): gpt-6-astra CONFIRMED reachable on our key in the first weekly, but every call was rejected because it does not accept reasoning_effort='none' (supports low/medium/high/xhigh) - set to 'low' (its minimum-thinking channel, the baseline policy). Removed availability=pending (access confirmed; preflight no longer needed for it). v0.19 (Sep 22 2026): freeze exception - four same-day frontier releases added on EXISTING keys (no new billing surface): claude-opus-5-5 (Anthropic Opus 5.5, 'first model since we called for pacing the frontier', weekly/premium), gpt-6-sol + gpt-6-luna (OpenAI's two cheaper GPT-6 models, Sep 22; reasoning_effort='low' matching gpt-6-astra which rejects 'none'), and grok-4.7 (xAI, Sep 21). All four API strings verified against provider docs. Pure additions: each starts its own independent series and does not touch existing baselines. Pre-staged availability=pending so today's rolling API access produces no error/coverage noise until each preflight succeeds; remove the flag once access is confirmed live. v0.19 access confirmed (Sep 25 2026): all four Sep 21-22 additions returned graded 7/7 on live keys (gpt-6-luna + grok-4.7 daily, claude-opus-5-5 + gpt-6-sol weekly); removed availability=pending (cosmetic - preflight no longer needed).",
+  "roster_version": "0.20",
+  "comment": "Coverage is exposure-weighted: workhorse/cheap tiers daily, premium weekly. identity=alias means the provider may move the model behind the name; identity=pinned means the version string promises stability - drift behind a pinned id is a headline finding. Disclosure (rule 4): the instrument's tooling is authored with Claude Fable 5, which (with its sibling Claude Fable 5.1) is on this roster; the measurement path is deterministic code end to end (no LLM judgment), and the conflict is disclosed wherever readings for claude-fable-5 or claude-fable-5.1 are published. ROSTER FREEZE (v0.15, Aug 27 2026): frozen to let baselines accrue toward the 14-reading window - no additions or setting changes until charter ratification except to fix an outright-broken model. A roster change starts a new series segment; stillness is what makes movements claimable. v0.16 (Sep 2 2026): documented freeze exception - added claude-fable-5.1 (new frontier release). A pure addition of a new weekly model starts its own independent series and does not touch the 22 existing baselines (detection pools each model+dimension series independently), so the freeze's purpose - protecting existing stillness - is preserved. v0.17 (Sep 4 2026): same freeze exception - added gpt-6-astra (OpenAI's new frontier model, released Sep 3, first at the 'Critical' cyber threshold). Pre-staged with availability=pending: API access is rolling out (Daybreak Access first, developers 'in coming days'). The runner preflights an availability=pending model once per run; if the account cannot reach it yet (not-found / no-access), it is set aside in the meta's skipped_access_pending list - like a keyless model - so it produces NO error records and raises NO coverage finding. The instant the preflight succeeds it joins the run and starts accruing its own baseline, with no config change. Weekly cadence, so first real attempt is the next weekly deep run. Remove the availability flag once access is confirmed live (cosmetic - it only gates the pending-error handling). v0.18 (Sep 6 2026): gpt-6-astra CONFIRMED reachable on our key in the first weekly, but every call was rejected because it does not accept reasoning_effort='none' (supports low/medium/high/xhigh) - set to 'low' (its minimum-thinking channel, the baseline policy). Removed availability=pending (access confirmed; preflight no longer needed for it). v0.19 (Sep 22 2026): freeze exception - four same-day frontier releases added on EXISTING keys (no new billing surface): claude-opus-5-5 (Anthropic Opus 5.5, 'first model since we called for pacing the frontier', weekly/premium), gpt-6-sol + gpt-6-luna (OpenAI's two cheaper GPT-6 models, Sep 22; reasoning_effort='low' matching gpt-6-astra which rejects 'none'), and grok-4.7 (xAI, Sep 21). All four API strings verified against provider docs. Pure additions: each starts its own independent series and does not touch existing baselines. Pre-staged availability=pending so today's rolling API access produces no error/coverage noise until each preflight succeeds; remove the flag once access is confirmed live. v0.19 access confirmed (Sep 25 2026): all four Sep 21-22 additions returned graded 7/7 on live keys (gpt-6-luna + grok-4.7 daily, claude-opus-5-5 + gpt-6-sol weekly); removed availability=pending (cosmetic - preflight no longer needed). v0.20 (Sep 27 2026): exposure-weighting check against OpenRouter's real-usage rankings (tokens processed, week ending Sep 25): the roster covered 8 of the top 10 models; the two gaps were Qwen3.8 Max (#3, ~11T tokens/week) and Xiaomi MiMo-V2.6-Pro (#10, ~3T). Both are served on DeepInfra, so added on the EXISTING key with no new billing surface: qwen3.8-max@deepinfra (Qwen/Qwen3.8-Max) and mimo-v2.6-pro@deepinfra (XiaomiMiMo/MiMo-V2.6-Pro), both daily/cheap per the open-weights model@provider convention (serving fidelity). Model strings verified against DeepInfra's own model list. token_headroom 4096 (flagship reasoning-capable models; tune after the first clean run). Pure additions; pre-staged availability=pending - remove once each preflight succeeds. Coverage of OpenRouter's top 10 by usage is now 10/10.",
   "models": [
     {
       "id": "claude-sonnet-5",
@@ -309,6 +309,18 @@
       "token_headroom": 2048
     },
     {
+      "id": "qwen3.8-max@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "Qwen/Qwen3.8-Max",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "availability": "pending",
+      "token_headroom": 4096
+    },
+    {
       "id": "deepseek-reasoner@deepseek",
       "provider": "openai_compat",
       "base_url": "https://api.deepseek.com/v1",
@@ -351,6 +363,18 @@
       "cadence": "daily",
       "env_key": "DEEPINFRA_API_KEY",
       "token_headroom": 16384
+    },
+    {
+      "id": "mimo-v2.6-pro@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "XiaomiMiMo/MiMo-V2.6-Pro",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "availability": "pending",
+      "token_headroom": 4096
     }
   ]
 }
