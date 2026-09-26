@@ -132,7 +132,7 @@ def main():
     # authority). The lab count is a curated roster fact (DeepInfra alone hosts
     # four labs behind one API key, so it cannot be derived from provider keys);
     # keep ROSTER_LABS in step with README.md's roster paragraph.
-    ROSTER_LABS = 12
+    ROSTER_LABS = 13
     daily = series.get("daily", {}).get("models", {}) or {}
     n_daily = len(daily)
     try:
