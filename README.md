@@ -54,9 +54,9 @@ certificate as the registry.
 - **Every reading pins its full provenance**: battery sha256, roster version,
   runner version, grader version, and the git commit of the running code. A
   reading is a self-describing, citable document.
-- **The roster** (`config/models.json`, v0.19): 28 models across 12 labs -
+- **The roster** (`config/models.json`, v0.20): 33 models across 15 labs -
   Anthropic, OpenAI, Google, xAI, DeepSeek, Moonshot, Mistral, Alibaba, Zhipu,
-  Meta, MiniMax, and Sarvam - 21 daily, 7 weekly. Settings are part of the
+  Meta, MiniMax, Xiaomi, Tencent, NVIDIA, and Sarvam - 26 daily, 7 weekly. Settings are part of the
   instrument: every model runs its provider's minimum-thinking channel, pinned
   in the roster; any settings change bumps the roster version and starts a new
   series segment.
