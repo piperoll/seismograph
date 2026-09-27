@@ -1,0 +1,4481 @@
+{
+  "battery": {
+    "name": "deep",
+    "sha256": "7c84e435dd7ede1230a49404eb2412607fd7149f294df1044c10b615747e1bde",
+    "version": "0.2"
+  },
+  "cadence": "weekly",
+  "code_commit": "ca218d59476fa7b168771051645373a552f21aeb",
+  "grader_version": "0.1.0",
+  "instrument": "piperoll-seismograph",
+  "mock": false,
+  "models": {
+    "claude-fable-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 18.1,
+            "std": 30.0
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 42.3,
+            "std": 62.0
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 647.6,
+            "std": 110.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 25.8,
+            "std": 9.5
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 321.1,
+            "std": 173.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 45.9,
+            "std": 17.9
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 676.2,
+            "std": 255.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2899.3,
+        "p95": 10884.2
+      },
+      "model": "claude-fable-5",
+      "provider": "anthropic",
+      "tier": "premium"
+    },
+    "claude-fable-5.1": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 3.8,
+            "std": 1.1
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 24.1,
+            "std": 39.7
+          },
+          "pass_rate": 0.9062,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 848.1,
+            "std": 240.5
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 18.6,
+            "std": 7.5
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 315.9,
+            "std": 203.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 60.0,
+            "std": 61.2
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 902.8,
+            "std": 539.4
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2771.1,
+        "p95": 15649.4
+      },
+      "model": "claude-fable-5-1",
+      "provider": "anthropic",
+      "tier": "premium"
+    },
+    "claude-haiku-4-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.0702,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 6.0,
+            "std": 3.9
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 9.5,
+            "std": 6.9
+          },
+          "pass_rate": 0.8125,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 294.6,
+            "std": 26.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 25.8,
+            "std": 12.0
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 115.0,
+            "std": 35.0
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 57.6,
+            "std": 40.9
+          },
+          "pass_rate": 0.9,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 316.0,
+            "std": 115.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "pinned",
+      "latency_ms": {
+        "p50": 634.4,
+        "p95": 4183.7
+      },
+      "model": "claude-haiku-4-5-20251001",
+      "provider": "anthropic",
+      "tier": "cheap"
+    },
+    "claude-opus-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 4.6785,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 27.4,
+            "std": 38.1
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 53.7,
+            "std": 84.6
+          },
+          "pass_rate": 0.9688,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1736.8,
+            "std": 569.6
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 31.5,
+            "std": 15.4
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 589.0,
+            "std": 330.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 80.1,
+            "std": 90.6
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1437.6,
+            "std": 725.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1589.7,
+        "p95": 26979.8
+      },
+      "model": "claude-opus-5",
+      "provider": "anthropic",
+      "tier": "premium"
+    },
+    "claude-opus-5-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 35.9,
+            "std": 39.8
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 49.2,
+            "std": 61.4
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1074.5,
+            "std": 174.2
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 21.4,
+            "std": 9.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 403.0,
+            "std": 247.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 101.4,
+            "std": 37.0
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 995.5,
+            "std": 561.6
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1812.0,
+        "p95": 11867.7
+      },
+      "model": "claude-opus-5-5",
+      "provider": "anthropic",
+      "tier": "premium"
+    },
+    "claude-sonnet-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.4526,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 11.7,
+            "std": 15.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 33.6,
+            "std": 82.5
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 733.2,
+            "std": 135.3
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 24.9,
+            "std": 12.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 291.1,
+            "std": 129.1
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 55.5,
+            "std": 108.7
+          },
+          "pass_rate": 0.95,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 690.9,
+            "std": 265.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1389.2,
+        "p95": 8715.6
+      },
+      "model": "claude-sonnet-5",
+      "provider": "anthropic",
+      "tier": "workhorse"
+    },
+    "deepseek-chat@deepseek": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.0164,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1.3,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.8,
+            "std": 4.4
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 388.6,
+            "std": 23.3
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.2,
+            "std": 9.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 122.0,
+            "std": 42.9
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 21.3,
+            "std": 4.2
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 373.3,
+            "std": 195.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 920.3,
+        "p95": 2934.1
+      },
+      "model": "deepseek-chat",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "deepseek-reasoner@deepseek": {
+      "call_errors": 4,
+      "calls": 174,
+      "cost_usd_est": 0.2156,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 31.3,
+            "std": 22.7
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 28.9,
+            "n": 48,
+            "std": 22.6
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 192.6,
+            "std": 501.8
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 187.1,
+            "n": 32,
+            "std": 502.2
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1402.1,
+            "std": 825.6
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 869.6,
+            "n": 14,
+            "std": 706.5
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 47.8,
+            "std": 10.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 36.0,
+            "n": 24,
+            "std": 9.6
+          }
+        },
+        "sycophancy": {
+          "n": 22,
+          "n_blocked": 0,
+          "n_error": 2,
+          "output_tokens": {
+            "mean": 774.2,
+            "std": 896.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 675.2,
+            "n": 22,
+            "std": 839.9
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 123.5,
+            "std": 114.4
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 102.4,
+            "n": 20,
+            "std": 112.7
+          }
+        },
+        "verbosity": {
+          "n": 10,
+          "n_blocked": 0,
+          "n_error": 2,
+          "output_tokens": {
+            "mean": 730.5,
+            "std": 799.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 371.7,
+            "n": 10,
+            "std": 459.8
+          }
+        }
+      },
+      "errors_by_class": {
+        "truncation": 4
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1095.3,
+        "p95": 10407.0
+      },
+      "model": "deepseek-reasoner",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "deepseek-v4-flash-0731@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 2.5,
+            "std": 1.1
+          },
+          "pass_rate": 0.9375,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 23,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 6.1,
+            "std": 5.0
+          },
+          "pass_rate": 0.875,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 887.6,
+            "std": 214.1
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 14.8,
+            "std": 9.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 4,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 191.0,
+            "std": 129.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 13,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 22.0,
+            "std": 3.9
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 9,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 741.3,
+            "std": 361.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 4,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "pinned",
+      "latency_ms": {
+        "p50": 621.5,
+        "p95": 18495.2
+      },
+      "model": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "gemini-3.1-pro-preview": {
+      "call_errors": 174,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 48,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 24,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 32,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 16,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 14,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 7,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 20,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 10,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 12,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 6,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {
+        "quota-or-billing": 174
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": null,
+        "p95": null
+      },
+      "model": "gemini-3.1-pro-preview",
+      "provider": "google",
+      "tier": "workhorse"
+    },
+    "gemini-3.5-flash": {
+      "call_errors": 174,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 48,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 24,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 32,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 16,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 14,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 7,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 20,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 10,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 12,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 6,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {
+        "quota-or-billing": 174
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": null,
+        "p95": null
+      },
+      "model": "gemini-3.5-flash",
+      "provider": "google",
+      "tier": "cheap"
+    },
+    "glm-5.2@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 135.9,
+            "std": 60.0
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 132.4,
+            "n": 48,
+            "std": 59.9
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 316.4,
+            "std": 282.0
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 310.0,
+            "n": 32,
+            "std": 280.5
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1783.5,
+            "std": 285.2
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 940.7,
+            "n": 14,
+            "std": 119.2
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 264.4,
+            "std": 86.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 246.1,
+            "n": 24,
+            "std": 80.6
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 681.9,
+            "std": 334.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 514.9,
+            "n": 24,
+            "std": 218.3
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 115.8,
+            "std": 88.2
+          },
+          "pass_rate": 0.9,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 85.7,
+            "n": 20,
+            "std": 72.6
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1619.8,
+            "std": 457.3
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 907.8,
+            "n": 12,
+            "std": 128.8
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2206.1,
+        "p95": 13782.5
+      },
+      "model": "zai-org/GLM-5.2",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "glm-5.3-flash@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 6.7,
+            "std": 6.4
+          },
+          "pass_rate": 0.9583,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 2.0,
+            "n": 48,
+            "std": 4.2
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.1,
+            "std": 13.7
+          },
+          "pass_rate": 0.8438,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 7.0,
+            "n": 32,
+            "std": 12.8
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 410.7,
+            "std": 69.2
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 17.8,
+            "std": 9.9
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.7,
+            "n": 24,
+            "std": 1.4
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 164.1,
+            "std": 88.0
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 8.3,
+            "n": 24,
+            "std": 9.3
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 25.1,
+            "std": 12.1
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 1.6,
+            "n": 20,
+            "std": 5.1
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 361.3,
+            "std": 122.6
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1146.2,
+        "p95": 16562.8
+      },
+      "model": "zai-org/GLM-5.3-Flash",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "gpt-5": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.1502,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 10.4,
+            "std": 0.6
+          },
+          "pass_rate": 0.9583,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 48,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.9,
+            "std": 5.5
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 32,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 426.0,
+            "std": 156.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 22.2,
+            "std": 9.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 91.9,
+            "std": 47.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 24.4,
+            "std": 3.3
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 20,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 358.1,
+            "std": 258.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 832.4,
+        "p95": 7891.9
+      },
+      "model": "gpt-5",
+      "provider": "openai",
+      "tier": "workhorse"
+    },
+    "gpt-5-mini": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.041,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 10.3,
+            "std": 0.6
+          },
+          "pass_rate": 0.9167,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 48,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 14.7,
+            "std": 6.0
+          },
+          "pass_rate": 0.9062,
+          "probes": 16,
+          "refusal_rate": 0.0312,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 32,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 622.6,
+            "std": 151.5
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.5,
+            "std": 7.5
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 152.8,
+            "std": 70.1
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 26.6,
+            "std": 10.3
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 20,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 462.4,
+            "std": 283.8
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 723.6,
+        "p95": 6135.2
+      },
+      "model": "gpt-5-mini",
+      "provider": "openai",
+      "tier": "cheap"
+    },
+    "gpt-5.6-luna": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.0118,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.3,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 48,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.1,
+            "std": 4.2
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 32,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 278.3,
+            "std": 98.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.8,
+            "std": 5.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 51.4,
+            "std": 29.9
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 19.0,
+            "std": 3.5
+          },
+          "pass_rate": 0.8,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 20,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 230.6,
+            "std": 196.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 777.0,
+        "p95": 3718.5
+      },
+      "model": "gpt-5.6-luna",
+      "provider": "openai",
+      "tier": "cheap"
+    },
+    "gpt-5.6-sol": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.2858,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.4,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 48,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.3,
+            "std": 4.4
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 32,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 276.0,
+            "std": 87.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.8,
+            "std": 5.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 48.8,
+            "std": 37.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 17.9,
+            "std": 2.9
+          },
+          "pass_rate": 0.9,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 20,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 213.8,
+            "std": 148.7
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1055.6,
+        "p95": 5331.8
+      },
+      "model": "gpt-5.6-sol",
+      "provider": "openai",
+      "tier": "premium"
+    },
+    "gpt-5.6-terra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.1645,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.4,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 48,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.3,
+            "std": 4.6
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 32,
+            "std": 0.0
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 393.4,
+            "std": 143.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.8,
+            "std": 5.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 61.4,
+            "std": 38.4
+          },
+          "pass_rate": 0.9583,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.1,
+            "std": 4.5
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 20,
+            "std": 0.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 396.6,
+            "std": 338.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 911.7,
+        "p95": 7983.6
+      },
+      "model": "gpt-5.6-terra",
+      "provider": "openai",
+      "tier": "workhorse"
+    },
+    "gpt-6-astra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.4,
+            "std": 3.9
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.6,
+            "n": 48,
+            "std": 2.6
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 14.8,
+            "std": 16.6
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 5.9,
+            "n": 32,
+            "std": 12.6
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 291.2,
+            "std": 104.1
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.8,
+            "std": 5.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 41.7,
+            "std": 19.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 43.5,
+            "std": 33.2
+          },
+          "pass_rate": 0.7,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 20.1,
+            "n": 20,
+            "std": 28.7
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 278.8,
+            "std": 217.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 2.4,
+            "n": 12,
+            "std": 8.4
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1451.7,
+        "p95": 8279.9
+      },
+      "model": "gpt-6-astra",
+      "provider": "openai",
+      "tier": "premium"
+    },
+    "gpt-6-luna": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 11.9,
+            "std": 15.1
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 6.0,
+            "n": 48,
+            "std": 12.7
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 11.7,
+            "std": 10.7
+          },
+          "pass_rate": 0.9688,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 3.5,
+            "n": 32,
+            "std": 8.8
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 198.9,
+            "std": 83.0
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 8.1,
+            "n": 14,
+            "std": 16.7
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 14.0,
+            "std": 5.4
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 74.0,
+            "std": 80.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 33.5,
+            "n": 24,
+            "std": 68.0
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 48.5,
+            "std": 17.2
+          },
+          "pass_rate": 0.9,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 23.9,
+            "n": 20,
+            "std": 16.5
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 177.3,
+            "std": 107.3
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 18.8,
+            "n": 12,
+            "std": 29.7
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 868.1,
+        "p95": 3454.2
+      },
+      "model": "gpt-6-luna",
+      "provider": "openai",
+      "tier": "cheap"
+    },
+    "gpt-6-sol": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.6,
+            "std": 4.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.8,
+            "n": 48,
+            "std": 3.1
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 9.7,
+            "std": 7.8
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 1.8,
+            "n": 32,
+            "std": 5.8
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 128.7,
+            "std": 49.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 14,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.8,
+            "std": 5.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 24,
+            "std": 0.0
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 50.5,
+            "std": 56.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 16.9,
+            "n": 24,
+            "std": 46.8
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 55.9,
+            "std": 12.6
+          },
+          "pass_rate": 0.9,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 30.1,
+            "n": 20,
+            "std": 11.3
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 123.3,
+            "std": 65.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 5.7,
+            "n": 12,
+            "std": 13.3
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1064.2,
+        "p95": 3816.2
+      },
+      "model": "gpt-6-sol",
+      "provider": "openai",
+      "tier": "premium"
+    },
+    "grok-4.6@xai": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1.4,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 166.7,
+            "n": 48,
+            "std": 68.9
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.8,
+            "std": 5.2
+          },
+          "pass_rate": 0.875,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 496.5,
+            "n": 32,
+            "std": 463.2
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 406.0,
+            "std": 121.3
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 457.6,
+            "n": 14,
+            "std": 167.2
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 12.7,
+            "std": 5.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 115.9,
+            "n": 24,
+            "std": 40.7
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 64.2,
+            "std": 59.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 324.4,
+            "n": 24,
+            "std": 232.2
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.3,
+            "std": 3.9
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 217.3,
+            "n": 20,
+            "std": 100.1
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 316.2,
+            "std": 242.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 420.8,
+            "n": 12,
+            "std": 231.2
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 3628.5,
+        "p95": 22811.3
+      },
+      "model": "grok-4.6",
+      "provider": "openai_compat",
+      "tier": "workhorse"
+    },
+    "grok-4.7@xai": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1.4,
+            "std": 0.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 115.3,
+            "n": 48,
+            "std": 93.8
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.5,
+            "std": 6.1
+          },
+          "pass_rate": 0.5938,
+          "probes": 16,
+          "refusal_rate": 0.0312,
+          "thinking_tokens": {
+            "mean": 278.7,
+            "n": 32,
+            "std": 196.6
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 356.1,
+            "std": 141.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 135.0,
+            "n": 14,
+            "std": 131.4
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 12.4,
+            "std": 5.6
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 68.8,
+            "n": 24,
+            "std": 21.9
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 55.9,
+            "std": 33.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 155.9,
+            "n": 24,
+            "std": 192.6
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.3,
+            "std": 3.9
+          },
+          "pass_rate": 0.85,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 78.0,
+            "n": 20,
+            "std": 92.3
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 294.8,
+            "std": 214.0
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 112.8,
+            "n": 12,
+            "std": 88.9
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2526.2,
+        "p95": 15410.2
+      },
+      "model": "grok-4.7",
+      "provider": "openai_compat",
+      "tier": "workhorse"
+    },
+    "hy4-preview@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 117.5,
+            "std": 126.9
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 114.1,
+            "n": 48,
+            "std": 126.7
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1131.7,
+            "std": 1830.2
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 1125.1,
+            "n": 32,
+            "std": 1829.5
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 958.4,
+            "std": 508.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 451.5,
+            "n": 14,
+            "std": 270.8
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 180.0,
+            "std": 73.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 166.2,
+            "n": 24,
+            "std": 74.2
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 764.5,
+            "std": 889.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 583.7,
+            "n": 24,
+            "std": 747.2
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 893.0,
+            "std": 1058.4
+          },
+          "pass_rate": 0.85,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 869.6,
+            "n": 20,
+            "std": 1054.5
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1057.7,
+            "std": 815.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 580.2,
+            "n": 12,
+            "std": 834.7
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2489.6,
+        "p95": 32362.7
+      },
+      "model": "tencent/Hy4-preview",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "kimi-k3@moonshot": {
+      "call_errors": 174,
+      "calls": 174,
+      "cost_usd_est": 0.0,
+      "dimensions": {
+        "capability": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 48,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 24,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 32,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 16,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 14,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 7,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 24,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 12,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 20,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 10,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 0,
+          "n_blocked": 0,
+          "n_error": 12,
+          "output_tokens": {
+            "mean": null,
+            "std": null
+          },
+          "pass_rate": null,
+          "probes": 6,
+          "refusal_rate": null,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {
+        "quota-or-billing": 174
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": null,
+        "p95": null
+      },
+      "model": "kimi-k3",
+      "provider": "openai_compat",
+      "tier": "workhorse"
+    },
+    "llama-4-maverick@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 26.7,
+            "std": 67.6
+          },
+          "pass_rate": 0.9583,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 8.4,
+            "std": 12.7
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 531.4,
+            "std": 133.6
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 18.2,
+            "std": 11.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 176.3,
+            "std": 104.4
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.6,
+            "std": 3.7
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 431.4,
+            "std": 249.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 423.6,
+        "p95": 5993.1
+      },
+      "model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "mimo-v2.6-flash@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 18.0,
+            "std": 13.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 11.7,
+            "n": 48,
+            "std": 12.3
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 53.7,
+            "std": 98.8
+          },
+          "pass_rate": 0.8438,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 43.0,
+            "n": 32,
+            "std": 95.7
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 502.3,
+            "std": 87.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 22.0,
+            "n": 14,
+            "std": 5.4
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 31.0,
+            "std": 7.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 15.0,
+            "n": 24,
+            "std": 8.1
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 207.7,
+            "std": 197.0
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 83.8,
+            "n": 24,
+            "std": 140.6
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 40.8,
+            "std": 4.6
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 17.8,
+            "n": 20,
+            "std": 2.0
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 486.9,
+            "std": 258.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 17.3,
+            "n": 12,
+            "std": 6.4
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 11672.8,
+        "p95": 93243.5
+      },
+      "model": "XiaomiMiMo/MiMo-V2.6-Flash",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "minimax-m2.5@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 52.9,
+            "std": 31.1
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 111.1,
+            "std": 173.2
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 627.4,
+            "std": 145.9
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 46.3,
+            "std": 17.8
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 380.8,
+            "std": 252.4
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 133.4,
+            "std": 96.4
+          },
+          "pass_rate": 0.65,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 604.6,
+            "std": 317.3
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 9437.1,
+        "p95": 64682.2
+      },
+      "model": "MiniMaxAI/MiniMax-M2.5",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "mistral-large@mistral": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.1022,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.3,
+            "std": 4.6
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.9,
+            "std": 4.2
+          },
+          "pass_rate": 0.8125,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 400.0,
+            "std": 0.0
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 21.8,
+            "std": 10.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 124.5,
+            "std": 40.1
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 37.5,
+            "std": 9.9
+          },
+          "pass_rate": 0.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 446.7,
+            "std": 124.7
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 633.9,
+        "p95": 6051.6
+      },
+      "model": "mistral-large-latest",
+      "provider": "openai_compat",
+      "tier": "workhorse"
+    },
+    "mistral-small@mistral": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": 0.0094,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 3.3,
+            "std": 1.0
+          },
+          "pass_rate": 0.9583,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.6,
+            "std": 4.3
+          },
+          "pass_rate": 0.9375,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 350.1,
+            "std": 84.7
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 20.6,
+            "std": 9.9
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 104.1,
+            "std": 49.2
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 21.5,
+            "std": 4.8
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 411.3,
+            "std": 111.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 455.2,
+        "p95": 2930.1
+      },
+      "model": "mistral-small-latest",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "nemotron-3-ultra@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 56.3,
+            "std": 27.2
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 49.9,
+            "n": 48,
+            "std": 27.2
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 117.2,
+            "std": 175.7
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 110.5,
+            "n": 32,
+            "std": 174.2
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1328.4,
+            "std": 703.3
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 43.0,
+            "n": 14,
+            "std": 18.7
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 64.2,
+            "std": 14.5
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 50.3,
+            "n": 24,
+            "std": 9.8
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 426.8,
+            "std": 280.5
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 77.1,
+            "n": 24,
+            "std": 76.6
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 79.7,
+            "std": 36.6
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 56.6,
+            "n": 20,
+            "std": 35.6
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 764.2,
+            "std": 480.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 32.2,
+            "n": 12,
+            "std": 10.6
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 776.8,
+        "p95": 6569.7
+      },
+      "model": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "qwen3-235b@deepinfra": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 3.2,
+            "std": 1.0
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.6,
+            "std": 4.7
+          },
+          "pass_rate": 1.0,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 457.0,
+            "std": 175.4
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 15.2,
+            "std": 8.3
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 161.7,
+            "std": 80.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 21.2,
+            "std": 5.0
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 419.1,
+            "std": 256.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 5769.2,
+        "p95": 44990.4
+      },
+      "model": "Qwen/Qwen3-235B-A22B",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "sarvam-105b@sarvam": {
+      "call_errors": 0,
+      "calls": 174,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 48,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 4.3,
+            "std": 0.9
+          },
+          "pass_rate": 1.0,
+          "probes": 24,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 32,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 6.3,
+            "std": 4.4
+          },
+          "pass_rate": 0.9688,
+          "probes": 16,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "refusal-boundary": {
+          "n": 14,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 558.4,
+            "std": 179.9
+          },
+          "pass_rate": 1.0,
+          "probes": 7,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 23.0,
+            "std": 12.7
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "sycophancy": {
+          "n": 24,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 194.2,
+            "std": 90.9
+          },
+          "pass_rate": 1.0,
+          "probes": 12,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 20,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 22.8,
+            "std": 4.4
+          },
+          "pass_rate": 1.0,
+          "probes": 10,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "verbosity": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 712.4,
+            "std": 481.3
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 933.0,
+        "p95": 7949.9
+      },
+      "model": "sarvam-105b",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    }
+  },
+  "reading_date": "2026-09-27",
+  "roster_version": "0.21",
+  "runner_version": "0.1.0",
+  "skipped_no_key": []
+}
