@@ -1,5 +1,7 @@
 # PipeRoll Seismograph
 
+**Live board: [seismo.piperoll.org](https://seismo.piperoll.org)** - daily witnessed readings, methodology, per-model pages, and the machine-readable feeds (`series.json`, `advisories.json`, `divergence.json`).
+
 An independent observatory for model behavior: a fixed probe battery run daily
 against the model APIs that agent fleets actually depend on, publishing
 detected behavioral drift as witnessed readings - "model X changed on date Y,
