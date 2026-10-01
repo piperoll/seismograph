@@ -30,11 +30,14 @@ def _build_cadence(readings_dir, cadence):
         for mid, m in r["models"].items():
             s = models.setdefault(mid, {
                 "provider": m.get("provider"), "tier": m.get("tier"),
+                "identity": m.get("identity"),
                 "dates": [], "overall": [], "dims": {},
                 "latency_p50": [], "latency_p95": [], "call_errors": [],
                 "errors_by_class": [], "roster_version": [],
                 "thinking_mean": [], "cost_usd_est": [],
             })
+            if m.get("identity"):
+                s["identity"] = m["identity"]
             # same cadence + same date = a re-run; later file wins
             if date in s["dates"]:
                 idx = s["dates"].index(date)
