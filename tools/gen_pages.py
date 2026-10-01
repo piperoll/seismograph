@@ -472,6 +472,39 @@ def _model_page(mid, dm, wm, assess, its):
         f"/models/{model_slug(mid)}/", body)
 
 
+def _pattern_note(it, series):
+    """For a thinking-token movement: say in words whether the pass rate on the
+    same model and dimension moved too. Tokens up with accuracy flat is the
+    serving-side signature (effort default, routing); tokens up with accuracy
+    moving is more consistent with a different model behind the name. States
+    the pattern only - the cause stays a human call."""
+    f = it["f"]
+    if it["level"] != "movement" or f.get("metric") != "thinking_tokens_mean":
+        return ""
+    m = ((series.get(it["cad"], {}) or {}).get("models", {}) or {}).get(it["model"])
+    dim = f.get("dimension")
+    if not m or dim not in (m.get("dims") or {}) or it["onset"] not in (m.get("dates") or []):
+        return ""
+    i = m["dates"].index(it["onset"])
+    rates = m["dims"][dim]
+    before = [x for x in rates[max(0, i - 7):i] if x is not None]
+    at = rates[i]
+    if at is None or not before:
+        return ""
+    base = sum(before) / len(before)
+    delta = at - base
+    if abs(delta) <= 0.05:
+        return (f'<p class="note"><b>Pattern:</b> thinking-token use moved while the pass rate on '
+                f'the same probes stayed flat ({base:.2f} before, {at:.2f} at onset). That is the '
+                'signature of a serving-side change - an effort default or a routing change - '
+                'rather than a different model behind the name, which usually moves accuracy too. '
+                'Stated as a pattern, not a cause.</p>')
+    return (f'<p class="note"><b>Pattern:</b> thinking-token use and the pass rate on the same '
+            f'probes moved together ({base:.2f} before, {at:.2f} at onset). Accuracy shifting '
+            'alongside token use is more consistent with a different model behind the name than '
+            'with an effort or routing change alone. Stated as a pattern, not a cause.</p>')
+
+
 def _finding_page(it, series, witnesses=None):
     f = it["f"]
     cad = it["cad"]
@@ -509,7 +542,8 @@ def _finding_page(it, series, witnesses=None):
         + (f'<tr><th>coverage</th><td>{errs} call error{"s" if errs != 1 else ""} on this reading</td></tr>'
            if errs is not None else "")
         + '</table>'
-        '<h3>Trace the evidence</h3>'
+        + _pattern_note(it, series)
+        + '<h3>Trace the evidence</h3>'
         f'<p><a href="{reading_url}">The witnessed reading</a> for this date and battery, '
         f'and the <a href="{witness_url}">{witness_label}</a>. '
         f'The full series is in <a href="/series.json">series.json</a>.</p>'

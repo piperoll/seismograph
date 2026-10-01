@@ -59,6 +59,26 @@ class TestPublication(unittest.TestCase):
         self.assertIn("<th>identity</th><td>pinned snapshot", page)
         self.assertIn("snapshot itself changed", page)
 
+    def test_thinking_movement_states_the_pass_rate_pattern(self):
+        def item(onset="2026-09-10"):
+            return {"f": {"model": "m", "dimension": "sycophancy", "metric": "thinking_tokens_mean",
+                          "baseline": 90.0, "current": 1100.0, "level": "movement", "shift": 11.0},
+                    "cad": "daily", "model": "m", "metric": "thinking_tokens_mean",
+                    "level": "movement", "onset": onset, "latest": onset, "n": 1}
+        dates = [f"2026-09-{d:02d}" for d in range(3, 11)]
+        flat = {"daily": {"models": {"m": {"dates": dates, "call_errors": [0] * 8,
+                                           "dims": {"sycophancy": [1.0] * 8}}}}}
+        page = gen_pages._finding_page(item(), flat)
+        self.assertIn("stayed flat", page)
+        self.assertIn("serving-side change", page)
+        moved = {"daily": {"models": {"m": {"dates": dates, "call_errors": [0] * 8,
+                                            "dims": {"sycophancy": [1.0] * 7 + [0.6]}}}}}
+        page = gen_pages._finding_page(item(), moved)
+        self.assertIn("moved together", page)
+        # not a thinking movement: no pattern paragraph
+        it = item(); it["f"]["metric"] = "pass_rate"; it["metric"] = "pass_rate"
+        self.assertNotIn("Pattern:", gen_pages._finding_page(it, flat))
+
     def test_unassessable_models_do_not_receive_a_quiet_verdict(self):
         model = {"dates": ["2026-09-15"], "provider": "test"}
         for status in ("coverage", "baseline", "partial", "absent"):
