@@ -252,6 +252,20 @@ def model_slug(mid):
 
 # --- page builders -----------------------------------------------------------
 
+IDENTITY = {
+    "alias": ("alias", "a floating name the provider may re-point; a change here "
+              "means what is served under this name changed"),
+    "pinned": ("pinned snapshot", "a dated id that promises stability; a change here "
+               "means the snapshot itself changed"),
+}
+
+
+def _identity_cell(src):
+    kind = (src or {}).get("identity")
+    label, gloss = IDENTITY.get(kind, ("not recorded", ""))
+    return esc(label) + (f' <span class="s">&middot; {esc(gloss)}</span>' if gloss else "")
+
+
 def build_static_pages(series, advisories, sited, witnesses=None):
     """Generate all static pages; return the list of URL paths for the sitemap."""
     paths = []
@@ -443,6 +457,7 @@ def _model_page(mid, dm, wm, assess, its):
         'batteries. Each battery has its own history and assessment.</p>'
         '<table>'
         f'<tr><th>provider channel</th><td>{esc(src.get("provider") or "-")}</td></tr>'
+        f'<tr><th>identity</th><td>{_identity_cell(src)}</td></tr>'
         + "".join(rows) + '</table><h2>Published findings</h2>'
         + (cards or "".join(notes))
         + '<h3>Explore</h3><p>' + " &middot; ".join(explore)
@@ -486,6 +501,7 @@ def _finding_page(it, series, witnesses=None):
         f'{_fmt(f.get("current"), f)}</div>'
         '<table>'
         f'<tr><th>model</th><td><a href="/models/{model_slug(it["model"])}/">{esc(it["model"])}</a></td></tr>'
+        f'<tr><th>identity</th><td>{_identity_cell(m)}</td></tr>'
         f'<tr><th>dimension</th><td>{esc(NAMES.get(f.get("dimension"), f.get("dimension")) or "model-level")}</td></tr>'
         f'<tr><th>metric</th><td>{esc(f.get("metric"))}</td></tr>'
         f'<tr><th>decision rule</th><td>{_rule(f)}</td></tr>'

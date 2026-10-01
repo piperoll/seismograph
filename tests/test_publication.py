@@ -42,6 +42,23 @@ class TestPublication(unittest.TestCase):
             self.assertIn("cadence=weekly", model_page)
             self.assertIn("/models/test-model/", paths)
 
+    def test_identity_is_stated_on_model_and_finding_pages(self):
+        for kind, label in (("alias", "alias"), ("pinned", "pinned snapshot"), (None, "not recorded")):
+            with self.subTest(identity=kind):
+                model = {"dates": ["2026-09-15"], "provider": "test", "identity": kind}
+                page = gen_pages._model_page("test", model, None,
+                    {"daily": {"status": "assessed", "eligible": 7, "attempted": 7}}, [])
+                self.assertIn(f"<th>identity</th><td>{label}", page)
+        series = {"daily": {"models": {"m": {"dates": ["2026-09-15"], "call_errors": [0],
+                                             "identity": "pinned"}}}}
+        it = {"f": {"model": "m", "dimension": "capability", "metric": "pass_rate",
+                    "baseline": 1.0, "current": 0.5, "level": "movement"},
+              "cad": "daily", "model": "m", "metric": "pass_rate", "level": "movement",
+              "onset": "2026-09-15", "latest": "2026-09-15", "n": 1}
+        page = gen_pages._finding_page(it, series)
+        self.assertIn("<th>identity</th><td>pinned snapshot", page)
+        self.assertIn("snapshot itself changed", page)
+
     def test_unassessable_models_do_not_receive_a_quiet_verdict(self):
         model = {"dates": ["2026-09-15"], "provider": "test"}
         for status in ("coverage", "baseline", "partial", "absent"):
