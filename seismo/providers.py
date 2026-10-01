@@ -251,6 +251,53 @@ def call_openai_compat(model_cfg, messages, system, params):
                               model_cfg["base_url"])
 
 
+TYPESAFE_BASE = "https://api.typesafe.ai/v1"
+
+
+def call_typesafe(model_cfg, messages, system, params):
+    """TypeSafe System One API (Jev): a decision model, not a text model.
+
+    The probe's user message is the *state*; the typed question lives in
+    params["question"] ({"type": "choice"|"noul", "instructions", "criteria"}).
+    The answer is folded into the same result shape as every other provider so
+    the runner, digest and graders need no special case: for a Choice the
+    returned text IS the chosen option key (an `exact` grader checks it); for a
+    Noul it is "true"/"false" at 0.5. The probability vector, the confidence,
+    and the served model version ride along in `extra` - those are the
+    decision-model-only metrics, and a version string moving behind the
+    `jev-latest` alias is the alias-reroute case made explicit.
+    """
+    question = (params or {}).get("question")
+    if not isinstance(question, dict) or question.get("type") not in ("choice", "noul"):
+        return _result(status=0, error="typesafe probe needs params.question of type choice|noul")
+    state = "\n\n".join(([system] if system else [])
+                         + [m["content"] for m in messages if m.get("role") == "user"])
+    payload = {"state": state, "model": model_cfg["model"],
+               "questions": {"q": {k: question[k] for k in ("type", "instructions", "criteria")
+                                   if k in question}}}
+    status, body, latency = _post_json(
+        model_cfg.get("base_url", TYPESAFE_BASE).rstrip("/") + "/systemone",
+        {"Authorization": f"Bearer {_api_key(model_cfg)}"}, payload)
+    answer = ((body.get("answers") or {}).get("q") if isinstance(body, dict) else None)
+    if status != 200 or not isinstance(answer, dict):
+        return _result(latency=latency, status=status,
+                       error=str(body.get("error", body))[:500])
+    usage = body.get("usage") or {}
+    if question["type"] == "choice":
+        text = str(answer.get("choice"))
+        extra = {"probabilities": answer.get("probabilities"),
+                 "confidence": answer.get("confidence")}
+    else:
+        pr = answer.get("noul")
+        text = "true" if (pr is not None and pr >= 0.5) else "false"
+        extra = {"noul": pr}
+    out = _result(text, usage.get("input_tokens"), usage.get("output_tokens"),
+                  latency, status, finish="stop", raw=body)
+    out["extra"] = extra
+    out["model_version"] = body.get("model")
+    return out
+
+
 GOOGLE_BLOCK_REASONS = {"SAFETY", "RECITATION", "PROHIBITED_CONTENT",
                         "BLOCKLIST", "SPII", "IMAGE_SAFETY"}
 
@@ -348,6 +395,7 @@ ADAPTERS = {
     "openai": call_openai,
     "openai_compat": call_openai_compat,
     "google": call_google,
+    "typesafe": call_typesafe,
 }
 
 

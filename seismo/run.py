@@ -56,8 +56,10 @@ def validate_roster(roster):
         if m.get("id") in seen:
             errors.append(f"{where}: duplicate id")
         seen.add(m.get("id"))
-        if m.get("cadence") not in ("daily", "weekly"):
-            errors.append(f"{where}: cadence must be daily or weekly")
+        if m.get("cadence") not in ("daily", "weekly", "decision"):
+            errors.append(f"{where}: cadence must be daily, weekly or decision")
+        if m.get("provider") == "typesafe" and m.get("cadence") != "decision":
+            errors.append(f"{where}: typesafe (decision-model) entries run on the decision cadence")
         if m.get("provider") == "openai_compat" and "base_url" not in m:
             errors.append(f"{where}: openai_compat requires base_url")
     return errors
@@ -72,6 +74,10 @@ def select_models(roster, cadence, only=None):
         if only:
             if m["id"] in only:
                 selected.append(m)
+            continue
+        # decision models (typed-answer APIs, their own battery) run only on
+        # the decision cadence and never join the text batteries
+        if (m.get("cadence") == "decision") != (cadence == "decision"):
             continue
         if cadence == "daily" and m.get("cadence") != "daily":
             continue
@@ -198,6 +204,10 @@ def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
             "status": resp["status"],
             "finish": resp.get("finish"),
             "error": resp["error"],
+            # decision models only: probability vector / confidence and the
+            # served model version (None for text providers)
+            "extra": resp.get("extra"),
+            "model_version": resp.get("model_version"),
         }
 
     records = []
@@ -286,7 +296,7 @@ def main(argv=None):
                     help="Tier 2 seed (default: a fresh random draw). The seed "
                          "is recorded in the session meta and witnessed.")
     ap.add_argument("--models", default="config/models.json")
-    ap.add_argument("--cadence", choices=["daily", "weekly"], default="daily")
+    ap.add_argument("--cadence", choices=["daily", "weekly", "decision"], default="daily")
     ap.add_argument("--model", action="append",
                     help="limit to these model ids (repeatable)")
     ap.add_argument("--out", default="raw")

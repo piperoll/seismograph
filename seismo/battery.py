@@ -86,4 +86,13 @@ def validate_battery(battery):
             errors.append(f"{where}: samples must be a positive int")
         if not isinstance(probe["grader"], dict) or "type" not in probe["grader"]:
             errors.append(f"{where}: grader must be a dict with a type")
+        q = (probe.get("params") or {}).get("question")
+        if q is not None:
+            # decision-model probe: the typed question a System One API answers
+            if not isinstance(q, dict) or q.get("type") not in ("choice", "noul"):
+                errors.append(f"{where}: params.question.type must be choice or noul")
+            elif not isinstance(q.get("criteria"), dict) or not q["criteria"]:
+                errors.append(f"{where}: params.question.criteria must be a non-empty map")
+            elif probe["grader"].get("type") == "exact" and probe["grader"].get("value") not in q["criteria"]:
+                errors.append(f"{where}: exact grader value must be one of the question's criteria keys")
     return errors

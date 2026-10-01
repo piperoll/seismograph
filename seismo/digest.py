@@ -128,6 +128,35 @@ def build_reading(session_path, battery, cadence=None):
             th = [r["thinking_tokens"] for r in ok_recs
                   if r.get("thinking_tokens") is not None]
             th_mean, th_std = _mean_std(th)
+            # decision models: probability the model put on the CORRECT option
+            # and its stated confidence. A pass rate can hold at 1.0 while the
+            # probability mass quietly thins - these see that first.
+            p_correct, confs = [], []
+            for r in ok_recs:
+                ex = r.get("extra")
+                if not ex:
+                    continue
+                want = str(graders[r["probe_id"]].get("value"))
+                if ex.get("probabilities") is not None:
+                    pc = ex["probabilities"].get(want)
+                    if pc is not None:
+                        p_correct.append(pc)
+                    if ex.get("confidence") is not None:
+                        confs.append(ex["confidence"])
+                elif ex.get("noul") is not None:
+                    p_correct.append(ex["noul"] if want == "true" else 1 - ex["noul"])
+            decision = None
+            if p_correct:
+                def _m4(xs):  # probabilities need more than token-count precision
+                    if not xs:
+                        return None, None
+                    mu = sum(xs) / len(xs)
+                    var = sum((x - mu) ** 2 for x in xs) / len(xs)
+                    return round(mu, 4), round(var ** 0.5, 4)
+                pm, ps = _m4(p_correct)
+                cm, _ = _m4(confs)
+                decision = {"prob_correct_mean": pm, "prob_correct_std": ps,
+                            "confidence_mean": cm, "n": len(p_correct)}
             dim_out[dim] = {
                 "probes": len({r["probe_id"] for r in recs}),
                 "n": len(ok_recs),
@@ -141,6 +170,8 @@ def build_reading(session_path, battery, cadence=None):
                 "thinking_tokens": {"mean": th_mean, "std": th_std,
                                     "n": len(th)},
             }
+            if decision:
+                dim_out[dim]["decision"] = decision
 
         price = PRICING.get(m["id"]) or PRICING.get(m["id"].split("@")[0])
         cost = None
@@ -170,6 +201,13 @@ def build_reading(session_path, battery, cadence=None):
             "errors_by_class": err_classes,
             "cost_usd_est": cost,
         }
+        # served model versions seen behind the configured name (decision
+        # models report one per call); more than one in a reading, or a new
+        # one across readings, is the alias-reroute case stated outright
+        versions = sorted({r["model_version"] for r in model_records
+                           if r.get("model_version")})
+        if versions:
+            models[m["id"]]["model_versions"] = versions
 
     reading = {
         "instrument": "piperoll-seismograph",
