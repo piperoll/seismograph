@@ -137,7 +137,10 @@ def main():
     n_daily = len(daily)
     try:
         roster = json.load(open(os.path.join(ROOT, "config", "models.json")))
-        n_models = len(roster.get("models", roster))
+        # decision-class models (own cadence, own battery) are not on the
+        # board yet, so they stay out of the public roster count until they are
+        n_models = len([m for m in roster.get("models", roster)
+                        if m.get("cadence") != "decision"])
     except Exception:
         n_models = n_daily
     n_labs = ROSTER_LABS

@@ -185,6 +185,108 @@ class TestRunAndDigest(unittest.TestCase):
         self.assertEqual([m["id"] for m in daily], ["mock-a"])
         self.assertEqual([m["id"] for m in weekly], ["mock-a", "mock-b"])
 
+    def test_decision_models_only_run_on_the_decision_cadence(self):
+        roster = {"models": [
+            {"id": "text-a", "cadence": "daily"},
+            {"id": "text-b", "cadence": "weekly"},
+            {"id": "jev@typesafe", "cadence": "decision", "provider": "typesafe"},
+        ]}
+        self.assertEqual([m["id"] for m in select_models(roster, "daily")], ["text-a"])
+        self.assertEqual([m["id"] for m in select_models(roster, "weekly")], ["text-a", "text-b"])
+        self.assertEqual([m["id"] for m in select_models(roster, "decision")], ["jev@typesafe"])
+        bad = {"models": [{"id": "jev@typesafe", "provider": "typesafe", "model": "jev-latest",
+                           "identity": "alias", "tier": "cheap", "cadence": "daily",
+                           "env_key": "TYPESAFE_API_KEY"}]}
+        self.assertTrue(any("decision cadence" in e for e in validate_roster(bad)))
+
+    def test_typesafe_adapter_folds_choice_and_noul_into_the_result_shape(self):
+        from seismo import providers
+        cfg = {"id": "jev@typesafe", "provider": "typesafe", "model": "jev-latest",
+               "env_key": "TYPESAFE_API_KEY"}
+        os.environ["TYPESAFE_API_KEY"] = "test-key"
+        sent = {}
+
+        def fake_post(url, headers, payload, timeout=None):
+            sent.update(url=url, payload=payload)
+            q = payload["questions"]["q"]
+            if q["type"] == "choice":
+                ans = {"type": "choice", "choice": "returns", "confidence": 0.9,
+                       "probabilities": {"returns": 0.9, "billing": 0.1}}
+            else:
+                ans = {"type": "noul", "noul": 0.2}
+            return 200, {"model": "jev-1.13.0", "answers": {"q": ans},
+                         "usage": {"input_tokens": 10, "output_tokens": 2}}, 5.0
+        orig = providers._post_json
+        providers._post_json = fake_post
+        try:
+            r = providers.call_typesafe(cfg, [{"role": "user", "content": "wrong size"}], None,
+                {"question": {"type": "choice", "instructions": "Which team?",
+                              "criteria": {"returns": "x", "billing": "y"}}})
+            self.assertEqual(r["text"], "returns")
+            self.assertEqual(r["extra"]["probabilities"]["returns"], 0.9)
+            self.assertEqual(r["model_version"], "jev-1.13.0")
+            self.assertTrue(sent["url"].endswith("/systemone"))
+            self.assertEqual(sent["payload"]["state"], "wrong size")
+            self.assertEqual(sent["payload"]["model"], "jev-latest")
+            r = providers.call_typesafe(cfg, [{"role": "user", "content": "hi"}], None,
+                {"question": {"type": "noul", "instructions": "Refund?",
+                              "criteria": {"true": "yes", "false": "no"}}})
+            self.assertEqual(r["text"], "false")
+            self.assertEqual(r["extra"]["noul"], 0.2)
+            r = providers.call_typesafe(cfg, [{"role": "user", "content": "hi"}], None, {})
+            self.assertIn("params.question", r["error"])
+        finally:
+            providers._post_json = orig
+
+    def test_decision_battery_validation(self):
+        probe = {"id": "d1", "dimension": "capability", "samples": 1,
+                 "prompt": [{"role": "user", "content": "s"}],
+                 "params": {"question": {"type": "choice", "instructions": "i",
+                                         "criteria": {"a": "A", "b": "B"}}},
+                 "grader": {"type": "exact", "value": "a"}}
+        ok = {"battery": "decision", "version": "0", "probes": [probe]}
+        self.assertEqual([], battery_mod.validate_battery(ok))
+        bad = copy.deepcopy(ok); bad["probes"][0]["grader"]["value"] = "zzz"
+        self.assertTrue(any("criteria keys" in e for e in battery_mod.validate_battery(bad)))
+        bad = copy.deepcopy(ok); bad["probes"][0]["params"]["question"]["type"] = "score"
+        self.assertTrue(any("choice or noul" in e for e in battery_mod.validate_battery(bad)))
+
+    def test_digest_reports_decision_metrics_and_model_versions(self):
+        battery = {"battery": "decision", "version": "0", "probes": [
+            {"id": "d1", "dimension": "capability", "samples": 2,
+             "prompt": [{"role": "user", "content": "s"}],
+             "params": {"question": {"type": "choice", "instructions": "i",
+                                     "criteria": {"a": "A", "b": "B"}}},
+             "grader": {"type": "exact", "value": "a"}},
+            {"id": "d2", "dimension": "capability", "samples": 1,
+             "prompt": [{"role": "user", "content": "s"}],
+             "params": {"question": {"type": "noul", "instructions": "i",
+                                     "criteria": {"true": "T", "false": "F"}}},
+             "grader": {"type": "exact", "value": "false"}}]}
+        roster = {"models": [{"id": "jev@typesafe", "provider": "typesafe", "model": "jev-latest",
+                              "identity": "alias", "tier": "cheap", "cadence": "decision",
+                              "env_key": "TYPESAFE_API_KEY"}]}
+        responses = {
+            "d1": {"text": "a", "extra": {"probabilities": {"a": 0.8, "b": 0.2}, "confidence": 0.7},
+                   "model_version": "jev-1.13.0"},
+            "d2": {"text": "false", "extra": {"noul": 0.1}, "model_version": "jev-1.13.0"},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            bat = copy.deepcopy(battery)
+            bat["_sha256"] = battery_mod.canonical_sha256(battery)
+            mock = MockProvider(responses)
+            session, meta_path = run_session(bat, roster["models"], tmp, "decision",
+                                             mock=mock, workers=1, roster_version="t")
+            reading, _ = build_reading(session, bat, cadence="decision")
+        m = reading["models"]["jev@typesafe"]
+        d = m["dimensions"]["capability"]
+        self.assertEqual(d["pass_rate"], 1.0)
+        self.assertAlmostEqual(d["decision"]["prob_correct_mean"], (0.8 + 0.8 + 0.9) / 3, places=4)
+        self.assertAlmostEqual(d["decision"]["confidence_mean"], 0.7, places=4)
+        self.assertEqual(d["decision"]["n"], 3)
+        self.assertEqual(m["model_versions"], ["jev-1.13.0"])
+        self.assertEqual(reading["cadence"], "decision")
+
     def test_end_to_end_pass_rates(self):
         responses = {"t-exact": "PING", "t-json": '{"a": 1}',
                      "t-refuse": "I can't help with that."}

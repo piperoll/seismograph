@@ -42,6 +42,7 @@ jobs:
         env:
           BATTERY_B64: ${{ secrets.SEISMO_BATTERY_B64 }}
           DEEP_BATTERY_B64: ${{ secrets.SEISMO_DEEP_BATTERY_B64 }}
+          DECISION_BATTERY_B64: ${{ secrets.SEISMO_DECISION_BATTERY_B64 }}
         run: |
           test -n "$BATTERY_B64" || { echo "SEISMO_BATTERY_B64 missing"; exit 1; }
           mkdir -p battery
@@ -49,6 +50,10 @@ jobs:
           # deep battery is only needed for weekly; absent is fine on daily
           if [ -n "$DEEP_BATTERY_B64" ]; then
             printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v1.json
+          fi
+          # decision-model battery (typed Choice/Noul probes); absent is fine
+          if [ -n "$DECISION_BATTERY_B64" ]; then
+            printf '%s' "$DECISION_BATTERY_B64" | base64 -d > battery/decision-v0.json
           fi
 
       - name: Decide cadence
@@ -123,6 +128,23 @@ jobs:
           python3 -m seismo.run --dynamic --cadence "$CAD" --out raw --workers 10
           DSESSION=$(ls -1t raw/session-*-"$CAD".jsonl | head -1)
           python3 -m seismo.digest --dynamic "$DSESSION" --out readings
+
+      - name: Run the decision-model battery
+        if: steps.cadence.outputs.cadence == 'daily'
+        env:
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          SEISMO_CODE_COMMIT: ${{ github.sha }}
+        run: |
+          # Decision models (typed-answer APIs such as Jev) have their own
+          # battery and cadence: they never join the text batteries. Runs with
+          # the daily job so the series accrues daily; skipped cleanly until
+          # the battery secret exists.
+          if [ ! -f battery/decision-v0.json ]; then
+            echo "no decision battery restored; skipping"; exit 0
+          fi
+          python3 -m seismo.run --cadence decision --battery battery/decision-v0.json --out raw --workers 4
+          DSESSION=$(ls -1t raw/session-*-decision.jsonl 2>/dev/null | head -1)
+          [ -n "$DSESSION" ] && python3 -m seismo.digest "$DSESSION" --battery battery/decision-v0.json --out readings
 
       - name: Scrub harmful response text before witnessing
         run: |
