@@ -1,0 +1,64 @@
+name: repeatability
+# Calibration: re-run ONE Tier 2 seed several times back to back on a few
+# cheap models, so the only thing left in the spread is sampling noise -
+# no day-to-day serving change can leak in. Manual only; the readings are
+# NOT committed and NOT witnessed (this is instrument calibration, not a
+# measurement of the fleet). The summary lands in the run log and as an
+# artifact for the calibration note.
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Tier 2 seed to repeat"
+        type: number
+        default: 20261003
+      repeats:
+        description: "back-to-back runs of the same seed"
+        type: number
+        default: 3
+      models:
+        description: "comma-separated roster ids (cheap daily models)"
+        type: string
+        default: "claude-haiku-4-5,gpt-5-mini,deepseek-chat@deepseek,mistral-small@mistral,sarvam-105b@sarvam,qwen3-235b@deepinfra"
+
+permissions:
+  contents: read
+
+jobs:
+  repeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Repeat one seed
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+          SEISMO_CODE_COMMIT: ${{ github.sha }}
+        run: |
+          set -e
+          ARGS=""
+          IFS=, read -ra IDS <<< "${{ inputs.models }}"
+          for id in "${IDS[@]}"; do ARGS="$ARGS --model $id"; done
+          for i in $(seq 1 ${{ inputs.repeats }}); do
+            echo "== repeat $i / ${{ inputs.repeats }} (seed ${{ inputs.seed }})"
+            python3 -m seismo.run --dynamic --seed ${{ inputs.seed }} --cadence daily \
+              $ARGS --out raw-repeat/run-$i --workers 6
+            S=$(ls -1t raw-repeat/run-$i/session-*-daily.jsonl | head -1)
+            python3 -m seismo.digest --dynamic "$S" --out readings-repeat/run-$i
+          done
+          python3 tools/repeatability.py readings-repeat | tee repeatability.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repeatability-seed-${{ inputs.seed }}
+          path: |
+            repeatability.md
+            readings-repeat/
+          retention-days: 90
