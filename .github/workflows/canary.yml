@@ -104,6 +104,17 @@ jobs:
           SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
           python3 -m seismo.digest "$SESSION" --battery "${{ steps.cadence.outputs.battery }}" --out readings
 
+      - name: Check coverage (every expected model answered today)
+        # red + ntfy push the same hour if a rostered model is missing from
+        # the reading or fully errored; the reading itself is still committed
+        # below, so a short day is recorded, not hidden
+        continue-on-error: true
+        env:
+          SEISMO_NTFY_TOPIC: ${{ secrets.SEISMO_NTFY_TOPIC }}
+        run: |
+          R=$(ls -1 readings/*/reading-$(date -u +%F)-"${{ steps.cadence.outputs.cadence }}".json | tail -1)
+          python3 tools/check_coverage.py "$R"
+
       - name: Run the dynamic tier (Tier 2 gaming tripwire)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -145,6 +156,8 @@ jobs:
           python3 -m seismo.run --cadence decision --battery battery/decision-v0.json --out raw --workers 4
           DSESSION=$(ls -1t raw/session-*-decision.jsonl 2>/dev/null | head -1)
           [ -n "$DSESSION" ] && python3 -m seismo.digest "$DSESSION" --battery battery/decision-v0.json --out readings
+          R=$(ls -1 readings/*/reading-$(date -u +%F)-decision.json 2>/dev/null | tail -1)
+          [ -n "$R" ] && SEISMO_NTFY_TOPIC="${{ secrets.SEISMO_NTFY_TOPIC }}" python3 tools/check_coverage.py "$R" || true
 
       - name: Scrub harmful response text before witnessing
         run: |
