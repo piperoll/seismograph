@@ -179,6 +179,25 @@ class TestRunAndDigest(unittest.TestCase):
             reading, detail = build_reading(session_path, battery)
         return reading, detail, meta
 
+    def test_thinking_tripwire_ignores_relative_shift_under_the_floor(self):
+        def reading(mean):
+            return {"models": {"m": {"latency_ms": {"p50": 500.0, "p95": 800.0},
+                                     "dimensions": {"structured-output": {
+                "pass_rate": 1.0, "probes": 4, "n": 12, "n_error": 0,
+                "thinking_tokens": {"mean": mean, "std": 1.0, "n": 12}}}}}}
+        base = [reading(1.6) for _ in range(detect.MIN_BASELINE)]
+        # 1.6 -> 5.4 is a 2.4x shift but 4 tokens of noise: no finding
+        f = [x for x in detect.compare(reading(5.4), base) if x.get("metric") == "thinking_tokens_mean"]
+        self.assertEqual(f, [])
+        # thinking appearing in earnest where there was ~none still fires
+        f = [x for x in detect.compare(reading(40.0), base) if x.get("metric") == "thinking_tokens_mean"]
+        self.assertEqual(len(f), 1)
+        self.assertIn("appeared", f[0]["note"])
+        # above the floor the relative rule is unchanged
+        base = [reading(90.0) for _ in range(detect.MIN_BASELINE)]
+        f = [x for x in detect.compare(reading(1100.0), base) if x.get("metric") == "thinking_tokens_mean"]
+        self.assertEqual(f[0]["level"], "movement")
+
     def test_select_models_cadence(self):
         daily = select_models(FIXTURE_ROSTER, "daily")
         weekly = select_models(FIXTURE_ROSTER, "weekly")
