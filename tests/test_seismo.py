@@ -217,6 +217,29 @@ class TestRunAndDigest(unittest.TestCase):
             reading, _ = build_reading(session, bat, cadence="daily")
         self.assertEqual(reading["models"]["m"]["errors_by_class"], {"rate-limit": 1})
 
+    def test_coverage_check_counts_expected_models(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tools"))
+        import check_coverage as cc
+        roster = {"models": [
+            {"id": "a", "cadence": "daily"}, {"id": "b", "cadence": "daily"},
+            {"id": "w", "cadence": "weekly"}, {"id": "jev", "cadence": "decision"}]}
+        self.assertEqual(cc.expected_models(roster, "daily"), ["a", "b"])
+        self.assertEqual(cc.expected_models(roster, "weekly"), ["a", "b", "w"])
+        self.assertEqual(cc.expected_models(roster, "decision"), ["jev"])
+        reading = {"cadence": "daily", "reading_date": "2026-10-05", "skipped_no_key": [],
+                   "skipped_access_pending": [],
+                   "models": {"a": {"calls": 87, "call_errors": 0, "errors_by_class": {}},
+                              "b": {"calls": 87, "call_errors": 87,
+                                    "errors_by_class": {"quota-or-billing": 87}}}}
+        r = cc.check(reading, roster)
+        self.assertEqual((r["expected"], r["answered"]), (2, 1))
+        self.assertEqual(r["dark"], ["b (quota-or-billing)"])
+        del reading["models"]["b"]; reading["skipped_no_key"] = ["b"]
+        r = cc.check(reading, roster)
+        self.assertEqual((r["answered"], r["missing"], r["dark"]), (1, [], []))
+        del reading["skipped_no_key"]
+        self.assertEqual(cc.check(reading, roster)["missing"], ["b"])
+
     def test_select_models_cadence(self):
         daily = select_models(FIXTURE_ROSTER, "daily")
         weekly = select_models(FIXTURE_ROSTER, "weekly")

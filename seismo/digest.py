@@ -228,6 +228,7 @@ def build_reading(session_path, battery, cadence=None):
         "grader_version": GRADER_VERSION,
         "mock": meta.get("mock", False),
         "skipped_no_key": meta.get("skipped_no_key", []),
+        "skipped_access_pending": meta.get("skipped_access_pending", []),
         "models": models,
     }
     return reading, graded_detail
