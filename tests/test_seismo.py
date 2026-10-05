@@ -197,6 +197,25 @@ class TestRunAndDigest(unittest.TestCase):
         base = [reading(90.0) for _ in range(detect.MIN_BASELINE)]
         f = [x for x in detect.compare(reading(1100.0), base) if x.get("metric") == "thinking_tokens_mean"]
         self.assertEqual(f[0]["level"], "movement")
+    def test_provider_overload_is_rate_limit_not_request_rejected(self):
+        from seismo.digest import build_reading
+        import inspect
+        src = inspect.getsource(build_reading)
+        self.assertIn("engine_overloaded", src)
+        # the classifier is nested; exercise it through a tiny session
+        battery = {"battery": "t", "version": "0", "probes": [
+            {"id": "p", "dimension": "capability", "samples": 1,
+             "prompt": [{"role": "user", "content": "x"}], "grader": {"type": "exact", "value": "x"}}]}
+        bat = copy.deepcopy(battery); bat["_sha256"] = battery_mod.canonical_sha256(battery)
+        models = [{"id": "m", "provider": "openai_compat", "model": "m", "identity": "alias",
+                   "tier": "cheap", "cadence": "daily", "env_key": "K", "base_url": "http://x"}]
+        err = '{"error":{"message":"Model busy, retry later","type":"invalid_request_error","code":"engine_overloaded"}}'
+        with tempfile.TemporaryDirectory() as tmp:
+            session, _ = run_session(bat, models, tmp, "daily",
+                                     mock=MockProvider({"p": {"text": None, "status": 429, "error": err}}),
+                                     workers=1, roster_version="t")
+            reading, _ = build_reading(session, bat, cadence="daily")
+        self.assertEqual(reading["models"]["m"]["errors_by_class"], {"rate-limit": 1})
 
     def test_select_models_cadence(self):
         daily = select_models(FIXTURE_ROSTER, "daily")
