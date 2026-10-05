@@ -92,15 +92,26 @@ jobs:
           # persistent = fully errored in BOTH readings; a transient one-day
           # failure (network, brief provider outage) is not alerted
           latest_dark, prev_dark = dark(latest), dark(prev)
+          # two days running for anything that could be a one-day blip; but a
+          # quota/billing refusal cannot clear on its own and every reading
+          # lost while waiting is a baseline gone forever, so that class pages
+          # on the FIRST dark reading (xAI credits, Oct 5 2026: 30 hours lost)
           persistent = {mid: cls for mid, cls in latest_dark.items() if mid in prev_dark}
-          if not persistent:
-              print("no persistently-dark models")
+          billing_now = {mid: cls for mid, cls in latest_dark.items()
+                         if cls == "quota-or-billing" and mid not in persistent}
+          if not persistent and not billing_now:
+              print("no persistently-dark or billing-blocked models")
               sys.exit(0)
 
-          lines = "; ".join(f"{mid} ({cls})" for mid, cls in sorted(persistent.items()))
-          msg = (f"{len(persistent)} model(s) fully errored two days running "
-                 f"(through {latest['reading_date']}): {lines}. "
-                 "Likely quota/billing or a provider outage - check credit.")
+          parts = []
+          if billing_now:
+              parts.append(f"{len(billing_now)} model(s) blocked on quota/billing on today's reading "
+                           f"({latest['reading_date']}): "
+                           + "; ".join(sorted(billing_now)) + " - top up credit")
+          if persistent:
+              parts.append(f"{len(persistent)} model(s) fully errored two days running: "
+                           + "; ".join(f"{mid} ({cls})" for mid, cls in sorted(persistent.items())))
+          msg = ". ".join(parts) + "."
           print("DARK:", msg)
           topic = os.environ.get("NTFY_TOPIC", "").strip()
           if not topic:

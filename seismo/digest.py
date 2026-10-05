@@ -72,7 +72,10 @@ def build_reading(session_path, battery, cadence=None):
         private archive (they can echo request details); readings carry
         only these classes."""
         t = (e or "").lower()
-        if "quota" in t or "billing" in t or "balance" in t:
+        if ("quota" in t or "billing" in t or "balance" in t
+                or "credits" in t or "spending limit" in t or "insufficient funds" in t):
+            # xAI: "has either used all available credits or reached its
+            # monthly spending limit" - none of the first three words
             return "quota-or-billing"
         if ("rate limit" in t or "rate_limited" in t or '"code": 429' in t or "429" in t
                 or "engine_overloaded" in t or "model busy" in t or "overloaded" in t
