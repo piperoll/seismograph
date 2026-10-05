@@ -74,7 +74,12 @@ def build_reading(session_path, battery, cadence=None):
         t = (e or "").lower()
         if "quota" in t or "billing" in t or "balance" in t:
             return "quota-or-billing"
-        if "rate limit" in t or "rate_limited" in t or '"code": 429' in t or "429" in t:
+        if ("rate limit" in t or "rate_limited" in t or '"code": 429' in t or "429" in t
+                or "engine_overloaded" in t or "model busy" in t or "overloaded" in t
+                or "capacity" in t):
+            # provider capacity, not our request: DeepInfra returns 429 with
+            # type=invalid_request_error and code=engine_overloaded, which the
+            # 'invalid' test below would otherwise file as request-rejected
             return "rate-limit"
         if "truncated with no visible output" in t:
             return "truncation"
