@@ -25,6 +25,11 @@ BASELINE_WINDOW = 14
 ALPHA = 0.01
 LATENCY_WATCH = 0.5   # relative p50 shift vs baseline median
 THINKING_WATCH = 0.5    # relative shift in mean thinking tokens per dimension
+# Below this baseline mean a relative shift is sampling noise, not a serving
+# change: a minimum-effort channel emitting 1-15 tokens swings 3x between days
+# on a dozen calls (gpt-6-luna, Oct 2-4 2026: 1.6 -> 5.4 logged as a movement).
+# Under the floor only the "thinking appeared" rule applies.
+THINKING_FLOOR = 20.0
 THINKING_MOVEMENT = 1.0  # a silent effort/serving remap shows here first
 LATENCY_MOVEMENT = 1.0
 # Parked dimensions are excluded from the public assessment tally (withheld
@@ -196,10 +201,11 @@ def compare(current, baseline_readings):
             if len(base) < MIN_BASELINE:
                 continue
             base_med = sorted(base)[len(base) // 2]
-            if base_med < 1:
-                # a series that was ~zero thinking suddenly thinking at all
-                # is itself the anomaly
-                if cur >= 32:
+            if base_med < THINKING_FLOOR:
+                # a near-zero-thinking channel: relative shift is meaningless
+                # (3 tokens vs 1 is a 3x "movement"); the only anomaly is
+                # thinking appearing in earnest where there was ~none
+                if cur >= 32 and cur >= 4 * max(base_med, 1):
                     findings.append({
                         "model": model_id, "dimension": dim,
                         "metric": "thinking_tokens_mean",
