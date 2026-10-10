@@ -247,6 +247,30 @@ class TestRunAndDigest(unittest.TestCase):
         del reading["skipped_no_key"]
         self.assertEqual(cc.check(reading, roster)["missing"], ["b"])
 
+    def test_content_parts_are_flattened_and_never_crash_grading(self):
+        from seismo.grade import as_text
+        parts = [{"type": "thinking", "thinking": [{"type": "text", "text": "secret reasoning"}]},
+                 {"type": "text", "text": "{\"name\": \"Ada\"}"}]
+        self.assertEqual(as_text(parts), '{"name": "Ada"}')
+        self.assertFalse(looks_like_refusal(parts))
+        self.assertTrue(looks_like_refusal([{"type": "text", "text": "I can't help with that."}]))
+        ok, _ = grade(parts, {"type": "json_valid"})
+        self.assertTrue(ok)
+        self.assertEqual(grade(None, {"type": "exact", "value": "x"})[0], False)
+        # adapter: list content becomes visible text only
+        from seismo import providers
+        cfg = {"id": "m", "provider": "openai_compat", "model": "m", "env_key": "K", "base_url": "http://x"}
+        os.environ["K"] = "k"
+        orig = providers._post_json
+        providers._post_json = lambda *a, **kw: (200, {"choices": [{"message": {"content": parts},
+                                                                      "finish_reason": "stop"}],
+                                                        "usage": {"prompt_tokens": 5, "completion_tokens": 9}}, 3.0)
+        try:
+            r = providers.call_openai_compat(cfg, [{"role": "user", "content": "q"}], None, {})
+        finally:
+            providers._post_json = orig
+        self.assertEqual(r["text"], '{"name": "Ada"}')
+
     def test_select_models_cadence(self):
         daily = select_models(FIXTURE_ROSTER, "daily")
         weekly = select_models(FIXTURE_ROSTER, "weekly")
