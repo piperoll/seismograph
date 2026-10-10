@@ -56,7 +56,7 @@ certificate as the registry.
 - **Every reading pins its full provenance**: battery sha256, roster version,
   runner version, grader version, and the git commit of the running code. A
   reading is a self-describing, citable document.
-- **The roster** (`config/models.json`, v0.27): 43 text models across 16 labs -
+- **The roster** (`config/models.json`, v0.28): 43 text models across 16 labs -
   Anthropic, OpenAI, Google, xAI, DeepSeek, Moonshot, Mistral, Alibaba, Zhipu,
   Meta, MiniMax, Xiaomi, Tencent, NVIDIA, Thinking Machines, and Sarvam - 37 daily, 6 weekly - plus one
   decision model (TypeSafe's Jev, v0.26) on its own typed-question battery and
