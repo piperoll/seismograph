@@ -62,10 +62,19 @@ def check(reading, roster):
             "answered": len(ok), "missing": missing, "dark": dark, "billing": billing}
 
 
-def main(path):
+def failed_ids(r):
+    """Roster ids worth a targeted rerun: missing, fully errored, or billing-blocked."""
+    strip = lambda s: s.split(" (")[0]
+    return sorted(set(r["missing"]) | {strip(x) for x in r["dark"]} | {strip(x) for x in r["billing"]})
+
+
+def main(path, list_failed=False):
     reading = json.load(open(path, encoding="utf-8"))
     roster = json.load(open(os.path.join(ROOT, "config", "models.json"), encoding="utf-8"))
     r = check(reading, roster)
+    if list_failed:
+        print(",".join(failed_ids(r)))
+        return 0
     head = (f"coverage {reading['reading_date']} {r['cadence']}: "
             f"{r['answered']}/{r['expected']} expected models answered")
     if r["skipped"]:
@@ -96,4 +105,5 @@ def main(path):
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1]))
+    args = [a for a in sys.argv[1:] if a != "--failed"]
+    raise SystemExit(main(args[0], list_failed="--failed" in sys.argv[1:]))

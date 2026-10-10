@@ -18,6 +18,14 @@ on:
         type: choice
         options: [daily, weekly]
         default: daily
+      only_models:
+        description: "comma-separated roster ids to rerun and MERGE into today's reading (only those models are billed), or 'failed' = every model missing, fully errored or billing-blocked in today's reading"
+        type: string
+        default: ""
+      from_run_id:
+        description: "re-digest the raw-session artifact of this run id instead of calling any API (zero cost; for runs that died after the calls)"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -75,8 +83,42 @@ jobs:
           else
             echo "battery=battery/canary-v0.json" >> "$GITHUB_OUTPUT"
           fi
+          # Mode. full = the scheduled run (every model, every tier).
+          # targeted = rerun only the named models (or everything today's
+          # reading shows as failed) and merge them into the day's reading, so
+          # fixing one model never bills the fleet. redigest = no API calls:
+          # digest the raw-session artifact of an earlier run that died after
+          # its calls were made (Oct 10 2026: two full reruns for a digest bug).
+          MODE=full; MODEL_ARGS=""; MERGE=""
+          if [ -n "${{ inputs.from_run_id }}" ]; then
+            MODE=redigest; MERGE="--merge"
+          elif [ -n "${{ inputs.only_models }}" ]; then
+            MODE=targeted; MERGE="--merge"
+            LIST="${{ inputs.only_models }}"
+            if [ "$LIST" = "failed" ]; then
+              R=$(ls -1 readings/*/reading-$(date -u +%F)-"$CAD".json 2>/dev/null | tail -1)
+              [ -n "$R" ] || { echo "only_models=failed but there is no reading for today yet"; exit 1; }
+              LIST=$(python3 tools/check_coverage.py --failed "$R")
+              [ -n "$LIST" ] || { echo "nothing failed in today's reading - nothing to rerun"; exit 1; }
+            fi
+            for id in $(echo "$LIST" | tr ',' ' '); do MODEL_ARGS="$MODEL_ARGS --model $id"; done
+            echo "targeted rerun:$MODEL_ARGS"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "model_args=$MODEL_ARGS" >> "$GITHUB_OUTPUT"
+          echo "merge=$MERGE" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch the raw-session artifact to re-digest
+        if: steps.cadence.outputs.mode == 'redigest'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p raw
+          gh run download "${{ inputs.from_run_id }}" -n "raw-session-${{ inputs.from_run_id }}" -D raw
+          ls -1 raw
 
       - name: Run the battery
+        if: steps.cadence.outputs.mode != 'redigest'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -97,12 +139,29 @@ jobs:
           # time had crept to ~90 min at 4 workers as thinking-heavy models
           # joined - a budget risk against the 2,000 free private-repo minutes.
           python3 -m seismo.run --cadence "${{ steps.cadence.outputs.cadence }}" \
-            --battery "${{ steps.cadence.outputs.battery }}" --out raw --workers 10
+            --battery "${{ steps.cadence.outputs.battery }}" --out raw --workers 10 \
+            ${{ steps.cadence.outputs.model_args }}
 
       - name: Digest to a reading
         run: |
-          SESSION=$(ls -1 raw/session-*-"${{ steps.cadence.outputs.cadence }}".jsonl | tail -1)
-          python3 -m seismo.digest "$SESSION" --battery "${{ steps.cadence.outputs.battery }}" --out readings
+          # Every fixed-tier session of this cadence in raw/ (one in a normal
+          # run; a re-digest may hold the fixed AND dynamic sessions of the
+          # failed run, told apart by the meta's dynamic_seed) gets digested;
+          # --merge folds a partial session into the day's existing reading.
+          CAD="${{ steps.cadence.outputs.cadence }}"; MERGE="${{ steps.cadence.outputs.merge }}"
+          for S in raw/session-*-"$CAD".jsonl; do
+            [ -f "$S" ] || continue
+            if python3 -c "import json,sys; sys.exit(0 if json.load(open('${S%.jsonl}.meta.json')).get('dynamic_seed') is None else 1)"; then
+              python3 -m seismo.digest "$S" --battery "${{ steps.cadence.outputs.battery }}" --out readings $MERGE
+            else
+              python3 -m seismo.digest --dynamic "$S" --out readings $MERGE
+            fi
+          done
+          if [ "${{ steps.cadence.outputs.mode }}" = "redigest" ] && [ -f battery/decision-v0.json ]; then
+            for S in raw/session-*-decision.jsonl; do
+              [ -f "$S" ] && python3 -m seismo.digest "$S" --battery battery/decision-v0.json --out readings $MERGE
+            done
+          fi
 
       - name: Check coverage (every expected model answered today)
         # red + ntfy push the same hour if a rostered model is missing from
@@ -116,6 +175,7 @@ jobs:
           python3 tools/check_coverage.py "$R"
 
       - name: Run the dynamic tier (Tier 2 gaming tripwire)
+        if: steps.cadence.outputs.mode != 'redigest'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -136,12 +196,13 @@ jobs:
           # the reading is reproducible. Runs against the SAME cadence's models
           # as the fixed tier so divergence pairs accrue day for day.
           CAD="${{ steps.cadence.outputs.cadence }}"
-          python3 -m seismo.run --dynamic --cadence "$CAD" --out raw --workers 10
+          python3 -m seismo.run --dynamic --cadence "$CAD" --out raw --workers 10 \
+            ${{ steps.cadence.outputs.model_args }}
           DSESSION=$(ls -1t raw/session-*-"$CAD".jsonl | head -1)
-          python3 -m seismo.digest --dynamic "$DSESSION" --out readings
+          python3 -m seismo.digest --dynamic "$DSESSION" --out readings ${{ steps.cadence.outputs.merge }}
 
       - name: Run the decision-model battery
-        if: steps.cadence.outputs.cadence == 'daily'
+        if: steps.cadence.outputs.cadence == 'daily' && steps.cadence.outputs.mode == 'full'
         env:
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
           SEISMO_CODE_COMMIT: ${{ github.sha }}
@@ -211,7 +272,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add readings witness series.json advisories.json divergence.json
           git diff --cached --quiet && { echo "nothing new"; exit 0; }
-          git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} [skip ci]"
+          git commit -m "reading: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} (${{ steps.cadence.outputs.mode }}) [skip ci]"
           # Two scheduled runs can race even with the concurrency queue: the
           # queued run checks out moments before the finishing run pushes
           # (Aug 23, Aug 30 - issue #32). readings/ and witness/ never collide

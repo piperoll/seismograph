@@ -271,6 +271,38 @@ class TestRunAndDigest(unittest.TestCase):
             providers._post_json = orig
         self.assertEqual(r["text"], '{"name": "Ada"}')
 
+    def test_merge_reading_replaces_only_the_covered_models(self):
+        from seismo.digest import merge_reading, write_reading
+        with tempfile.TemporaryDirectory() as tmp:
+            base = {"reading_date": "2026-10-10", "cadence": "daily",
+                    "battery": {"name": "canary", "sha256": "abc"}, "code_commit": "c1",
+                    "skipped_no_key": ["b"], "skipped_access_pending": [],
+                    "models": {"a": {"calls": 87, "call_errors": 87}, "c": {"calls": 87, "call_errors": 0}}}
+            write_reading(base, tmp)
+            part = {"reading_date": "2026-10-10", "cadence": "daily",
+                    "battery": {"name": "canary", "sha256": "abc"}, "code_commit": "c2",
+                    "runner_version": "r", "roster_version": "0.29",
+                    "skipped_no_key": [], "skipped_access_pending": [],
+                    "models": {"a": {"calls": 87, "call_errors": 0}, "b": {"calls": 87, "call_errors": 0}}}
+            merged = merge_reading(part, tmp)
+            self.assertEqual(merged["models"]["a"]["call_errors"], 0)
+            self.assertEqual(merged["models"]["c"]["call_errors"], 0)
+            self.assertIn("b", merged["models"])
+            self.assertEqual(merged["skipped_no_key"], [])
+            self.assertEqual(merged["merged"][0]["models"], ["a", "b"])
+            self.assertEqual(merged["code_commit"], "c1")
+            other = dict(part, battery={"name": "canary", "sha256": "zzz"})
+            with self.assertRaises(ValueError):
+                merge_reading(other, tmp)
+            # no existing reading: the partial stands on its own
+            self.assertEqual(merge_reading(dict(part, reading_date="2026-10-11"), tmp)["models"].keys(), part["models"].keys())
+
+    def test_coverage_failed_ids(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tools"))
+        import check_coverage as cc
+        r = {"missing": ["m"], "dark": ["d (quota-or-billing)"], "billing": ["b (42/87)"]}
+        self.assertEqual(cc.failed_ids(r), ["b", "d", "m"])
+
     def test_select_models_cadence(self):
         daily = select_models(FIXTURE_ROSTER, "daily")
         weekly = select_models(FIXTURE_ROSTER, "weekly")

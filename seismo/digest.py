@@ -234,16 +234,52 @@ def build_reading(session_path, battery, cadence=None):
     return reading, graded_detail
 
 
-def write_reading(reading, out_dir="readings"):
+def reading_path(reading, out_dir="readings"):
     year = reading["reading_date"][:4]
-    os.makedirs(os.path.join(out_dir, year), exist_ok=True)
     # Tier 2 readings get a -dynamic suffix so they sit beside the fixed-tier
     # readings without colliding, and so detect.load_readings' fixed-tier glob
     # (reading-*-{cadence}.json) never picks them up: divergence pairs the two
     # tiers explicitly by date instead (seismo/divergence.py).
     suffix = "-dynamic" if reading["battery"].get("name") == "dynamic" else ""
     name = f"reading-{reading['reading_date']}-{reading['cadence']}{suffix}.json"
-    path = os.path.join(out_dir, year, name)
+    return os.path.join(out_dir, year, name)
+
+
+def merge_reading(reading, out_dir="readings"):
+    """Fold a partial session's reading into the day's existing reading.
+
+    A targeted rerun (only the models that failed) or a re-digest from a
+    saved artifact must not overwrite the full reading the day already has:
+    the models this session covered replace their earlier entries, every
+    other model keeps its reading, and the merge is recorded. Both readings
+    must come from the same battery (same hash) - a different battery is a
+    different series and never merges.
+    """
+    path = reading_path(reading, out_dir)
+    if not os.path.exists(path):
+        return reading
+    with open(path, encoding="utf-8") as f:
+        base = json.load(f)
+    if base["battery"].get("sha256") != reading["battery"].get("sha256"):
+        raise ValueError("refusing to merge readings from different batteries "
+                         f"({base['battery'].get('sha256', '')[:12]} vs "
+                         f"{reading['battery'].get('sha256', '')[:12]})")
+    covered = sorted(reading["models"])
+    base["models"].update(reading["models"])
+    for key in ("skipped_no_key", "skipped_access_pending"):
+        base[key] = [m for m in (base.get(key) or []) if m not in reading["models"]]
+    base.setdefault("merged", []).append({
+        "models": covered,
+        "code_commit": reading.get("code_commit"),
+        "runner_version": reading.get("runner_version"),
+        "roster_version": reading.get("roster_version"),
+    })
+    return base
+
+
+def write_reading(reading, out_dir="readings"):
+    path = reading_path(reading, out_dir)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(reading, f, indent=2, sort_keys=True)
         f.write("\n")
@@ -260,6 +296,10 @@ def main(argv=None):
     ap.add_argument("--out", default="readings")
     ap.add_argument("--graded-out", default=None,
                     help="optional private per-probe grading detail (jsonl)")
+    ap.add_argument("--merge", action="store_true",
+                    help="fold this session's models into the day's existing "
+                         "reading instead of overwriting it (targeted reruns, "
+                         "re-digests from a saved artifact)")
     args = ap.parse_args(argv)
 
     if args.dynamic:
@@ -275,6 +315,8 @@ def main(argv=None):
     else:
         battery = load_battery(args.battery)
     reading, detail = build_reading(args.session, battery)
+    if args.merge:
+        reading = merge_reading(reading, args.out)
     path = write_reading(reading, args.out)
     if args.graded_out:
         with open(args.graded_out, "w", encoding="utf-8") as f:
