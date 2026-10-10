@@ -38,7 +38,7 @@ def check(reading, roster):
     expected = expected_models(roster, cadence)
     skipped = set(reading.get("skipped_no_key") or []) | set(reading.get("skipped_access_pending") or [])
     got = reading.get("models", {})
-    missing, dark, ok = [], [], []
+    missing, dark, billing, ok = [], [], [], []
     for mid in expected:
         if mid in skipped:
             continue
@@ -50,8 +50,16 @@ def check(reading, roster):
             dark.append(f"{mid} ({cls})")
         else:
             ok.append(mid)
+            # a quota/billing refusal on ANY call is a condition that will not
+            # clear by itself: the next run is fully dark. Oct 10 2026: the
+            # shared DeepInfra balance ran out at the first second of the run,
+            # 42/87 calls failed on each of 12 models, and nothing paged
+            # because none was fully dark.
+            n_bill = (m.get("errors_by_class") or {}).get("quota-or-billing", 0)
+            if n_bill:
+                billing.append(f"{mid} ({n_bill}/{m['calls']})")
     return {"cadence": cadence, "expected": len(expected), "skipped": sorted(skipped),
-            "answered": len(ok), "missing": missing, "dark": dark}
+            "answered": len(ok), "missing": missing, "dark": dark, "billing": billing}
 
 
 def main(path):
@@ -62,7 +70,7 @@ def main(path):
             f"{r['answered']}/{r['expected']} expected models answered")
     if r["skipped"]:
         head += f"; set aside: {', '.join(r['skipped'])}"
-    if not r["missing"] and not r["dark"]:
+    if not r["missing"] and not r["dark"] and not r["billing"]:
         print(head)
         return 0
     detail = []
@@ -70,6 +78,9 @@ def main(path):
         detail.append("MISSING from reading: " + ", ".join(r["missing"]))
     if r["dark"]:
         detail.append("fully errored: " + ", ".join(r["dark"]))
+    if r["billing"]:
+        detail.append("quota/billing errors on partial readings (top up before the next run): "
+                      + ", ".join(r["billing"]))
     msg = head + ". " + ". ".join(detail) + "."
     print("COVERAGE SHORT:", msg)
     topic = os.environ.get("SEISMO_NTFY_TOPIC", "").strip()

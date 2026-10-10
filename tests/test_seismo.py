@@ -234,6 +234,13 @@ class TestRunAndDigest(unittest.TestCase):
         r = cc.check(reading, roster)
         self.assertEqual((r["expected"], r["answered"]), (2, 1))
         self.assertEqual(r["dark"], ["b (quota-or-billing)"])
+        # partial billing failure on an otherwise-answering model must be flagged
+        reading["models"]["a"]["call_errors"] = 42
+        reading["models"]["a"]["errors_by_class"] = {"quota-or-billing": 42}
+        r = cc.check(reading, roster)
+        self.assertEqual(r["billing"], ["a (42/87)"])
+        self.assertEqual(r["answered"], 1)
+        reading["models"]["a"]["call_errors"] = 0; reading["models"]["a"]["errors_by_class"] = {}
         del reading["models"]["b"]; reading["skipped_no_key"] = ["b"]
         r = cc.check(reading, roster)
         self.assertEqual((r["answered"], r["missing"], r["dark"]), (1, [], []))
