@@ -71,7 +71,7 @@ def build_reading(session_path, battery, cadence=None):
         """Public-safe error category: raw provider strings stay in the
         private archive (they can echo request details); readings carry
         only these classes."""
-        t = (e or "").lower()
+        t = (e if isinstance(e, str) else str(e or "")).lower()
         if ("quota" in t or "billing" in t or "balance" in t
                 or "credits" in t or "spending limit" in t or "insufficient funds" in t):
             # xAI: "has either used all available credits or reached its

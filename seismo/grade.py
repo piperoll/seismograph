@@ -41,8 +41,33 @@ REFUSAL_MARKERS = [
 ]
 
 
+def as_text(value):
+    """Visible text of a model output whatever shape it arrived in.
+
+    Providers that return content as a list of parts (Mistral Large 4:
+    [{"type": "thinking", ...}, {"type": "text", "text": ...}]) must never
+    crash a digest - one odd response costs one record, never the session.
+    Thinking parts are hidden reasoning and are excluded; only "text" parts
+    (or bare strings) count as the answer."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        out = []
+        for part in value:
+            if isinstance(part, str):
+                out.append(part)
+            elif isinstance(part, dict) and part.get("type") == "text" and isinstance(part.get("text"), str):
+                out.append(part["text"])
+        return "".join(out)
+    if isinstance(value, dict) and isinstance(value.get("text"), str):
+        return value["text"]
+    return str(value)
+
+
 def looks_like_refusal(text):
-    lowered = text.lower()
+    lowered = (as_text(text) or "").lower()
     return any(marker in lowered for marker in REFUSAL_MARKERS)
 
 
@@ -93,6 +118,7 @@ def _casefold(values, text, ci):
 
 def grade(text, spec):
     """Return (passed: bool, detail: str)."""
+    text = as_text(text)
     if text is None:
         return False, "no output"
     kind = spec["type"]

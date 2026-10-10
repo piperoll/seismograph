@@ -33,6 +33,8 @@ import time
 import urllib.error
 import urllib.request
 
+from .grade import as_text
+
 DEFAULT_TIMEOUT = 120
 RETRY_STATUSES = {429, 500, 502, 503, 529}
 MAX_RETRIES = 3
@@ -221,6 +223,10 @@ def _call_openai_style(model_cfg, messages, system, params, base_url):
     choices = body.get("choices") or [{}]
     message = choices[0].get("message") or {}
     text = message.get("content") or ""
+    if not isinstance(text, str):
+        # content as a list of parts (Mistral Large 4 returns a "thinking"
+        # part followed by "text" parts): the answer is the text parts only
+        text = as_text(text) or ""
     reason = choices[0].get("finish_reason")
     finish = {"stop": "stop", "length": "truncated",
               "content_filter": "blocked"}.get(reason, reason)
