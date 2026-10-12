@@ -8,6 +8,21 @@
   "code_commit": "6de1d12fdbf12a5abf63805247d595111bbffd67",
   "grader_version": "0.1.0",
   "instrument": "piperoll-seismograph",
+  "merged": [
+    {
+      "code_commit": "02500b48c78f8fb2f3d1bd575ff9571763333ecc",
+      "models": [
+        "gpt-5",
+        "gpt-5-mini",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra",
+        "gpt-6-luna",
+        "gpt-6.1-sol"
+      ],
+      "roster_version": "0.29",
+      "runner_version": "0.1.0"
+    }
+  ],
   "mock": false,
   "models": {
     "claude-haiku-4-5": {
@@ -1107,516 +1122,504 @@
       "tier": "cheap"
     },
     "gpt-5": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
-      "cost_usd_est": 0.0,
+      "cost_usd_est": 0.0087,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 10.6,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 18,
+            "std": 0.0
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 15.7,
+            "std": 3.7
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 22.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 28.3,
+            "std": 6.6
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 817.7,
+        "p95": 1047.3
       },
       "model": "gpt-5",
       "provider": "openai",
       "tier": "workhorse"
     },
     "gpt-5-mini": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
-      "cost_usd_est": 0.0,
+      "cost_usd_est": 0.0017,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 12.8,
+            "std": 9.5
           },
-          "pass_rate": null,
+          "pass_rate": 0.7778,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 18,
+            "std": 0.0
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 15.4,
+            "std": 3.6
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 22.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 22.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 934.8,
+        "p95": 1159.2
       },
       "model": "gpt-5-mini",
       "provider": "openai",
       "tier": "cheap"
     },
     "gpt-5.6-luna": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
-      "cost_usd_est": 0.0,
+      "cost_usd_est": 0.0008,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 4.6,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 0.9444,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 18,
+            "std": 0.0
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 9.7,
+            "std": 3.7
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 883.0,
+        "p95": 1186.7
       },
       "model": "gpt-5.6-luna",
       "provider": "openai",
       "tier": "cheap"
     },
     "gpt-5.6-terra": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
-      "cost_usd_est": 0.0,
+      "cost_usd_est": 0.0085,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 7.9,
+            "std": 3.0
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 18,
+            "std": 0.0
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 9.7,
+            "std": 3.7
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 968.6,
+        "p95": 1222.2
       },
       "model": "gpt-5.6-terra",
       "provider": "openai",
       "tier": "workhorse"
     },
     "gpt-6-luna": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
       "cost_usd_est": null,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 35.4,
+            "std": 19.1
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 25.5,
+            "n": 18,
+            "std": 18.2
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 12.2,
+            "std": 9.6
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 1.6,
+            "n": 12,
+            "std": 4.4
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 1054.0,
+        "p95": 2444.8
       },
       "model": "gpt-6-luna",
       "provider": "openai",
       "tier": "cheap"
     },
     "gpt-6.1-sol": {
-      "call_errors": 42,
+      "call_errors": 0,
       "calls": 42,
       "cost_usd_est": null,
       "dimensions": {
         "capability": {
-          "n": 0,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 18,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 27.3,
+            "std": 8.8
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 9,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 17.1,
+            "n": 18,
+            "std": 8.1
           }
         },
         "instruction-following": {
-          "n": 0,
+          "n": 12,
           "n_blocked": 0,
-          "n_error": 12,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 9.7,
+            "std": 3.7
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 6,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
           }
         },
         "structured-output": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         },
         "tool-call": {
-          "n": 0,
+          "n": 6,
           "n_blocked": 0,
-          "n_error": 6,
+          "n_error": 0,
           "output_tokens": {
-            "mean": null,
-            "std": null
+            "mean": 16.3,
+            "std": 0.5
           },
-          "pass_rate": null,
+          "pass_rate": 1.0,
           "probes": 3,
-          "refusal_rate": null,
+          "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": null,
-            "n": 0,
-            "std": null
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
           }
         }
       },
-      "errors_by_class": {
-        "quota-or-billing": 42
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": null,
-        "p95": null
+        "p50": 1601.4,
+        "p95": 2252.5
       },
       "model": "gpt-6.1-sol",
       "provider": "openai",
