@@ -171,8 +171,13 @@ jobs:
             fi
           done
           if [ "${{ steps.cadence.outputs.mode }}" = "redigest" ] && [ -f battery/decision-v0.json ]; then
+            # `[ -f ] && ...` as the loop's last command leaves a false exit
+            # status when no decision session exists, and bash -e then fails
+            # the whole step after the real digests succeeded (Oct 21 2026,
+            # run 39647271386)
             for S in raw/session-*-decision.jsonl; do
-              [ -f "$S" ] && python3 -m seismo.digest "$S" --battery battery/decision-v0.json --out readings $MERGE
+              [ -f "$S" ] || continue
+              python3 -m seismo.digest "$S" --battery battery/decision-v0.json --out readings $MERGE
             done
           fi
 
