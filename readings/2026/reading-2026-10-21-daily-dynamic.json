@@ -20,6 +20,14 @@
       ],
       "roster_version": "0.31",
       "runner_version": "0.1.0"
+    },
+    {
+      "code_commit": "b1b24fd47e5ec24df669942a45c2c43939c444ab",
+      "models": [
+        "minimax-m3.1-flash@minimax"
+      ],
+      "roster_version": "0.31",
+      "runner_version": "0.1.0"
     }
   ],
   "mock": false,
@@ -2629,6 +2637,90 @@
         "p95": 6860.4
       },
       "model": "MiniMaxAI/MiniMax-M2.5",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "minimax-m3.1-flash@minimax": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": 0.0029,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 53.9,
+            "std": 16.7
+          },
+          "pass_rate": 1.0,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 49.6,
+            "n": 18,
+            "std": 16.8
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 19.1,
+            "std": 18.5
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 19.5,
+            "n": 6,
+            "std": 18.1
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 16.8,
+            "std": 5.0
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 6.5,
+            "n": 2,
+            "std": 7.8
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 15.0,
+            "std": 0.0
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1378.1,
+        "p95": 3329.2
+      },
+      "model": "MiniMax-M3.1-Flash",
       "provider": "openai_compat",
       "tier": "cheap"
     },

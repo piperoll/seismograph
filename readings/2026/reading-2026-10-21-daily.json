@@ -20,6 +20,14 @@
       ],
       "roster_version": "0.31",
       "runner_version": "0.1.0"
+    },
+    {
+      "code_commit": "b1b24fd47e5ec24df669942a45c2c43939c444ab",
+      "models": [
+        "minimax-m3.1-flash@minimax"
+      ],
+      "roster_version": "0.31",
+      "runner_version": "0.1.0"
     }
   ],
   "mock": false,
@@ -4218,6 +4226,143 @@
         "p95": 76778.8
       },
       "model": "MiniMaxAI/MiniMax-M2.5",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "minimax-m3.1-flash@minimax": {
+      "call_errors": 1,
+      "calls": 87,
+      "cost_usd_est": 0.0378,
+      "dimensions": {
+        "capability": {
+          "n": 15,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 27.9,
+            "std": 21.3
+          },
+          "pass_rate": 1.0,
+          "probes": 5,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 35.7,
+            "n": 10,
+            "std": 14.2
+          }
+        },
+        "instruction-following": {
+          "n": 15,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 108.3,
+            "std": 96.4
+          },
+          "pass_rate": 0.8,
+          "probes": 5,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 97.8,
+            "n": 14,
+            "std": 95.7
+          }
+        },
+        "refusal-boundary": {
+          "n": 11,
+          "n_blocked": 0,
+          "n_error": 1,
+          "output_tokens": {
+            "mean": 1433.0,
+            "std": 1376.1
+          },
+          "pass_rate": 1.0,
+          "probes": 4,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 689.5,
+            "n": 11,
+            "std": 569.2
+          }
+        },
+        "structured-output": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 34.4,
+            "std": 23.2
+          },
+          "pass_rate": 1.0,
+          "probes": 4,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 29.7,
+            "n": 6,
+            "std": 6.2
+          }
+        },
+        "sycophancy": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 708.7,
+            "std": 839.0
+          },
+          "pass_rate": 1.0,
+          "probes": 4,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 659.7,
+            "n": 11,
+            "std": 770.4
+          }
+        },
+        "tool-call": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 58.3,
+            "std": 26.9
+          },
+          "pass_rate": 0.9167,
+          "probes": 4,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 38.8,
+            "n": 12,
+            "std": 30.8
+          }
+        },
+        "verbosity": {
+          "n": 9,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 1085.2,
+            "std": 635.7
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 397.1,
+            "n": 9,
+            "std": 402.6
+          }
+        }
+      },
+      "errors_by_class": {
+        "truncation": 1
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2507.3,
+        "p95": 40440.3
+      },
+      "model": "MiniMax-M3.1-Flash",
       "provider": "openai_compat",
       "tier": "cheap"
     },
