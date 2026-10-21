@@ -166,7 +166,7 @@ recomputed from session token counts as the series accrues, never estimated.
 
 ## Licensing
 
-Published data: CC BY 4.0. Tooling: MIT. The scope of what is published -
-full archive vs a tiered surface (public board + all advisories free;
-full-resolution series licensed; free research access) - is a ratification
-decision; see CHARTER.md section 8.
+Published data (`readings/`, `witness/`, the three JSON feeds): CC BY 4.0, see
+`readings/LICENSE`. Tooling: MIT, see `LICENSE`. CHARTER.md section 8 reserves a
+licensed tier for attested parametric-grade delivery and bulk feeds beyond what
+this repository publishes; everything committed here is CC BY 4.0.
