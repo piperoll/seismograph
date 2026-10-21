@@ -168,6 +168,11 @@ class TestBattery(unittest.TestCase):
 
 
 class TestRunAndDigest(unittest.TestCase):
+    def test_timeout_is_per_model_with_default(self):
+        from seismo import providers
+        self.assertEqual(providers._timeout({}), providers.DEFAULT_TIMEOUT)
+        self.assertEqual(providers._timeout({"timeout": 240}), 240)
+
     def _run(self, responses, models=None):
         battery = copy.deepcopy(FIXTURE_BATTERY)
         battery["_sha256"] = battery_mod.canonical_sha256(FIXTURE_BATTERY)

@@ -44,6 +44,14 @@ class ProviderError(Exception):
     pass
 
 
+def _timeout(model_cfg):
+    """Per-request timeout: DEFAULT_TIMEOUT unless the roster entry sets
+    `timeout` (seconds). A slow host (inkling-small on DeepInfra, p50 13 s with
+    a 120 s tail) hits the default cap on its long-tail calls and logs
+    timeouts that are the cap, not the model; the roster states the budget."""
+    return model_cfg.get("timeout", DEFAULT_TIMEOUT)
+
+
 def _post_json(url, headers, payload, timeout=DEFAULT_TIMEOUT):
     """POST with retries on transient statuses. Returns (status, body_dict, latency_ms).
 
@@ -178,7 +186,7 @@ def call_anthropic(model_cfg, messages, system, params):
     status, body, latency = _post_json(
         "https://api.anthropic.com/v1/messages",
         {"x-api-key": _api_key(model_cfg), "anthropic-version": "2023-06-01"},
-        payload)
+        payload, timeout=_timeout(model_cfg))
     if status != 200 or "error" in body and "content" not in body:
         return _result(latency=latency, status=status,
                        error=str(body.get("error", body))[:500])
@@ -216,7 +224,7 @@ def _call_openai_style(model_cfg, messages, system, params, base_url):
     status, body, latency = _post_json(
         base_url.rstrip("/") + "/chat/completions",
         {"Authorization": f"Bearer {_api_key(model_cfg)}"},
-        payload)
+        payload, timeout=_timeout(model_cfg))
     if status != 200 or "choices" not in body:
         return _result(latency=latency, status=status,
                        error=str(body.get("error", body))[:500])
@@ -283,7 +291,7 @@ def call_typesafe(model_cfg, messages, system, params):
                                    if k in question}}}
     status, body, latency = _post_json(
         model_cfg.get("base_url", TYPESAFE_BASE).rstrip("/") + "/systemone",
-        {"Authorization": f"Bearer {_api_key(model_cfg)}"}, payload)
+        {"Authorization": f"Bearer {_api_key(model_cfg)}"}, payload, timeout=_timeout(model_cfg))
     answer = ((body.get("answers") or {}).get("q") if isinstance(body, dict) else None)
     if status != 200 or not isinstance(answer, dict):
         return _result(latency=latency, status=status,
@@ -331,7 +339,7 @@ def call_google(model_cfg, messages, system, params):
     url = ("https://generativelanguage.googleapis.com/v1beta/models/"
            f"{model_cfg['model']}:generateContent")
     status, body, latency = _post_json(
-        url, {"x-goog-api-key": _api_key(model_cfg)}, payload)
+        url, {"x-goog-api-key": _api_key(model_cfg)}, payload, timeout=_timeout(model_cfg))
     if status != 200 or "error" in body:
         return _result(latency=latency, status=status,
                        error=str(body.get("error", body))[:500])
