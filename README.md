@@ -167,6 +167,8 @@ recomputed from session token counts as the series accrues, never estimated.
 ## Licensing
 
 Published data (`readings/`, `witness/`, the three JSON feeds): CC BY 4.0, see
-`readings/LICENSE`. Tooling: MIT, see `LICENSE`. CHARTER.md section 8 reserves a
+`readings/LICENSE`. Tooling (seismo/, tools/, tests/, workflows, generated site
+markup): MIT, see `LICENSE`; the probe battery is not in this repository and is
+not licensed. CHARTER.md section 8 reserves a
 licensed tier for attested parametric-grade delivery and bulk feeds beyond what
 this repository publishes; everything committed here is CC BY 4.0.
