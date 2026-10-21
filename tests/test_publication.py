@@ -123,3 +123,66 @@ class TestPublication(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestAnnotations(unittest.TestCase):
+    def _item(self, onset="2026-10-17", dim="instruction-following", metric="pass_rate"):
+        return {"f": {"model": "m", "dimension": dim, "metric": metric,
+                      "baseline": 1.0, "current": 0.6, "level": "movement"},
+                "cad": "daily", "model": "m", "metric": metric, "level": "movement",
+                "onset": onset, "latest": onset, "n": 1}
+
+    def test_matching_annotation_renders_with_sources_and_framing(self):
+        ann = [{"scope": "finding", "model": "m", "cadence": "daily", "onset": "2026-10-17",
+                "dimension": "instruction-following", "metric": "pass_rate",
+                "title": "Provider record", "text": "Changelog entry dated 2026-10-17.",
+                "sources": [{"label": "Changelog", "url": "https://example.com/updates"}],
+                "added": "2026-10-21"}]
+        series = {"daily": {"models": {"m": {"dates": ["2026-10-17"], "call_errors": [0]}}}}
+        page = gen_pages._finding_page(self._item(), series, None, ann)
+        self.assertIn("Provider record", page)
+        self.assertIn("Changelog entry dated 2026-10-17.", page)
+        self.assertIn('href="https://example.com/updates"', page)
+        self.assertIn("establishes no cause", page)
+        self.assertIn("Annotation added 2026-10-21", page)
+
+    def test_non_matching_annotation_stays_off_the_page(self):
+        ann = [{"scope": "finding", "model": "m", "cadence": "daily", "onset": "2026-10-17",
+                "dimension": "sycophancy", "title": "Wrong dimension", "text": "x"},
+               {"scope": "finding", "model": "m", "cadence": "daily", "onset": "2026-10-18",
+                "title": "Wrong onset", "text": "x"},
+               {"scope": "finding", "model": "other", "cadence": "daily", "onset": "2026-10-17",
+                "title": "Wrong model", "text": "x"}]
+        series = {"daily": {"models": {"m": {"dates": ["2026-10-17"], "call_errors": [0]}}}}
+        page = gen_pages._finding_page(self._item(), series, None, ann)
+        for title in ("Wrong dimension", "Wrong onset", "Wrong model"):
+            self.assertNotIn(title, page)
+        self.assertNotIn("Dated records alongside", page)
+
+    def test_entry_without_dimension_matches_every_finding_at_that_onset(self):
+        ann = [{"scope": "finding", "model": "m", "cadence": "daily", "onset": "2026-10-17",
+                "title": "Broad", "text": "x"}]
+        self.assertEqual(1, len(gen_pages.finding_annotations(self._item(dim="verbosity", metric="thinking_tokens_mean"), ann)))
+
+    def test_model_scope_renders_on_model_page_only(self):
+        ann = [{"scope": "model", "model": "m", "date": "2026-10-08",
+                "title": "Alias retired", "text": "Routed to the successor.",
+                "sources": [{"label": "Changelog", "url": "https://example.com/c"}], "added": "2026-10-21"}]
+        model = {"dates": ["2026-10-17"], "provider": "test", "identity": "alias"}
+        page = gen_pages._model_page("m", model, None,
+            {"daily": {"status": "assessed", "eligible": 7, "attempted": 7}}, [], ann)
+        self.assertIn("Editorial notes", page)
+        self.assertIn("Alias retired", page)
+        self.assertIn("Routed to the successor.", page)
+        series = {"daily": {"models": {"m": {"dates": ["2026-10-17"], "call_errors": [0]}}}}
+        self.assertNotIn("Alias retired", gen_pages._finding_page(self._item(), series, None, ann))
+
+    def test_shipped_annotations_match_published_findings(self):
+        root = Path(__file__).resolve().parents[1]
+        ann = gen_pages.load_annotations(root)
+        self.assertTrue(ann)
+        for a in ann:
+            self.assertIn(a.get("scope"), ("finding", "model"))
+            self.assertTrue(a.get("model") and a.get("title") and a.get("text") and a.get("added"))
+            self.assertNotRegex(a["text"].lower(), r"\b(caused by|because of|due to)\b",
+                                "annotations state records, not causes")

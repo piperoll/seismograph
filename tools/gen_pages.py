@@ -250,6 +250,67 @@ def model_slug(mid):
     return slug(mid)
 
 
+
+def load_annotations(root):
+    """Editorial annotations (config/annotations.json): dated external records
+    attached to readings the instrument already produced. Missing file = none."""
+    path = Path(root) / "config" / "annotations.json"
+    if not path.exists():
+        return []
+    return json.load(open(path, encoding="utf-8")).get("annotations") or []
+
+
+def finding_annotations(it, annotations):
+    """Annotations that attach to one published finding: same model, cadence and
+    onset; dimension/metric narrow the match only when the entry states them."""
+    out = []
+    f = it.get("f") or {}
+    for a in annotations or []:
+        if a.get("scope", "finding") != "finding":
+            continue
+        if a.get("model") != it.get("model") or a.get("onset") != it.get("onset"):
+            continue
+        if a.get("cadence") and a.get("cadence") != it.get("cad"):
+            continue
+        if a.get("dimension") and a.get("dimension") != f.get("dimension"):
+            continue
+        if a.get("metric") and a.get("metric") != f.get("metric"):
+            continue
+        out.append(a)
+    return out
+
+
+def model_annotations(mid, annotations):
+    return sorted([a for a in annotations or []
+                   if a.get("scope") == "model" and a.get("model") == mid],
+                  key=lambda a: a.get("date") or "")
+
+
+def _annotation_html(notes, heading):
+    """Render editorial annotations. The framing line is part of the rendering,
+    not the entry: an annotation never asserts a cause."""
+    if not notes:
+        return ""
+    blocks = []
+    for a in notes:
+        when = a.get("date") or a.get("onset") or ""
+        srcs = " &middot; ".join(
+            f'<a href="{esc(s["url"])}">{esc(s.get("label") or s["url"])}</a>'
+            for s in a.get("sources") or [] if s.get("url"))
+        blocks.append(
+            f'<div class="card"><h3>{esc(a.get("title") or "Editorial note")}'
+            + (f' <span class="s">&middot; {esc(when)}</span>' if when else "") + '</h3>'
+            f'<p>{esc(a.get("text") or "")}</p>'
+            + (f'<div class="meta">Sources: {srcs}</div>' if srcs else "")
+            + f'<div class="meta">Annotation added {esc(a.get("added") or "")}.</div></div>')
+    return (f'<h3>{esc(heading)}</h3>'
+            '<p class="note">An annotation attaches a dated external record (a provider '
+            'changelog entry, a documented deprecation, a known configuration artefact) to a '
+            'reading the instrument already produced. It changes no reading and establishes '
+            'no cause; the instrument detects, attribution stays a human judgment.</p>'
+            + "".join(blocks))
+
+
 # --- page builders -----------------------------------------------------------
 
 IDENTITY = {
@@ -266,7 +327,7 @@ def _identity_cell(src):
     return esc(label) + (f' <span class="s">&middot; {esc(gloss)}</span>' if gloss else "")
 
 
-def build_static_pages(series, advisories, sited, witnesses=None):
+def build_static_pages(series, advisories, sited, witnesses=None, annotations=None):
     """Generate all static pages; return the list of URL paths for the sitemap."""
     paths = []
     daily_models = (series.get("daily", {}) or {}).get("models", {}) or {}
@@ -312,7 +373,8 @@ def build_static_pages(series, advisories, sited, witnesses=None):
     for mid in all_ids:
         _write(sited, f"/models/{model_slug(mid)}/",
                _model_page(mid, daily_models.get(mid), weekly_models.get(mid),
-                           assess.get(mid, {}), items_by_model.get(mid, [])))
+                           assess.get(mid, {}), items_by_model.get(mid, []),
+                           annotations))
         paths.append(f"/models/{model_slug(mid)}/")
 
     # ---- findings index + pages ----
@@ -348,7 +410,7 @@ def build_static_pages(series, advisories, sited, witnesses=None):
         + ("".join(frows) if frows else '<p class="note">No findings currently published.</p>')))
     paths.append("/findings/")
     for it in flat:
-        _write(sited, f"/findings/{finding_slug(it)}/", _finding_page(it, series, witnesses))
+        _write(sited, f"/findings/{finding_slug(it)}/", _finding_page(it, series, witnesses, annotations))
         paths.append(f"/findings/{finding_slug(it)}/")
 
     return paths
@@ -408,7 +470,7 @@ def _methodology():
                 "/methodology/", body)
 
 
-def _model_page(mid, dm, wm, assess, its):
+def _model_page(mid, dm, wm, assess, its, annotations=None):
     sources = [(cad, src) for cad, src in (("daily", dm), ("weekly", wm)) if src]
     cadences = " and ".join(cad for cad, _ in sources)
     rows, notes, explore, summaries = [], [], [], []
@@ -460,6 +522,7 @@ def _model_page(mid, dm, wm, assess, its):
         f'<tr><th>identity</th><td>{_identity_cell(src)}</td></tr>'
         + "".join(rows) + '</table><h2>Published findings</h2>'
         + (cards or "".join(notes))
+        + _annotation_html(model_annotations(mid, annotations), "Editorial notes")
         + '<h3>Explore</h3><p>' + " &middot; ".join(explore)
         + '. Each dossier shows this model and battery, with the full dimension history.</p>'
     )
@@ -505,7 +568,7 @@ def _pattern_note(it, series):
             'with an effort or routing change alone. Stated as a pattern, not a cause.</p>')
 
 
-def _finding_page(it, series, witnesses=None):
+def _finding_page(it, series, witnesses=None, annotations=None):
     f = it["f"]
     cad = it["cad"]
     latency = str(it["metric"] or "").startswith("latency")
@@ -543,6 +606,7 @@ def _finding_page(it, series, witnesses=None):
            if errs is not None else "")
         + '</table>'
         + _pattern_note(it, series)
+        + _annotation_html(finding_annotations(it, annotations), "Dated records alongside this reading")
         + '<h3>Trace the evidence</h3>'
         f'<p><a href="{reading_url}">The witnessed reading</a> for this date and battery, '
         f'and the <a href="{witness_url}">{witness_label}</a>. '

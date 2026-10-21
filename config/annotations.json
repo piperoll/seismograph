@@ -1,0 +1,78 @@
+{
+  "comment": "Editorial annotations rendered on finding and model pages. An annotation attaches a DATED EXTERNAL RECORD (a provider changelog entry, a documented deprecation, a known configuration artefact) to a reading the instrument already produced. It never changes a reading, never creates or removes a finding, and never asserts a cause: the instrument flags the change, the annotation says what dated record exists alongside it, and attribution stays a human judgment (charter, detection vs attribution). Each entry carries the date it was added and its sources. Matching: 'onset' + 'model' + 'cadence' (+ optional 'dimension'/'metric') attaches to a published finding page; entries with 'scope': 'model' render on the model page under Editorial notes. Append-only; correct an entry by adding a dated follow-up, not by editing it silently.",
+  "annotations": [
+    {
+      "scope": "finding",
+      "model": "deepseek-chat@deepseek",
+      "cadence": "daily",
+      "dimension": "instruction-following",
+      "metric": "pass_rate",
+      "onset": "2026-10-17",
+      "title": "Provider record on the onset date",
+      "text": "DeepSeek's API updates page carries an entry dated 2026-10-17: \"DeepSeek V4.1 Flash has been upgraded to DeepSeek-V4.1-Flash-1017\", described as a minor update with shorter outputs, served behind the deepseek-flash alias. The same page (2026-04-24 entry) routes deepseek-chat to V4.1 Flash's non-thinking mode. The first reading taken on or after that entry is the one that flagged, and the pass rate has held at the new level since. Same reading, same provider: deepseek-reasoner's mean thinking tokens on the verbosity probes fell from about 1,000 to about 200 and stayed there (visible in series.json; the detector logged it as a watch on 2026-10-21). The instrument flagged the change blind; the provider's dated record is the attribution candidate, not an established cause.",
+      "sources": [
+        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "deepseek-reasoner@deepseek",
+      "cadence": "daily",
+      "onset": "2026-09-10",
+      "title": "Provider record on the onset date",
+      "text": "DeepSeek's API updates page dates the DeepSeek-V4.1-Flash release and its API price change to 2026-09-10, and states that V4 Pro continued to be served unchanged after 2026-09-14. The onset coincides with the V4.1 Flash release day. It does not coincide with a Pro routing change (none occurred on that date, per the same page), so an earlier working hypothesis that this was a Pro-to-Flash reroute was wrong. What changed behind the deepseek-reasoner alias on 2026-09-10 is not established by the instrument.",
+      "sources": [
+        {"label": "DeepSeek API updates, 2026-09-10 entry", "url": "https://api-docs.deepseek.com/updates"}
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "deepseek-reasoner@deepseek",
+      "cadence": "daily",
+      "dimension": "verbosity",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-21",
+      "title": "Provider record four readings earlier",
+      "text": "The drop in thinking tokens on the verbosity probes began on the 2026-10-17 reading (about 1,000 to about 200) and crossed the detector's threshold on 2026-10-21 as the baseline window moved. DeepSeek's API updates page dates the DeepSeek-V4.1-Flash-1017 upgrade, described as producing shorter outputs, to 2026-10-17. Dated record alongside the reading; cause not established by the instrument.",
+      "sources": [
+        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "model",
+      "model": "gemini-3.5-flash",
+      "date": "2026-10-08",
+      "title": "Alias retired by the provider",
+      "text": "Google's Gemini API changelog, 2026-10-08: gemini-3.5-flash deprecated, and API requests to the old id are routed automatically to gemini-3.6-flash. This id was dark from 2026-10-01 to 2026-10-11 (quota), so every reading recorded under it from 2026-10-12 to 2026-10-21 was served by gemini-3.6-flash. Roster v0.31 (2026-10-21) retired the id; gemini-3.6-flash continues as its own series. The detector did not flag the swap: the 14-reading baseline window contained no pre-swap readings once the dark gap had passed, so the comparison was post-swap against post-swap. An alias change that lands behind an outage is invisible to a windowed detector; the gap is recorded here instead.",
+      "sources": [
+        {"label": "Gemini API changelog, 2026-10-08", "url": "https://ai.google.dev/gemini-api/docs/changelog"}
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "model",
+      "model": "gemini-3.8-flash",
+      "date": "2026-10-12",
+      "title": "Configuration artefact in the first segment",
+      "text": "Readings from 2026-10-12 to 2026-10-21 were taken with a thinking setting this model ignores (thinking_budget 0; Gemini 3.x models take thinking_level, default medium, with no off setting per Google's thinking documentation). The model reasoned at its default level and consumed the small output budgets of the short-answer probes: 9 to 14 calls per reading returned no visible text (recorded as truncation call errors) and other short answers were cut off, which depressed the capability and instruction-following pass rates. Roster v0.31 (2026-10-21) set thinking_level low; the series restarts there. The first segment reflects the instrument's configuration, not the model's behaviour.",
+      "sources": [
+        {"label": "Gemini API thinking documentation", "url": "https://ai.google.dev/gemini-api/docs/thinking"}
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "model",
+      "model": "deepseek-reasoner@deepseek",
+      "date": "2026-10-17",
+      "title": "Provider record",
+      "text": "DeepSeek's API updates page, 2026-10-17: DeepSeek-V4.1-Flash upgraded to DeepSeek-V4.1-Flash-1017, with shorter outputs. From the 2026-10-17 reading this alias's mean thinking tokens on the verbosity probes fell from about 1,000 to about 200 and on the sycophancy probes from about 1,100 to about 600. Dated record alongside the readings; cause not established by the instrument.",
+      "sources": [
+        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+      ],
+      "added": "2026-10-21"
+    }
+  ]
+}
