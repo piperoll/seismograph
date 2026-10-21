@@ -228,7 +228,8 @@ Baseline running since 2026-08-20. Latest daily reading: {latest};
     # Static, crawlable content pages (methodology / models / findings). These
     # carry real server-rendered content for non-JS crawlers; the board at / is
     # the interactive view. Returns every page path for the sitemap.
-    page_paths = gen_pages.build_static_pages(series, advisories, sited, witnesses)
+    annotations = gen_pages.load_annotations(ROOT)
+    page_paths = gen_pages.build_static_pages(series, advisories, sited, witnesses, annotations)
 
     # SEO: robots + a sitemap covering the board and every static page.
     open(os.path.join(sited, "robots.txt"), "w", encoding="utf-8").write(
