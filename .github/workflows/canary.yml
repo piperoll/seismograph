@@ -145,6 +145,18 @@ jobs:
 
       - name: Digest to a reading
         run: |
+          # A targeted or redigest run merges INTO today's reading, and that
+          # reading may have changed since this run checked out: a queued
+          # targeted run starts the moment the previous one finishes its push,
+          # and its own battery takes 15-30 min. Oct 21 2026: the minimax
+          # rerun checked out before the six-model rerun committed, merged into
+          # the stale 37-model reading, and its push died on a rebase conflict
+          # in the reading file (41 models upstream vs 38 here) - the session
+          # survived only as the fallback artifact. Sync to origin/main right
+          # before digesting so the merge folds into the latest reading.
+          if [ -n "${{ steps.cadence.outputs.merge }}" ]; then
+            git fetch origin main && git reset --hard origin/main
+          fi
           # Every fixed-tier session of this cadence in raw/ (one in a normal
           # run; a re-digest may hold the fixed AND dynamic sessions of the
           # failed run, told apart by the meta's dynamic_seed) gets digested;
@@ -159,8 +171,13 @@ jobs:
             fi
           done
           if [ "${{ steps.cadence.outputs.mode }}" = "redigest" ] && [ -f battery/decision-v0.json ]; then
+            # `[ -f ] && ...` as the loop's last command leaves a false exit
+            # status when no decision session exists, and bash -e then fails
+            # the whole step after the real digests succeeded (Oct 21 2026,
+            # run 39647271386)
             for S in raw/session-*-decision.jsonl; do
-              [ -f "$S" ] && python3 -m seismo.digest "$S" --battery battery/decision-v0.json --out readings $MERGE
+              [ -f "$S" ] || continue
+              python3 -m seismo.digest "$S" --battery battery/decision-v0.json --out readings $MERGE
             done
           fi
 
