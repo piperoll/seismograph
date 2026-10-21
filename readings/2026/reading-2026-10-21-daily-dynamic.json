@@ -8,6 +8,20 @@
   "code_commit": "d1558c15ea644bda795a7ea0bc52d5c64ffa0c38",
   "grader_version": "0.1.0",
   "instrument": "piperoll-seismograph",
+  "merged": [
+    {
+      "code_commit": "633bc38ed9aec48581e37305a316ae2021a36a64",
+      "models": [
+        "deepseek-v4.1-flash-1017@deepinfra",
+        "gemini-3.6-flash",
+        "gemini-3.8-flash",
+        "gemini-4-argon",
+        "inkling-small@deepinfra"
+      ],
+      "roster_version": "0.31",
+      "runner_version": "0.1.0"
+    }
+  ],
   "mock": false,
   "models": {
     "claude-haiku-4-5": {
@@ -682,6 +696,90 @@
       "provider": "openai_compat",
       "tier": "cheap"
     },
+    "deepseek-v4.1-flash-1017@deepinfra": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 2.6,
+            "std": 0.5
+          },
+          "pass_rate": 0.8889,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 18,
+            "std": 0.0
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.8,
+            "std": 3.6
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 12,
+            "std": 0.0
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 13.3,
+            "std": 0.5
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 16.3,
+            "std": 1.9
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 0.0,
+            "n": 6,
+            "std": 0.0
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "pinned",
+      "latency_ms": {
+        "p50": 424.8,
+        "p95": 967.8
+      },
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
     "gemini-3.1-pro-preview": {
       "call_errors": 0,
       "calls": 42,
@@ -850,26 +948,26 @@
       "provider": "google",
       "tier": "cheap"
     },
-    "gemini-3.8-flash": {
-      "call_errors": 7,
+    "gemini-3.6-flash": {
+      "call_errors": 0,
       "calls": 42,
-      "cost_usd_est": null,
+      "cost_usd_est": 0.0026,
       "dimensions": {
         "capability": {
-          "n": 11,
+          "n": 18,
           "n_blocked": 0,
-          "n_error": 7,
+          "n_error": 0,
           "output_tokens": {
-            "mean": 2.4,
-            "std": 1.3
+            "mean": 3.1,
+            "std": 2.0
           },
-          "pass_rate": 0.5455,
+          "pass_rate": 1.0,
           "probes": 9,
           "refusal_rate": 0.0,
           "thinking_tokens": {
-            "mean": 54.9,
-            "n": 11,
-            "std": 6.0
+            "mean": null,
+            "n": 0,
+            "std": null
           }
         },
         "instruction-following": {
@@ -877,8 +975,8 @@
           "n_blocked": 0,
           "n_error": 0,
           "output_tokens": {
-            "mean": 9.5,
-            "std": 7.9
+            "mean": 8.2,
+            "std": 5.9
           },
           "pass_rate": 1.0,
           "probes": 6,
@@ -894,7 +992,91 @@
           "n_blocked": 0,
           "n_error": 0,
           "output_tokens": {
-            "mean": 17.7,
+            "mean": 17.3,
+            "std": 0.5
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 24.0,
+            "std": 6.2
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 872.6,
+        "p95": 1313.6
+      },
+      "model": "gemini-3.6-flash",
+      "provider": "google",
+      "tier": "cheap"
+    },
+    "gemini-3.8-flash": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": 0.0103,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 3.1,
+            "std": 2.0
+          },
+          "pass_rate": 1.0,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": 122.7,
+            "n": 17,
+            "std": 79.1
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 8.2,
+            "std": 5.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 17.3,
             "std": 0.5
           },
           "pass_rate": 1.0,
@@ -924,17 +1106,99 @@
           }
         }
       },
-      "errors_by_class": {
-        "truncation": 7
-      },
+      "errors_by_class": {},
       "identity": "alias",
       "latency_ms": {
-        "p50": 1568.8,
-        "p95": 2248.9
+        "p50": 1768.1,
+        "p95": 3406.3
       },
       "model": "gemini-3.8-flash",
       "provider": "google",
       "tier": "cheap"
+    },
+    "gemini-4-argon": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": 0.0112,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 7.1,
+            "std": 2.0
+          },
+          "pass_rate": 1.0,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 12.2,
+            "std": 5.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 23.3,
+            "std": 2.9
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 28.0,
+            "std": 6.2
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 2845.4,
+        "p95": 14927.4
+      },
+      "model": "gemini-4-argon",
+      "provider": "google",
+      "tier": "workhorse"
     },
     "glm-5.2@deepinfra": {
       "call_errors": 0,
@@ -1859,6 +2123,92 @@
         "p95": 6119.4
       },
       "model": "tencent/Hy4-preview",
+      "provider": "openai_compat",
+      "tier": "cheap"
+    },
+    "inkling-small@deepinfra": {
+      "call_errors": 10,
+      "calls": 42,
+      "cost_usd_est": 0.0039,
+      "dimensions": {
+        "capability": {
+          "n": 8,
+          "n_blocked": 0,
+          "n_error": 10,
+          "output_tokens": {
+            "mean": 128.5,
+            "std": 90.6
+          },
+          "pass_rate": 1.0,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 65.5,
+            "std": 15.9
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 59.3,
+            "std": 1.4
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 89.3,
+            "std": 8.8
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {
+        "timeout": 10
+      },
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 31039.9,
+        "p95": 58753.2
+      },
+      "model": "thinkingmachines/Inkling-Small",
       "provider": "openai_compat",
       "tier": "cheap"
     },
