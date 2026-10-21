@@ -247,6 +247,34 @@ class TestRunAndDigest(unittest.TestCase):
         del reading["skipped_no_key"]
         self.assertEqual(cc.check(reading, roster)["missing"], ["b"])
 
+    def test_coverage_flags_empty_truncation_at_the_floor(self):
+        import check_coverage as cc
+        roster = {"models": [{"id": "a", "cadence": "daily"}, {"id": "b", "cadence": "daily"}]}
+        reading = {"cadence": "daily", "reading_date": "2026-10-21", "models": {
+            "a": {"calls": 87, "call_errors": 14, "errors_by_class": {"truncation": 14}},
+            "b": {"calls": 87, "call_errors": 1, "errors_by_class": {"truncation": 1}}}}
+        r = cc.check(reading, roster)
+        self.assertEqual(r["truncating"], ["a (14/87)"])
+        self.assertEqual(r["dark"], [])
+        # the floor is absolute AND proportional: 5 of 6 calls pages, 5 of 500 does not
+        reading["models"]["a"] = {"calls": 500, "call_errors": 5, "errors_by_class": {"truncation": 5}}
+        self.assertEqual(cc.check(reading, roster)["truncating"], [])
+        reading["models"]["a"] = {"calls": 6, "call_errors": 5, "errors_by_class": {"truncation": 5}}
+        self.assertEqual(cc.check(reading, roster)["truncating"], ["a (5/6)"])
+
+    def test_coverage_reports_first_contact_for_pending_models(self):
+        import check_coverage as cc
+        roster = {"models": [{"id": "a", "cadence": "daily", "availability": "pending"},
+                             {"id": "b", "cadence": "daily", "availability": "pending"},
+                             {"id": "c", "cadence": "daily"}]}
+        reading = {"cadence": "daily", "reading_date": "2026-10-21",
+                   "skipped_access_pending": ["b"],
+                   "models": {"a": {"calls": 87, "call_errors": 2, "errors_by_class": {"timeout": 2}},
+                              "c": {"calls": 87, "call_errors": 0}}}
+        r = cc.check(reading, roster)
+        self.assertEqual(r["access_confirmed"], ["a (85/87)"])
+        self.assertEqual(r["missing"], [])
+
     def test_content_parts_are_flattened_and_never_crash_grading(self):
         from seismo.grade import as_text
         parts = [{"type": "thinking", "thinking": [{"type": "text", "text": "secret reasoning"}]},
