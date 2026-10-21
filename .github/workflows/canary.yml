@@ -131,6 +131,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
           META_API_KEY: ${{ secrets.META_API_KEY }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           SEISMO_CODE_COMMIT: ${{ github.sha }}
         run: |
           # 10 workers: the run is I/O-bound on provider latency, and probe-
@@ -188,6 +189,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
           META_API_KEY: ${{ secrets.META_API_KEY }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           SEISMO_CODE_COMMIT: ${{ github.sha }}
         run: |
           # Tier 2 needs NO battery secret - the probes are generated fresh from
