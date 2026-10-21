@@ -11,7 +11,10 @@
       "title": "Provider record on the onset date",
       "text": "DeepSeek's API updates page carries an entry dated 2026-10-17: \"DeepSeek V4.1 Flash has been upgraded to DeepSeek-V4.1-Flash-1017\", described as a minor update with shorter outputs, served behind the deepseek-flash alias. The same page (2026-04-24 entry) routes deepseek-chat to V4.1 Flash's non-thinking mode. The first reading taken on or after that entry is the one that flagged, and the pass rate has held at the new level since. Same reading, same provider: deepseek-reasoner's mean thinking tokens on the verbosity probes fell from about 1,000 to about 200 and stayed there (visible in series.json; the detector logged it as a watch on 2026-10-21). The instrument flagged the change blind; the provider's dated record is the attribution candidate, not an established cause.",
       "sources": [
-        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+        {
+          "label": "DeepSeek API updates, 2026-10-17 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        }
       ],
       "added": "2026-10-21"
     },
@@ -23,7 +26,10 @@
       "title": "Provider record on the onset date",
       "text": "DeepSeek's API updates page dates the DeepSeek-V4.1-Flash release and its API price change to 2026-09-10, and states that V4 Pro continued to be served unchanged after 2026-09-14. The onset coincides with the V4.1 Flash release day. It does not coincide with a Pro routing change (none occurred on that date, per the same page), so an earlier working hypothesis that this was a Pro-to-Flash reroute was wrong. What changed behind the deepseek-reasoner alias on 2026-09-10 is not established by the instrument.",
       "sources": [
-        {"label": "DeepSeek API updates, 2026-09-10 entry", "url": "https://api-docs.deepseek.com/updates"}
+        {
+          "label": "DeepSeek API updates, 2026-09-10 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        }
       ],
       "added": "2026-10-21"
     },
@@ -37,7 +43,10 @@
       "title": "Provider record four readings earlier",
       "text": "The drop in thinking tokens on the verbosity probes began on the 2026-10-17 reading (about 1,000 to about 200) and crossed the detector's threshold on 2026-10-21 as the baseline window moved. DeepSeek's API updates page dates the DeepSeek-V4.1-Flash-1017 upgrade, described as producing shorter outputs, to 2026-10-17. Dated record alongside the reading; cause not established by the instrument.",
       "sources": [
-        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+        {
+          "label": "DeepSeek API updates, 2026-10-17 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        }
       ],
       "added": "2026-10-21"
     },
@@ -48,7 +57,10 @@
       "title": "Alias retired by the provider",
       "text": "Google's Gemini API changelog, 2026-10-08: gemini-3.5-flash deprecated, and API requests to the old id are routed automatically to gemini-3.6-flash. This id was dark from 2026-10-01 to 2026-10-11 (quota), so every reading recorded under it from 2026-10-12 to 2026-10-21 was served by gemini-3.6-flash. Roster v0.31 (2026-10-21) retired the id; gemini-3.6-flash continues as its own series. The detector did not flag the swap: the 14-reading baseline window contained no pre-swap readings once the dark gap had passed, so the comparison was post-swap against post-swap. An alias change that lands behind an outage is invisible to a windowed detector; the gap is recorded here instead.",
       "sources": [
-        {"label": "Gemini API changelog, 2026-10-08", "url": "https://ai.google.dev/gemini-api/docs/changelog"}
+        {
+          "label": "Gemini API changelog, 2026-10-08",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog"
+        }
       ],
       "added": "2026-10-21"
     },
@@ -59,7 +71,10 @@
       "title": "Configuration artefact in the first segment",
       "text": "Readings from 2026-10-12 to 2026-10-21 were taken with a thinking setting this model ignores (thinking_budget 0; Gemini 3.x models take thinking_level, default medium, with no off setting per Google's thinking documentation). The model reasoned at its default level and consumed the small output budgets of the short-answer probes: 9 to 14 calls per reading returned no visible text (recorded as truncation call errors) and other short answers were cut off, which depressed the capability and instruction-following pass rates. Roster v0.31 (2026-10-21) set thinking_level low; the series restarts there. The first segment reflects the instrument's configuration, not the model's behaviour.",
       "sources": [
-        {"label": "Gemini API thinking documentation", "url": "https://ai.google.dev/gemini-api/docs/thinking"}
+        {
+          "label": "Gemini API thinking documentation",
+          "url": "https://ai.google.dev/gemini-api/docs/thinking"
+        }
       ],
       "added": "2026-10-21"
     },
@@ -70,7 +85,151 @@
       "title": "Provider record",
       "text": "DeepSeek's API updates page, 2026-10-17: DeepSeek-V4.1-Flash upgraded to DeepSeek-V4.1-Flash-1017, with shorter outputs. From the 2026-10-17 reading this alias's mean thinking tokens on the verbosity probes fell from about 1,000 to about 200 and on the sycophancy probes from about 1,100 to about 600. Dated record alongside the readings; cause not established by the instrument.",
       "sources": [
-        {"label": "DeepSeek API updates, 2026-10-17 entry", "url": "https://api-docs.deepseek.com/updates"}
+        {
+          "label": "DeepSeek API updates, 2026-10-17 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "gpt-6-luna",
+      "cadence": "daily",
+      "dimension": "structured-output",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-02",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "gpt-6-luna",
+      "cadence": "daily",
+      "dimension": "instruction-following",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-03",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "gpt-6-luna",
+      "cadence": "daily",
+      "dimension": "sycophancy",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-03",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "gpt-6-luna",
+      "cadence": "daily",
+      "dimension": "structured-output",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-04",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "gpt-6-luna",
+      "cadence": "daily",
+      "dimension": "sycophancy",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-04",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "glm-5.3-flash@deepinfra",
+      "cadence": "daily",
+      "dimension": "refusal-boundary",
+      "metric": "thinking_tokens_mean",
+      "onset": "2026-10-04",
+      "title": "Predates the thinking-token floor",
+      "text": "This entry predates the detector's absolute floor for the thinking-token tripwire (PR #67, merged 2026-10-05): a baseline under 20 mean thinking tokens no longer fires the relative-shift rule, because a model running its minimum-thinking channel emits single-digit thinking tokens and a swing of a few tokens reads as a large multiple. This entry's baseline is below that floor and would not publish under the current rule. The log is append-only, so it stays; read it as a rule-calibration artefact, not a serving change. The pattern note above was computed on the same near-zero numbers and should be read the same way.",
+      "sources": [
+        {
+          "label": "PR #67: absolute floor for the thinking-token tripwire",
+          "url": "https://github.com/piperoll/seismograph/pull/67"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "finding",
+      "model": "deepseek-chat@deepseek",
+      "cadence": "daily",
+      "dimension": "instruction-following",
+      "metric": "pass_rate",
+      "onset": "2026-10-17",
+      "title": "What changed, probe by probe (follow-up)",
+      "text": "Regrading the witnessed raw sessions probe by probe: two of the five instruction-following probes flipped on 2026-10-17 and have failed identically on every reading since, three samples each at temperature 0. One probe asks for an answer that must not contain a named term; through 2026-10-16 the answer omitted it, from 2026-10-17 the answer contains it, at unchanged length. One probe sets a word-count range; through 2026-10-16 the answer sat inside it, from 2026-10-17 the answer is one word short. The other three probes (an exact-match answer, a format constraint, a longer structured answer) are unchanged. deepseek-reasoner, the thinking mode of the same model behind a sibling alias, still passes all five. On 2026-10-21 the dated snapshot deepseek-ai/DeepSeek-V4.1-Flash-1017 on an independent host (DeepInfra, separate key) failed the same two probes the same way on its first reading. Probe text is withheld per the charter; the raw sessions are witnessed and the grader is public.",
+      "sources": [
+        {
+          "label": "DeepSeek API updates, 2026-10-17 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        },
+        {
+          "label": "Roster v0.31/v0.32: the pinned 1017 snapshot on DeepInfra",
+          "url": "https://github.com/piperoll/seismograph/blob/main/config/models.json"
+        }
+      ],
+      "added": "2026-10-21"
+    },
+    {
+      "scope": "model",
+      "model": "deepseek-v4.1-flash-1017@deepinfra",
+      "date": "2026-10-21",
+      "title": "First reading reproduces the deepseek-chat regression",
+      "text": "This is the dated DeepSeek-V4.1-Flash-1017 snapshot served by DeepInfra, added the day after DeepSeek's own API updates page dated the 1017 upgrade (2026-10-17). On its first reading it failed the same two instruction-following probes, in the same way, as the deepseek-chat alias has since 2026-10-17: an exclusion constraint ignored and a word-count floor undershot. Different host, different key, same weights. Recorded as a reproduction on an independent channel; the instrument does not establish why the build behaves this way.",
+      "sources": [
+        {
+          "label": "DeepSeek API updates, 2026-10-17 entry",
+          "url": "https://api-docs.deepseek.com/updates"
+        },
+        {
+          "label": "deepseek-chat finding, 2026-10-17",
+          "url": "https://seismo.piperoll.org/findings/2026-10-17-deepseek-chat-deepseek-instruction-following-pass-rate/"
+        }
       ],
       "added": "2026-10-21"
     }
