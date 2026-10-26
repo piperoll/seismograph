@@ -1,13 +1,13 @@
 {
-  "comment": "EXPERIMENT ONLY (2026-10-26) - not the roster. Tests whether deepseek-reasoner's post-1017 tool-call declines and shorter reasoning travel with the 1017 weights in thinking mode on an independent host. Never merged to main; outputs go only to the private raw repo. Round 2 (2026-10-26 10:25 UTC): round 1's chat_template_kwargs.thinking and top-level thinking.type were ignored by DeepInfra (output length, latency and answers identical to the non-thinking control), so three other placements are tried; the reasoner and control were already read in round 1.",
-  "version": "exp-2026-10-26-r2",
+  "comment": "EXPERIMENT ONLY (2026-10-26) - not the roster. Tests whether deepseek-reasoner's post-1017 tool-call declines and shorter reasoning travel with the 1017 weights in thinking mode on an independent host. Never merged to main; outputs go only to the private raw repo. Round 2 (2026-10-26 10:25 UTC): round 1's chat_template_kwargs.thinking and top-level thinking.type were ignored by DeepInfra (output length, latency and answers identical to the non-thinking control), so three other placements are tried; the reasoner and control were already read in round 1. Round 3 (2026-10-26): before-control - the undated deepseek-ai/DeepSeek-V4.1-Flash id on DeepInfra (pre-1017 weights unless DeepInfra re-pointed it) in thinking mode, using the two switches that worked in round 2 (top-level reasoning_effort high; chat_template_kwargs.enable_thinking).",
+  "version": "exp-2026-10-26-r3",
   "models": [
     {
-      "id": "deepseek-v4.1-flash-1017-think-re@deepinfra",
+      "id": "deepseek-v4.1-flash-undated-think-re@deepinfra",
       "provider": "openai_compat",
       "base_url": "https://api.deepinfra.com/v1/openai",
-      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-      "identity": "pinned",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "identity": "alias",
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPINFRA_API_KEY",
@@ -17,28 +17,11 @@
       }
     },
     {
-      "id": "deepseek-v4.1-flash-1017-think-ctkre@deepinfra",
+      "id": "deepseek-v4.1-flash-undated-think-enable@deepinfra",
       "provider": "openai_compat",
       "base_url": "https://api.deepinfra.com/v1/openai",
-      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-      "identity": "pinned",
-      "tier": "cheap",
-      "cadence": "daily",
-      "env_key": "DEEPINFRA_API_KEY",
-      "token_headroom": 4096,
-      "request_overrides": {
-        "chat_template_kwargs": {
-          "thinking": true,
-          "reasoning_effort": "high"
-        }
-      }
-    },
-    {
-      "id": "deepseek-v4.1-flash-1017-think-enable@deepinfra",
-      "provider": "openai_compat",
-      "base_url": "https://api.deepinfra.com/v1/openai",
-      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-      "identity": "pinned",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "identity": "alias",
       "tier": "cheap",
       "cadence": "daily",
       "env_key": "DEEPINFRA_API_KEY",

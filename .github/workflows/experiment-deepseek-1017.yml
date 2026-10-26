@@ -45,7 +45,7 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
         run: |
-          for i in 1; do
+          for i in 1 2; do
             python3 -m seismo.run --cadence weekly --battery battery/deep-v1.json \
               --models experiments/deepseek-1017-thinking.models.json \
               --out exp-raw --workers 6
@@ -64,7 +64,7 @@ jobs:
           test -n "$RAW_PUSH_TOKEN" || { echo "RAW_PUSH_TOKEN missing - refusing to keep results anywhere public"; exit 1; }
           git clone --depth 1 \
             "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
-          DEST="rawrepo/experiments/2026-10-26-deepseek-1017-thinking/round2"
+          DEST="rawrepo/experiments/2026-10-26-deepseek-1017-thinking/round3"
           mkdir -p "$DEST"
           cp exp-raw/session-* "$DEST/"
           cp -r exp-readings "$DEST/readings"
