@@ -1,0 +1,79 @@
+# EXPERIMENT ONLY - lives on branch experiment/deepseek-1017-thinking, never
+# merged to main. Tests whether deepseek-reasoner's post-1017 behaviour on the
+# deep battery (tool-call declines, shorter reasoning) travels with the
+# DeepSeek-V4.1-Flash-1017 weights in thinking mode on an independent host.
+#
+# Secrecy: the repo is public, so NOTHING raw leaves this job except to the
+# private seismograph-raw repo. No upload-artifact, no echo of outputs; the
+# runner logs only probe ids and counts (the same as the public canary).
+# No reading is written to this repo and nothing is witnessed.
+name: experiment-deepseek-1017
+
+on:
+  push:
+    branches: [experiment/deepseek-1017-thinking]
+    paths: [".github/workflows/experiment-deepseek-1017.yml", "experiments/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: experiment-deepseek-1017
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore the deep battery
+        env:
+          DEEP_BATTERY_B64: ${{ secrets.SEISMO_DEEP_BATTERY_B64 }}
+        run: |
+          test -n "$DEEP_BATTERY_B64" || { echo "SEISMO_DEEP_BATTERY_B64 missing"; exit 1; }
+          mkdir -p battery
+          printf '%s' "$DEEP_BATTERY_B64" | base64 -d > battery/deep-v1.json
+
+      - name: Run the deep battery three times on the four configurations
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+        run: |
+          for i in 1 2 3; do
+            python3 -m seismo.run --cadence weekly --battery battery/deep-v1.json \
+              --models experiments/deepseek-1017-thinking.models.json \
+              --out exp-raw --workers 6
+          done
+
+      - name: Digest each session (aggregates only)
+        run: |
+          for S in exp-raw/session-*.jsonl; do
+            python3 -m seismo.digest "$S" --battery battery/deep-v1.json --out "exp-readings/$(basename "$S" .jsonl)" >/dev/null
+          done
+
+      - name: Push raw sessions and digests to the private raw repo only
+        env:
+          RAW_PUSH_TOKEN: ${{ secrets.RAW_PUSH_TOKEN }}
+        run: |
+          test -n "$RAW_PUSH_TOKEN" || { echo "RAW_PUSH_TOKEN missing - refusing to keep results anywhere public"; exit 1; }
+          git clone --depth 1 \
+            "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
+          DEST="rawrepo/experiments/2026-10-26-deepseek-1017-thinking"
+          mkdir -p "$DEST"
+          cp exp-raw/session-* "$DEST/"
+          cp -r exp-readings "$DEST/readings"
+          cp experiments/deepseek-1017-thinking.models.json "$DEST/"
+          cd rawrepo
+          git config user.name "seismograph-experiment"
+          git config user.email "actions@users.noreply.github.com"
+          git add experiments
+          git diff --cached --quiet && { echo "nothing to push"; exit 0; }
+          git commit -m "experiment: 2026-10-26 deepseek-1017 thinking-mode deep-battery rerun"
+          git push
+          echo "pushed experiment results to seismograph-raw"

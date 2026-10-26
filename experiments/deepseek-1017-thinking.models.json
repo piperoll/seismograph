@@ -1,0 +1,60 @@
+{
+  "comment": "EXPERIMENT ONLY (2026-10-26) - not the roster. Tests whether deepseek-reasoner's post-1017 tool-call declines and shorter reasoning travel with the 1017 weights in thinking mode on an independent host. Never merged to main; outputs go only to the private raw repo.",
+  "version": "exp-2026-10-26",
+  "models": [
+    {
+      "id": "deepseek-reasoner@deepseek",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepseek.com/v1",
+      "model": "deepseek-reasoner",
+      "identity": "alias",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPSEEK_API_KEY",
+      "token_headroom": 4096
+    },
+    {
+      "id": "deepseek-v4.1-flash-1017@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "identity": "pinned",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 4096
+    },
+    {
+      "id": "deepseek-v4.1-flash-1017-think-ctk@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "identity": "pinned",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 4096,
+      "request_overrides": {
+        "chat_template_kwargs": {
+          "thinking": true
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4.1-flash-1017-think-top@deepinfra",
+      "provider": "openai_compat",
+      "base_url": "https://api.deepinfra.com/v1/openai",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "identity": "pinned",
+      "tier": "cheap",
+      "cadence": "daily",
+      "env_key": "DEEPINFRA_API_KEY",
+      "token_headroom": 4096,
+      "request_overrides": {
+        "thinking": {
+          "type": "enabled"
+        }
+      }
+    }
+  ]
+}
