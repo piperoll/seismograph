@@ -1,7 +1,9 @@
 # Daily canary: run the battery, digest to a public-safe reading, witness in
 # Rekor, commit the reading. Raw sessions (outputs can echo probes) go to the
-# private seismograph-raw repo when RAW_PUSH_TOKEN exists; until then they are
-# kept as 90-day workflow artifacts - a stopgap, not the archive.
+# private seismograph-raw repo. This repo is public, so a raw session is never
+# uploaded here as a plain workflow artifact (anyone signed in can download
+# artifacts of a public repo). A failed run leaves an ENCRYPTED fallback
+# artifact only (RAW_ARTIFACT_PASSPHRASE); without that secret, none at all.
 #
 # The charter decouples measurement from publication: this runs while the repo
 # is private; nothing here publishes a reading anywhere public except the
@@ -23,7 +25,7 @@ on:
         type: string
         default: ""
       from_run_id:
-        description: "re-digest the raw-session artifact of this run id instead of calling any API (zero cost; for runs that died after the calls)"
+        description: "re-digest the raw sessions of this run id instead of calling any API (zero cost; for runs that died after the calls). Uses the run's encrypted fallback artifact if it has one, else its sessions in seismograph-raw"
         type: string
         default: ""
 
@@ -108,13 +110,34 @@ jobs:
           echo "model_args=$MODEL_ARGS" >> "$GITHUB_OUTPUT"
           echo "merge=$MERGE" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch the raw-session artifact to re-digest
+      - name: Fetch the raw sessions to re-digest
         if: steps.cadence.outputs.mode == 'redigest'
         env:
           GH_TOKEN: ${{ github.token }}
+          RAW_PUSH_TOKEN: ${{ secrets.RAW_PUSH_TOKEN }}
+          RAW_ARTIFACT_PASSPHRASE: ${{ secrets.RAW_ARTIFACT_PASSPHRASE }}
         run: |
+          RID="${{ inputs.from_run_id }}"
           mkdir -p raw
-          gh run download "${{ inputs.from_run_id }}" -n "raw-session-${{ inputs.from_run_id }}" -D raw
+          # 1. The encrypted fallback artifact: present only when that run
+          #    failed, and it is the unscrubbed copy if the run died before the
+          #    scrub step, so refusal-boundary still grades.
+          if [ -n "$RAW_ARTIFACT_PASSPHRASE" ] && gh run download "$RID" -n "raw-session-enc-$RID" -D enc 2>/dev/null; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:RAW_ARTIFACT_PASSPHRASE \
+              -in enc/raw-session.tar.gz.enc | tar xzf -
+            rm -rf enc
+          else
+            # 2. The private archive, via the per-run manifest the archive
+            #    step writes. Archived sessions are scrubbed: a refusal-boundary
+            #    pass rate cannot be re-graded from them.
+            [ -n "$RAW_PUSH_TOKEN" ] || { echo "no encrypted artifact and no RAW_PUSH_TOKEN for run $RID"; exit 1; }
+            git clone --depth 1 \
+              "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
+            M="rawrepo/runs/$RID.txt"
+            [ -f "$M" ] || { echo "run $RID has no manifest in seismograph-raw"; exit 1; }
+            while read -r f; do cp "rawrepo/$f" raw/; done < "$M"
+            rm -rf rawrepo
+          fi
           ls -1 raw
 
       - name: Run the battery
@@ -328,34 +351,63 @@ jobs:
           done
           git push
 
+      # Runs even when an earlier step failed, so a run that dies after its
+      # calls still lands its sessions in the private archive. The copies are
+      # scrubbed here (idempotent) because a failed run may have died before
+      # the scrub step; raw/ itself is left as it is for the fallback below.
       - name: Archive raw session to seismograph-raw
+        id: rawpush
+        if: always()
         env:
           RAW_PUSH_TOKEN: ${{ secrets.RAW_PUSH_TOKEN }}
         run: |
+          ls raw/session-* >/dev/null 2>&1 || { echo "no raw sessions in this run"; exit 0; }
           if [ -z "$RAW_PUSH_TOKEN" ]; then
-            echo "RAW_PUSH_TOKEN not set - raw session stays as workflow artifact only"
-            exit 0
+            echo "::error::RAW_PUSH_TOKEN not set - raw sessions are not archived"
+            exit 1
           fi
           git clone --depth 1 \
             "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
-          DEST="rawrepo/$(date -u +%Y)"
-          mkdir -p "$DEST"
-          cp raw/session-* "$DEST/"
+          Y=$(date -u +%Y)
+          mkdir -p "rawrepo/$Y" rawrepo/runs
+          cp raw/session-* "rawrepo/$Y/"
+          (cd raw && ls -1 session-*) | sed "s|^|$Y/|" > "rawrepo/runs/${{ github.run_id }}.txt"
+          python3 -m seismo.scrub $(sed 's|^|rawrepo/|' "rawrepo/runs/${{ github.run_id }}.txt" | grep '\.jsonl$')
           cd rawrepo
           git config user.name "seismograph-canary"
           git config user.email "actions@users.noreply.github.com"
           git add .
           git diff --cached --quiet && exit 0
-          git commit -m "raw: $(date -u +%F) ${{ steps.cadence.outputs.cadence }}"
+          git commit -m "raw: $(date -u +%F) ${{ steps.cadence.outputs.cadence }} (run ${{ github.run_id }})"
+          for i in 1 2 3; do git push && exit 0; git pull --rebase; done
           git push
 
-      - name: Raw session fallback artifact
-        if: always()
+      # Fallback only for a failed run or a failed archive push, and only
+      # encrypted: this repo is public and its artifacts are downloadable by
+      # anyone signed in. No passphrase secret = no artifact, never plaintext.
+      - name: Encrypt raw session fallback
+        id: rawenc
+        if: failure() || (always() && steps.rawpush.outcome != 'success')
+        env:
+          RAW_ARTIFACT_PASSPHRASE: ${{ secrets.RAW_ARTIFACT_PASSPHRASE }}
+        run: |
+          ls raw/session-* >/dev/null 2>&1 || { echo "no raw sessions to keep"; exit 0; }
+          if [ -z "$RAW_ARTIFACT_PASSPHRASE" ]; then
+            echo "::warning::RAW_ARTIFACT_PASSPHRASE not set - no fallback artifact kept"
+            exit 0
+          fi
+          mkdir -p enc
+          tar czf - raw | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+            -pass env:RAW_ARTIFACT_PASSPHRASE -out enc/raw-session.tar.gz.enc
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload encrypted raw session fallback
+        if: always() && steps.rawenc.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: raw-session-${{ github.run_id }}
-          path: raw/
-          retention-days: 90
+          name: raw-session-enc-${{ github.run_id }}
+          path: enc/raw-session.tar.gz.enc
+          retention-days: 30
 
       # Self-monitoring: a silent failure is the worst failure for an
       # instrument whose value is an unbroken baseline. A run that dies files
