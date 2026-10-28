@@ -28,9 +28,9 @@ We have no evidence that would tell us whether anyone downloaded these artifacts
 
 The operating agent noticed the artifact step on 2026-10-26 while reviewing the workflow for unrelated work. It reported the step to the operator and asked before deleting anything, because deleting artifacts cannot be undone. Its report listed the problem among routine follow-ups rather than flagging it as urgent. On 2026-10-28 the operator approved, and that day:
 
-- the 86 raw-session artifacts then listed were deleted, and the listing was checked again: no artifact named `raw-session-` remains;
-- every session witnessed in this repository was confirmed present in the private archive, so the deletion lost no raw data;
-- the upload was replaced ([#95](https://github.com/piperoll/seismograph/pull/95)). Raw sessions now go only to the private archive, pushed even when a run fails, with each archived copy scrubbed. A run keeps a backup artifact only if it failed or the archive push failed. That backup is encrypted, kept for 30 days, and not kept at all if the encryption secret is missing. A follow-up ([#96](https://github.com/piperoll/seismograph/pull/96)) scrubs the backup before encryption as well.
+- the 86 raw-session artifacts then listed were deleted, and the listing was checked again: no artifact whose name starts with `raw-session-` remains;
+- all 189 session names witnessed in this repository were matched to files in the private archive, and none was missing. That was a filename coverage check, not a byte-for-byte comparison with the deleted artifacts, and it does not cover sessions from failed runs that never reached witnessing;
+- the upload was replaced ([#95](https://github.com/piperoll/seismograph/pull/95)). Raw sessions now go only to the private archive, pushed even when a run fails, with each archived copy scrubbed. A run keeps a backup artifact only if it failed or the archive push failed. That backup is encrypted, kept for 30 days, and not kept at all if the encryption secret is missing. An open follow-up ([#96](https://github.com/piperoll/seismograph/pull/96)) proposes scrubbing the backup before encryption as well.
 
 We also checked the rest of what this repository serves: git history on all branches, the remaining artifacts (board site, Pages deploy, one repeatability report of digested readings), caches, releases and recent run logs. We found no raw response text in any of them.
 
