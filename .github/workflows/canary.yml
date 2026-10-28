@@ -120,16 +120,14 @@ jobs:
           RID="${{ inputs.from_run_id }}"
           mkdir -p raw
           # 1. The encrypted fallback artifact: present only when that run
-          #    failed, and it is the unscrubbed copy if the run died before the
-          #    scrub step, so refusal-boundary still grades.
+          #    failed or its archive push failed (scrubbed, like the archive).
           if [ -n "$RAW_ARTIFACT_PASSPHRASE" ] && gh run download "$RID" -n "raw-session-enc-$RID" -D enc 2>/dev/null; then
             openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:RAW_ARTIFACT_PASSPHRASE \
               -in enc/raw-session.tar.gz.enc | tar xzf -
             rm -rf enc
           else
             # 2. The private archive, via the per-run manifest the archive
-            #    step writes. Archived sessions are scrubbed: a refusal-boundary
-            #    pass rate cannot be re-graded from them.
+            #    step writes.
             [ -n "$RAW_PUSH_TOKEN" ] || { echo "no encrypted artifact and no RAW_PUSH_TOKEN for run $RID"; exit 1; }
             git clone --depth 1 \
               "https://x-access-token:${RAW_PUSH_TOKEN}@github.com/piperoll/seismograph-raw.git" rawrepo
@@ -385,6 +383,9 @@ jobs:
       # Fallback only for a failed run or a failed archive push, and only
       # encrypted: this repo is public and its artifacts are downloadable by
       # anyone signed in. No passphrase secret = no artifact, never plaintext.
+      # Scrubbed first, like every other copy: harmful response text is never
+      # kept, even encrypted (refusal-boundary is parked, so a re-digest from
+      # this copy loses nothing the readings use).
       - name: Encrypt raw session fallback
         id: rawenc
         if: failure() || (always() && steps.rawpush.outcome != 'success')
@@ -396,6 +397,7 @@ jobs:
             echo "::warning::RAW_ARTIFACT_PASSPHRASE not set - no fallback artifact kept"
             exit 0
           fi
+          python3 -m seismo.scrub raw/session-*.jsonl
           mkdir -p enc
           tar czf - raw | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
             -pass env:RAW_ARTIFACT_PASSPHRASE -out enc/raw-session.tar.gz.enc
