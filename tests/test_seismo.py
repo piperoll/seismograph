@@ -252,6 +252,36 @@ class TestRunAndDigest(unittest.TestCase):
         del reading["skipped_no_key"]
         self.assertEqual(cc.check(reading, roster)["missing"], ["b"])
 
+    def test_coverage_shared_daily_quota_on_sunday_weekly_does_not_page(self):
+        import check_coverage as cc
+        roster = {"models": [{"id": "g", "cadence": "daily", "provider": "google"},
+                             {"id": "o", "cadence": "daily", "provider": "openai"}]}
+        weekly = {"cadence": "weekly", "reading_date": "2026-10-25", "models": {
+            "g": {"calls": 174, "call_errors": 64, "errors_by_class": {"quota-or-billing": 64}},
+            "o": {"calls": 174, "call_errors": 0, "errors_by_class": {}}}}
+        daily = {"cadence": "daily", "reading_date": "2026-10-25", "models": {
+            "g": {"calls": 87, "call_errors": 0, "errors_by_class": {}},
+            "o": {"calls": 87, "call_errors": 0, "errors_by_class": {}}}}
+        r = cc.check(weekly, roster, daily)
+        self.assertEqual(r["billing"], [])
+        self.assertEqual(r["shared_quota"], ["g (64/174)"])
+        # without the same-day daily it is still a billing alert
+        self.assertEqual(cc.check(weekly, roster)["billing"], ["g (64/174)"])
+        # a daily that ALSO hit quota means it is not the shared-quota pattern
+        daily["models"]["g"]["errors_by_class"] = {"quota-or-billing": 3}
+        daily["models"]["g"]["call_errors"] = 3
+        self.assertEqual(cc.check(weekly, roster, daily)["billing"], ["g (64/174)"])
+        # non-daily-quota providers are never excused
+        daily["models"]["g"] = {"calls": 87, "call_errors": 0, "errors_by_class": {}}
+        weekly["models"]["o"] = {"calls": 174, "call_errors": 40, "errors_by_class": {"quota-or-billing": 40}}
+        r = cc.check(weekly, roster, daily)
+        self.assertEqual((r["billing"], r["shared_quota"]), (["o (40/174)"], ["g (64/174)"]))
+        # a daily reading is never excused by itself
+        daily_partial = dict(daily, models={"g": {"calls": 87, "call_errors": 30,
+                                                  "errors_by_class": {"quota-or-billing": 30}},
+                                            "o": {"calls": 87, "call_errors": 0, "errors_by_class": {}}})
+        self.assertEqual(cc.check(daily_partial, roster, daily)["billing"], ["g (30/87)"])
+
     def test_coverage_flags_empty_truncation_at_the_floor(self):
         import check_coverage as cc
         roster = {"models": [{"id": "a", "cadence": "daily"}, {"id": "b", "cadence": "daily"}]}
