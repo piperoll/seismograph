@@ -8,8 +8,442 @@
   "code_commit": "349a14e7ee9de1a272901d908a16b6a43c0ae0a4",
   "grader_version": "0.1.0",
   "instrument": "piperoll-seismograph",
+  "merged": [
+    {
+      "code_commit": "69a53c967ecbea5e494403ca2744c6f5a962daba",
+      "models": [
+        "claude-haiku-4-5",
+        "claude-haiku-5-5",
+        "claude-opus-5-5",
+        "claude-sonnet-5",
+        "claude-sonnet-5-5"
+      ],
+      "roster_version": "0.34",
+      "runner_version": "0.1.0"
+    }
+  ],
   "mock": false,
   "models": {
+    "claude-haiku-4-5": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": 0.0048,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 5.6,
+            "std": 0.5
+          },
+          "pass_rate": 0.8889,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 9.8,
+            "std": 3.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 30.3,
+            "std": 1.4
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 38.3,
+            "std": 0.5
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "pinned",
+      "latency_ms": {
+        "p50": 480.2,
+        "p95": 633.3
+      },
+      "model": "claude-haiku-4-5-20251001",
+      "provider": "anthropic",
+      "tier": "cheap"
+    },
+    "claude-haiku-5-5": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 52.7,
+            "std": 58.1
+          },
+          "pass_rate": 0.8889,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 9.2,
+            "std": 2.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 23.7,
+            "std": 1.4
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 26.3,
+            "std": 0.5
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 786.5,
+        "p95": 2971.4
+      },
+      "model": "claude-haiku-5-5",
+      "provider": "anthropic",
+      "tier": "cheap"
+    },
+    "claude-opus-5-5": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 35.8,
+            "std": 18.4
+          },
+          "pass_rate": 0.8889,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 14.7,
+            "std": 9.2
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 23.7,
+            "std": 1.4
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 27.2,
+            "std": 1.9
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1465.6,
+        "p95": 1927.9
+      },
+      "model": "claude-opus-5-5",
+      "provider": "anthropic",
+      "tier": "premium"
+    },
+    "claude-sonnet-5": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": 0.0327,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 69.8,
+            "std": 85.0
+          },
+          "pass_rate": 1.0,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 15.2,
+            "std": 11.0
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 27.8,
+            "std": 2.3
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 30.5,
+            "std": 2.3
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1115.1,
+        "p95": 1772.6
+      },
+      "model": "claude-sonnet-5",
+      "provider": "anthropic",
+      "tier": "workhorse"
+    },
+    "claude-sonnet-5-5": {
+      "call_errors": 0,
+      "calls": 42,
+      "cost_usd_est": null,
+      "dimensions": {
+        "capability": {
+          "n": 18,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 43.3,
+            "std": 39.8
+          },
+          "pass_rate": 0.5556,
+          "probes": 9,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "instruction-following": {
+          "n": 12,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 9.2,
+            "std": 2.1
+          },
+          "pass_rate": 1.0,
+          "probes": 6,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "structured-output": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 22.0,
+            "std": 1.9
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        },
+        "tool-call": {
+          "n": 6,
+          "n_blocked": 0,
+          "n_error": 0,
+          "output_tokens": {
+            "mean": 26.3,
+            "std": 0.5
+          },
+          "pass_rate": 1.0,
+          "probes": 3,
+          "refusal_rate": 0.0,
+          "thinking_tokens": {
+            "mean": null,
+            "n": 0,
+            "std": null
+          }
+        }
+      },
+      "errors_by_class": {},
+      "identity": "alias",
+      "latency_ms": {
+        "p50": 1289.5,
+        "p95": 1959.0
+      },
+      "model": "claude-sonnet-5-5",
+      "provider": "anthropic",
+      "tier": "workhorse"
+    },
     "gemini-3.1-pro-preview": {
       "call_errors": 0,
       "calls": 42,
