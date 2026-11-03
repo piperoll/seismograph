@@ -527,6 +527,28 @@ class TestRunAndDigest(unittest.TestCase):
             self.assertTrue(os.path.exists(path))
             self.assertIn(reading["reading_date"][:4], path)
 
+    def test_shadow_session_and_reading_stay_out_of_fixed_globs(self):
+        # rotation overlap: a -shadow session must not match the workflow's
+        # fixed-tier session glob, and a shadow reading must not match the
+        # fixed-tier reading glob that detection, series and the board use
+        import fnmatch
+        battery = copy.deepcopy(FIXTURE_BATTERY)
+        battery["_sha256"] = battery_mod.canonical_sha256(FIXTURE_BATTERY)
+        with tempfile.TemporaryDirectory() as tmp:
+            session_path, _ = run_session(battery, FIXTURE_ROSTER["models"], tmp,
+                                          "daily", mock=MockProvider({}), suffix="-shadow")
+            name = os.path.basename(session_path)
+            self.assertTrue(name.endswith("-daily-shadow.jsonl"))
+            self.assertFalse(fnmatch.fnmatch(name, "session-*-daily.jsonl"))
+            reading, _ = build_reading(session_path, battery)
+            self.assertEqual(reading["cadence"], "daily")
+            reading["shadow"] = {"alerts": False}
+            path = write_reading(reading, tmp)
+            rname = os.path.basename(path)
+            self.assertTrue(rname.endswith("-daily-shadow.json"))
+            self.assertFalse(fnmatch.fnmatch(rname, "reading-*-daily.json"))
+            self.assertTrue(fnmatch.fnmatch(rname, "reading-*-daily-shadow.json"))
+
 
 def model_block(pass_rate, latency=100.0, n=30, n_error=0):
     return {

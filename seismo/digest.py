@@ -241,6 +241,13 @@ def reading_path(reading, out_dir="readings"):
     # (reading-*-{cadence}.json) never picks them up: divergence pairs the two
     # tiers explicitly by date instead (seismo/divergence.py).
     suffix = "-dynamic" if reading["battery"].get("name") == "dynamic" else ""
+    # Shadow readings (a replacement battery run in parallel before a declared
+    # rotation point) get a -shadow suffix: public, but outside every
+    # fixed-tier glob, so they never feed detection, the series or the board
+    # until cutover. Readings across battery versions are never compared
+    # silently (charter section 2).
+    if reading.get("shadow"):
+        suffix += "-shadow"
     name = f"reading-{reading['reading_date']}-{reading['cadence']}{suffix}.json"
     return os.path.join(out_dir, year, name)
 
@@ -300,6 +307,9 @@ def main(argv=None):
                     help="fold this session's models into the day's existing "
                          "reading instead of overwriting it (targeted reruns, "
                          "re-digests from a saved artifact)")
+    ap.add_argument("--shadow", action="store_true",
+                    help="rotation overlap: mark the reading as a shadow reading "
+                         "(written as reading-<date>-<cadence>-shadow.json; no alerts)")
     args = ap.parse_args(argv)
 
     if args.dynamic:
@@ -315,6 +325,9 @@ def main(argv=None):
     else:
         battery = load_battery(args.battery)
     reading, detail = build_reading(args.session, battery)
+    if args.shadow:
+        reading["shadow"] = {"alerts": False,
+                             "note": "replacement battery run in parallel before a declared rotation point; not compared with the published series"}
     if args.merge:
         reading = merge_reading(reading, args.out)
     path = write_reading(reading, args.out)
