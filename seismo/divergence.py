@@ -63,6 +63,15 @@ def compare_tiers(fixed_by_date, dynamic_by_date):
     """Pool the trailing window of paired dates and test fixed vs dynamic per
     model x dimension. Returns finding dicts (most-significant first)."""
     paired_dates = sorted(set(fixed_by_date) & set(dynamic_by_date))
+    # A battery change on either tier starts a new comparison, as in
+    # detect.report: never pool paired days across battery versions. Keep only
+    # the days whose fixed and dynamic battery hashes match the latest pair's.
+    if paired_dates:
+        sha = lambda r: (r.get("battery") or {}).get("sha256")
+        last = paired_dates[-1]
+        cur = (sha(fixed_by_date[last]), sha(dynamic_by_date[last]))
+        paired_dates = [d for d in paired_dates
+                        if (sha(fixed_by_date[d]), sha(dynamic_by_date[d])) == cur]
     if len(paired_dates) < MIN_BASELINE:
         return {"verdict": "baseline-accruing", "paired": len(paired_dates),
                 "needed": MIN_BASELINE, "findings": []}
