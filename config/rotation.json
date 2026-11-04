@@ -1,0 +1,23 @@
+{
+  "comment": "Battery rotation overlap (charter section 2). Replacement fixed batteries run beside the published ones until each reaches its target count of shadow readings; then the overlap stops by itself and a declared rotation point (a separate PR) swaps the published battery. Shadow readings are public (reading-<date>-<cadence>-shadow.json), carry their own battery sha256, raise no alerts, and are never compared silently with the published series. The weekly shadow runs on one model per lab to bound cost. Reason for this rotation: confidentiality (PIR-2026-0111; POSTMORTEM-2026-10.md).",
+  "rotation": "2026-11",
+  "targets": {"daily": 21, "decision": 21, "weekly": 7},
+  "weekly_models": [
+    "claude-sonnet-5-5",
+    "gpt-6.1-sol",
+    "gemini-4-argon",
+    "deepseek-chat@deepseek",
+    "mistral-large-4-0@mistral",
+    "muse-spark-1.3@meta",
+    "sarvam-105b@sarvam",
+    "kimi-k3@moonshot",
+    "grok-4.7@xai",
+    "qwen3-235b@deepinfra",
+    "glm-5.3-flash@deepinfra",
+    "hy4-preview@deepinfra",
+    "inkling-small@deepinfra",
+    "minimax-m3.1-flash@minimax",
+    "mimo-v2.6-flash@deepinfra",
+    "nemotron-3-ultra@deepinfra"
+  ]
+}

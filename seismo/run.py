@@ -120,12 +120,16 @@ def looks_access_pending(resp):
 
 
 def run_session(battery, models, out_dir, cadence, mock=None, workers=4,
-                skipped=None, roster_version=None, dynamic_seed=None):
+                skipped=None, roster_version=None, dynamic_seed=None, suffix=""):
     started = datetime.datetime.now(datetime.timezone.utc)
     stamp = started.strftime("%Y-%m-%dT%H%M%SZ")
     os.makedirs(out_dir, exist_ok=True)
-    session_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.jsonl")
-    meta_path = os.path.join(out_dir, f"session-{stamp}-{cadence}.meta.json")
+    # suffix "-shadow" marks a rotation-overlap session (a replacement battery
+    # run beside the published one): the workflow's fixed-tier globs
+    # (session-*-<cadence>.jsonl) never pick it up, so it can never be
+    # digested against the wrong battery.
+    session_path = os.path.join(out_dir, f"session-{stamp}-{cadence}{suffix}.jsonl")
+    meta_path = os.path.join(out_dir, f"session-{stamp}-{cadence}{suffix}.meta.json")
 
     # Availability preflight: a model flagged availability=pending is staged
     # ahead of its API rollout. Probe it once; if the account cannot reach it
@@ -305,6 +309,8 @@ def main(argv=None):
                     help="offline dry run with the mock provider")
     ap.add_argument("--strict", action="store_true",
                     help="fail instead of skipping models with missing keys")
+    ap.add_argument("--shadow", action="store_true",
+                    help="rotation-overlap run: session files get a -shadow suffix")
     args = ap.parse_args(argv)
 
     dynamic_seed = None
@@ -344,7 +350,8 @@ def main(argv=None):
     session_path, meta = run_session(battery, models, args.out, args.cadence,
                                      mock=mock, workers=args.workers,
                                      roster_version=roster.get("roster_version"),
-                                     skipped=skipped, dynamic_seed=dynamic_seed)
+                                     skipped=skipped, dynamic_seed=dynamic_seed,
+                                     suffix="-shadow" if args.shadow else "")
     if skipped:
         print(f"skipped (no key): {', '.join(skipped)}", file=sys.stderr)
     print(f"{session_path}  calls={meta['calls']} errors={meta['call_errors']}")

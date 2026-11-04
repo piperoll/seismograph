@@ -53,6 +53,11 @@ jobs:
           BATTERY_B64: ${{ secrets.SEISMO_BATTERY_B64 }}
           DEEP_BATTERY_B64: ${{ secrets.SEISMO_DEEP_BATTERY_B64 }}
           DECISION_BATTERY_B64: ${{ secrets.SEISMO_DECISION_BATTERY_B64 }}
+          # rotation overlap (config/rotation.json): replacement batteries,
+          # each optional; absent = that shadow run is skipped
+          BATTERY_V1_B64: ${{ secrets.SEISMO_BATTERY_V1_B64 }}
+          DEEP_BATTERY_V2_B64: ${{ secrets.SEISMO_DEEP_BATTERY_V2_B64 }}
+          DECISION_BATTERY_V1_B64: ${{ secrets.SEISMO_DECISION_BATTERY_V1_B64 }}
         run: |
           test -n "$BATTERY_B64" || { echo "SEISMO_BATTERY_B64 missing"; exit 1; }
           mkdir -p battery
@@ -65,6 +70,10 @@ jobs:
           if [ -n "$DECISION_BATTERY_B64" ]; then
             printf '%s' "$DECISION_BATTERY_B64" | base64 -d > battery/decision-v0.json
           fi
+          [ -n "$BATTERY_V1_B64" ] && printf '%s' "$BATTERY_V1_B64" | base64 -d > battery/canary-v1.json
+          [ -n "$DEEP_BATTERY_V2_B64" ] && printf '%s' "$DEEP_BATTERY_V2_B64" | base64 -d > battery/deep-v2.json
+          [ -n "$DECISION_BATTERY_V1_B64" ] && printf '%s' "$DECISION_BATTERY_V1_B64" | base64 -d > battery/decision-v1.json
+          true
 
       - name: Decide cadence
         id: cadence
@@ -259,6 +268,52 @@ jobs:
           [ -n "$DSESSION" ] && python3 -m seismo.digest "$DSESSION" --battery battery/decision-v0.json --out readings
           R=$(ls -1 readings/*/reading-$(date -u +%F)-decision.json 2>/dev/null | tail -1)
           [ -n "$R" ] && SEISMO_NTFY_TOPIC="${{ secrets.SEISMO_NTFY_TOPIC }}" python3 tools/check_coverage.py "$R" || true
+
+      - name: Run the shadow batteries (rotation overlap, no alerts)
+        if: steps.cadence.outputs.mode == 'full'
+        # the overlap must never break the published run
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+          META_API_KEY: ${{ secrets.META_API_KEY }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          SEISMO_CODE_COMMIT: ${{ github.sha }}
+        run: |
+          # Rotation overlap (config/rotation.json; charter section 2). The
+          # replacement fixed batteries run beside the published ones and are
+          # digested to public -shadow readings, which sit outside every
+          # fixed-tier glob: no detection, series, board or coverage alert
+          # reads them. Each cadence stops by itself once it has its target
+          # count of shadow readings (the stopgap carries its end condition in
+          # code); cutover to the new battery is a separate declared change.
+          CAD="${{ steps.cadence.outputs.cadence }}"
+          target() { python3 -c "import json,sys; print(json.load(open('config/rotation.json'))['targets'][sys.argv[1]])" "$1"; }
+          have() { ls -1 readings/*/reading-*-"$1"-shadow.json 2>/dev/null | wc -l | tr -d ' '; }
+          shadow() {  # shadow <cadence> <battery> [--model id ...]
+            local c=$1 b=$2; shift 2
+            [ -f "$b" ] || { echo "$c: no shadow battery restored; skipping"; return 0; }
+            [ "$(have "$c")" -lt "$(target "$c")" ] || { echo "$c: overlap target reached; skipping"; return 0; }
+            python3 -m seismo.run --cadence "$c" --battery "$b" --out raw --workers 10 --shadow "$@"
+            S=$(ls -1t raw/session-*-"$c"-shadow.jsonl 2>/dev/null | head -1)
+            [ -n "$S" ] && python3 -m seismo.digest "$S" --battery "$b" --out readings --shadow
+          }
+          if [ "$CAD" = "daily" ]; then
+            shadow daily battery/canary-v1.json
+            shadow decision battery/decision-v1.json
+          else
+            ARGS=$(python3 -c "import json; print(' '.join('--model ' + m for m in json.load(open('config/rotation.json'))['weekly_models']))")
+            shadow weekly battery/deep-v2.json $ARGS
+          fi
 
       - name: Scrub harmful response text before witnessing
         run: |
