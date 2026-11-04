@@ -35,9 +35,14 @@ jobs:
           if [ -z "$NEWEST" ]; then
             MSG="no daily readings found on main at all"
           else
-            AGE=$(( ( $(date -u +%s) - $(date -u -d "$NEWEST" +%s) ) / 86400 ))
+            # GitHub starts scheduled jobs late (this 20:00 check has run as late
+            # as 00:22 UTC the next day, 2026-11-04, and paged a false STALE).
+            # Judge freshness against the day the check was scheduled for: six
+            # hours back from now is always that day for any delay under 6 h.
+            EXPECTED=$(date -u -d '6 hours ago' +%F)
+            AGE=$(( ( $(date -u -d "$EXPECTED" +%s) - $(date -u -d "$NEWEST" +%s) ) / 86400 ))
             if [ "$AGE" -le 0 ]; then
-              echo "fresh: newest daily reading is $NEWEST (today)"; exit 0
+              echo "fresh: newest daily reading is $NEWEST (expected $EXPECTED)"; exit 0
             fi
             MSG="newest daily reading is $NEWEST (${AGE}d old) - a canary run was missed. A day not measured is a baseline gone forever."
           fi
