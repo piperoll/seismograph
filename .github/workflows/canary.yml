@@ -70,10 +70,14 @@ jobs:
           if [ -n "$DECISION_BATTERY_B64" ]; then
             printf '%s' "$DECISION_BATTERY_B64" | base64 -d > battery/decision-v0.json
           fi
-          [ -n "$BATTERY_V1_B64" ] && printf '%s' "$BATTERY_V1_B64" | base64 -d > battery/canary-v1.json
-          [ -n "$DEEP_BATTERY_V2_B64" ] && printf '%s' "$DEEP_BATTERY_V2_B64" | base64 -d > battery/deep-v2.json
-          [ -n "$DECISION_BATTERY_V1_B64" ] && printf '%s' "$DECISION_BATTERY_V1_B64" | base64 -d > battery/decision-v1.json
-          true
+          # A secret holds at most 48 KB, so a battery may be stored gzipped
+          # (base64 of a .json.gz); restore unzips it when the gzip magic is present.
+          restore() { [ -n "$1" ] || return 0; printf '%s' "$1" | base64 -d > "$2.tmp"
+                      if gzip -t "$2.tmp" 2>/dev/null; then gunzip -c "$2.tmp" > "$2"; else mv "$2.tmp" "$2"; fi
+                      rm -f "$2.tmp"; }
+          restore "$BATTERY_V1_B64" battery/canary-v1.json
+          restore "$DEEP_BATTERY_V2_B64" battery/deep-v2.json
+          restore "$DECISION_BATTERY_V1_B64" battery/decision-v1.json
 
       - name: Decide cadence
         id: cadence
