@@ -1072,6 +1072,21 @@ class TestDivergence(unittest.TestCase):
                            days=5)
         self.assertEqual(rep["verdict"], "baseline-accruing")
 
+    def test_battery_change_restarts_the_comparison(self):
+        # rotation: a fixed-battery swap must not pool old-battery days with
+        # new-battery days; 10 old-battery days + 3 new-battery days = accruing
+        from seismo import divergence
+        fixed, dynamic = {}, {}
+        for i in range(13):
+            d = f"2026-09-{i + 1:02d}"
+            fixed[d] = self._reading(d, {"m": {"capability": (1.0, 6)}})
+            fixed[d]["battery"] = {"sha256": "old" if i < 10 else "new"}
+            dynamic[d] = self._reading(d, {"m": {"capability": (0.3, 6)}})
+            dynamic[d]["battery"] = {"sha256": "dyn"}
+        rep = divergence.compare_tiers(fixed, dynamic)
+        self.assertEqual(rep["verdict"], "baseline-accruing")
+        self.assertEqual(rep["paired"], 3)
+
 
 class ScrubTest(unittest.TestCase):
     """The harmful-response scrub empties refusal-boundary text, keeps everything
