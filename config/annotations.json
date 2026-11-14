@@ -232,6 +232,24 @@
         }
       ],
       "added": "2026-10-21"
+    },
+    {
+      "scope": "model",
+      "model": "mistral-large@mistral",
+      "date": "2026-11-12",
+      "title": "Alias starts rejecting calls with Large 4's sampling error",
+      "text": "From the 2026-11-12 daily on, every call to mistral-large-latest was rejected with HTTP 400 'top_p must be 1 when using greedy sampling' (code 3054). The same request had answered normally on 2026-11-11. That error is the one the pinned mistral-large-4-0 id returned on first contact on 2026-10-10, and Mistral's models overview lists Mistral Large 3 (mistral-large-2512) as deprecated on 2026-10-31 with Mistral Large 4 as its alternative. Mistral's changelog has no entry for the alias. The record is consistent with the alias having been re-pointed to Large 4 between the two runs; the instrument does not establish that, and Mistral has not stated it. Roster v0.37 applied the Large 4 settings to the alias, so its series starts a new segment on the next reading; 2026-11-12 and 2026-11-13 are recorded as dark.",
+      "sources": [
+        {
+          "label": "Mistral models overview (deprecation table)",
+          "url": "https://docs.mistral.ai/getting-started/models/models_overview/"
+        },
+        {
+          "label": "Mistral changelog (no alias entry as of 2026-11-14)",
+          "url": "https://docs.mistral.ai/getting-started/changelog/"
+        }
+      ],
+      "added": "2026-11-14"
     }
   ]
 }
